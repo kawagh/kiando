@@ -25,40 +25,48 @@ import com.example.kiando.ui.theme.BoardColor
 @Composable
 fun MainScreen() {
     val question = sampleQuestion
+    val context = LocalContext.current
+    val handlePanelClick: (PanelState) -> Unit = {
+        when (it) {
+            is PanelState.Empty ->
+                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+            is PanelState.Piece ->
+                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+        }
+    }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Board(sampleQuestion.boardState)
+        Board(sampleQuestion.boardState, handlePanelClick)
         Text(text = question.description)
     }
 }
 
 @Composable
-private fun Board(boardState: BoardState) {
+private fun Board(boardState: BoardState, handlePanelClick: (PanelState) -> Unit) {
     Column {
         repeat(9) { rowIndex ->
-            BoardRow(rowIndex, boardState[rowIndex])
+            BoardRow(boardState[rowIndex], handlePanelClick)
         }
     }
 }
 
 @Composable
-private fun BoardRow(rowIndex: Int, row: List<PanelState>) {
+private fun BoardRow(boardRow: List<PanelState>, handlePanelClick: (PanelState) -> Unit) {
     Row() {
         repeat(9) { colIndex ->
-            Panel(rowIndex * 9 + colIndex, row[colIndex])
+            Panel(boardRow[colIndex], handlePanelClick)
 
         }
     }
 }
 
 @Composable
-private fun Panel(state: Int, panelState: PanelState) {
-    val context = LocalContext.current
+private fun Panel(panelState: PanelState, handlePanelClick: (PanelState) -> Unit) {
     Button(
-        onClick = { Toast.makeText(context, "$state clicked", Toast.LENGTH_SHORT).show() },
+        onClick = { handlePanelClick(panelState) },
         modifier = Modifier
             .size(40.dp)
             .border(BorderStroke(0.1.dp, Color.Black)),
