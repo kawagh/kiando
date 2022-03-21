@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
 
-
 @Preview
 @Composable
 fun MainScreen() {
@@ -31,8 +31,11 @@ fun MainScreen() {
         mutableStateListOf<Int>()
     }
     // TODO highlight legal moves with moveInfo
+    // FIXME crush when tapped repeatedly
+    var clickedPanelPos by remember {
+        mutableStateOf(Position(-1, -1))
+    }
 
-    val clickedPanelPos = PanelState.Piece(6, 2, PieceKind.PAWN, false)
     var panelClickedOnce by remember {
         mutableStateOf(false)
     }
@@ -40,6 +43,7 @@ fun MainScreen() {
         when (panelClickedOnce) {
             true -> {
                 panelClickedOnce = !panelClickedOnce
+                // TODO このwhenの判定なしにrow,columnにアクセスできないか
                 when (it) {
                     is PanelState.Empty -> {
                         moveInfo.addAll(listOf(it.row, it.column))
@@ -63,10 +67,12 @@ fun MainScreen() {
                 when (it) {
                     is PanelState.Empty -> {
                         Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+                        clickedPanelPos = Position(it.row, it.column)
                     }
                     is PanelState.Piece -> {
                         Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
                         moveInfo.addAll(listOf(it.row, it.column))
+                        clickedPanelPos = Position(it.row, it.column)
                     }
                 }
             }
@@ -78,7 +84,7 @@ fun MainScreen() {
         verticalArrangement = Arrangement.Center,
     ) {
         Board(sampleQuestion.boardState, handlePanelClick, panelClickedOnce, clickedPanelPos)
-        Text(text = question.description)
+        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
     }
 }
 
@@ -87,7 +93,7 @@ private fun Board(
     boardState: BoardState,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
-    clickedPanelPos: PanelState,
+    clickedPanelPos: Position,
 ) {
     Column {
         repeat(9) { rowIndex ->
@@ -101,7 +107,7 @@ private fun BoardRow(
     boardRow: List<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
-    clickedPanelPos: PanelState,
+    clickedPanelPos: Position,
 ) {
     Row() {
         repeat(9) { colIndex ->
@@ -116,7 +122,7 @@ private fun Panel(
     panelState: PanelState,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
-    clickedPanelPos: PanelState,
+    clickedPanelPos: Position,
 ) {
     Button(
         onClick = { handlePanelClick(panelState) },
@@ -124,10 +130,18 @@ private fun Panel(
             .size(40.dp)
             .border(BorderStroke(0.1.dp, Color.Black)),
         colors = ButtonDefaults.textButtonColors(
-            backgroundColor = if (panelClickedOnce) when (panelState == clickedPanelPos) {
-                true -> BoardColor
-                false -> BoardColorUnfocused
-            } else (BoardColor),
+            backgroundColor = if (panelClickedOnce) {
+                val pos: Position = when (panelState) {
+                    is PanelState.Empty -> Position(panelState.row, panelState.column)
+                    is PanelState.Piece -> Position(panelState.row, panelState.column)
+                }
+                when (pos == clickedPanelPos) {
+                    true -> BoardColor
+                    false -> BoardColorUnfocused
+                }
+            } else {
+                BoardColor
+            },
             contentColor = Color.Black,
         )
     ) {

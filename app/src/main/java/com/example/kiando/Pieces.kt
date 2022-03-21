@@ -13,6 +13,9 @@ enum class PieceKind {
     PAWN,
 }
 
+data class Position(val row: Int, val column: Int)
+
+
 sealed class PanelState {
     data class Piece(
         val row: Int,
