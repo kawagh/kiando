@@ -1,17 +1,25 @@
 package com.example.kiando
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.kiando.ui.theme.BoardColor
 
 
 @Preview
@@ -49,7 +57,13 @@ fun Panel(state: Int, panelState: PanelState) {
     val context = LocalContext.current
     Button(
         onClick = { Toast.makeText(context, "$state clicked", Toast.LENGTH_SHORT).show() },
-        modifier = Modifier.size(40.dp)
+        modifier = Modifier
+            .size(40.dp)
+            .border(BorderStroke(0.1.dp, Color.Black)),
+        colors = ButtonDefaults.textButtonColors(
+            backgroundColor = BoardColor,
+            contentColor = Color.Black,
+        )
     ) {
         when (panelState) {
             is PanelState.Empty -> Text(text = "", fontSize = 15.sp)
@@ -65,8 +79,10 @@ fun Panel(state: Int, panelState: PanelState) {
                     PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
                 }
                 Text(
-                    text = text, fontSize = 15.sp,
-                    modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier
+                    text = text, fontSize = 17.sp,
+                    modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
