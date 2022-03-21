@@ -24,21 +24,53 @@ fun listLegalMoves(panelState: PanelState): List<Position> {
         is PanelState.Piece -> when (panelState.pieceKind) {
             PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))
             // TODO implement below
-            //    should know boardState
-            PieceKind.KING -> listOf((-1..1).forEach { dx ->
-                (-1..1).forEach { dy ->
+            // should know boardState to avoid overlap
+            // promotion
+            PieceKind.KING -> (-1..1).map { dx ->
+                (-1..1).map { dy ->
                     Position(originalRow + dx, originalColumn + dy)
                 }
-            }) as List<Position> // FIXME not work
-            PieceKind.ROOK -> todoLegalMoves
-            PieceKind.BISHOP -> todoLegalMoves
-            PieceKind.GOLD -> todoLegalMoves
-            PieceKind.SILVER -> todoLegalMoves
+            }.flatten()
+            PieceKind.ROOK -> (1 until 9).map { length ->
+                (0 until 4).map { dir ->
+                    when (dir) {
+                        0 -> Position(originalRow, originalColumn + length)
+                        1 -> Position(originalRow - length, originalColumn)
+                        2 -> Position(originalRow, originalColumn - length)
+                        else -> Position(originalRow + length, originalColumn)
+                    }
+                }
+            }.flatten()
+            PieceKind.BISHOP -> (1 until 9).map { length ->
+                (0 until 4).map { dir ->
+                    when (dir) {
+                        0 -> Position(originalRow - length, originalColumn + length)
+                        1 -> Position(originalRow - length, originalColumn - length)
+                        2 -> Position(originalRow + length, originalColumn - length)
+                        else -> Position(originalRow + length, originalColumn + length)
+                    }
+                }
+            }.flatten()
+            PieceKind.GOLD -> (-1..1).map { dx ->
+                (-1..1).map { dy ->
+                    Position(originalRow + dx, originalColumn + dy)
+                }
+            }.flatten().filterNot {
+                it == Position(originalRow + 1, originalColumn + 1)
+                        || it == Position(originalRow + 1, originalColumn - 1)
+            }
+            PieceKind.SILVER -> listOf(
+                Position(originalRow - 1, originalColumn - 1),
+                Position(originalRow - 1, originalColumn),
+                Position(originalRow - 1, originalColumn + 1),
+                Position(originalRow + 1, originalColumn + 1),
+                Position(originalRow + 1, originalColumn - 1),
+            )
             PieceKind.KNIGHT -> listOf(
                 Position(originalRow - 2, originalColumn + 1),
                 Position(originalRow - 2, originalColumn - 1),
             )
-            PieceKind.LANCE -> todoLegalMoves
+            PieceKind.LANCE -> (0 until 9).map { Position(originalRow - it, originalColumn) }
         }
     }
     return list
