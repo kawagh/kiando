@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kiando.ui.theme.BoardColor
+import com.example.kiando.ui.theme.BoardColorUnfocused
 
 
 @Preview
@@ -31,6 +32,7 @@ fun MainScreen() {
     }
     // TODO highlight legal moves with moveInfo
 
+    val clickedPanelPos = PanelState.Piece(6, 2, PieceKind.PAWN, false)
     var panelClickedOnce by remember {
         mutableStateOf(false)
     }
@@ -75,25 +77,35 @@ fun MainScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Board(sampleQuestion.boardState, handlePanelClick)
+        Board(sampleQuestion.boardState, handlePanelClick, panelClickedOnce, clickedPanelPos)
         Text(text = question.description)
     }
 }
 
 @Composable
-private fun Board(boardState: BoardState, handlePanelClick: (PanelState) -> Unit) {
+private fun Board(
+    boardState: BoardState,
+    handlePanelClick: (PanelState) -> Unit,
+    panelClickedOnce: Boolean,
+    clickedPanelPos: PanelState,
+) {
     Column {
         repeat(9) { rowIndex ->
-            BoardRow(boardState[rowIndex], handlePanelClick)
+            BoardRow(boardState[rowIndex], handlePanelClick, panelClickedOnce, clickedPanelPos)
         }
     }
 }
 
 @Composable
-private fun BoardRow(boardRow: List<PanelState>, handlePanelClick: (PanelState) -> Unit) {
+private fun BoardRow(
+    boardRow: List<PanelState>,
+    handlePanelClick: (PanelState) -> Unit,
+    panelClickedOnce: Boolean,
+    clickedPanelPos: PanelState,
+) {
     Row() {
         repeat(9) { colIndex ->
-            Panel(boardRow[colIndex], handlePanelClick)
+            Panel(boardRow[colIndex], handlePanelClick, panelClickedOnce, clickedPanelPos)
 
         }
     }
@@ -103,6 +115,8 @@ private fun BoardRow(boardRow: List<PanelState>, handlePanelClick: (PanelState) 
 private fun Panel(
     panelState: PanelState,
     handlePanelClick: (PanelState) -> Unit,
+    panelClickedOnce: Boolean,
+    clickedPanelPos: PanelState,
 ) {
     Button(
         onClick = { handlePanelClick(panelState) },
@@ -110,7 +124,10 @@ private fun Panel(
             .size(40.dp)
             .border(BorderStroke(0.1.dp, Color.Black)),
         colors = ButtonDefaults.textButtonColors(
-            backgroundColor = BoardColor,
+            backgroundColor = if (panelClickedOnce) when (panelState == clickedPanelPos) {
+                true -> BoardColor
+                false -> BoardColorUnfocused
+            } else (BoardColor),
             contentColor = Color.Black,
         )
     ) {
