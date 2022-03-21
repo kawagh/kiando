@@ -1,5 +1,7 @@
 package com.example.kiando
 
+typealias BoardState = List<List<PanelState>>
+
 enum class PieceKind {
     KING,
     ROOK,
@@ -22,7 +24,7 @@ sealed class PanelState {
 }
 
 
-val initialBoardState: List<List<PanelState>> = listOf(
+val initialBoardState: BoardState = listOf(
     listOf(
         PanelState.Piece(PieceKind.LANCE, isEnemy = true),
         PanelState.Piece(PieceKind.KNIGHT, isEnemy = true),

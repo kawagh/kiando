@@ -2,7 +2,6 @@ package com.example.kiando
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -25,25 +24,28 @@ import com.example.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun MainScreen() {
-    Board()
-}
-
-@Composable
-fun Board() {
-    val b = initialBoardState
+    val question = sampleQuestion
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        Board(sampleQuestion.boardState)
+        Text(text = question.description)
+    }
+}
+
+@Composable
+private fun Board(boardState: BoardState) {
+    Column {
         repeat(9) { rowIndex ->
-            BoardRow(rowIndex, b[rowIndex])
+            BoardRow(rowIndex, boardState[rowIndex])
         }
     }
 }
 
 @Composable
-fun BoardRow(rowIndex: Int, row: List<PanelState>) {
+private fun BoardRow(rowIndex: Int, row: List<PanelState>) {
     Row() {
         repeat(9) { colIndex ->
             Panel(rowIndex * 9 + colIndex, row[colIndex])
@@ -53,7 +55,7 @@ fun BoardRow(rowIndex: Int, row: List<PanelState>) {
 }
 
 @Composable
-fun Panel(state: Int, panelState: PanelState) {
+private fun Panel(state: Int, panelState: PanelState) {
     val context = LocalContext.current
     Button(
         onClick = { Toast.makeText(context, "$state clicked", Toast.LENGTH_SHORT).show() },
