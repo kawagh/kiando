@@ -11,4 +11,4 @@ data class Move(
 
 data class Question(val boardState: BoardState, val description: String, val answerMove: Move)
 
-val sampleQuestion = Question(initialBoardState, "角道を開ける手は?", Move(6, 2, 6, 3))
+val sampleQuestion = Question(initialBoardState, "角道を開ける手は?", Move(6, 2, 5, 2))

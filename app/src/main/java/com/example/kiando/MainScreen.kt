@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -26,12 +26,48 @@ import com.example.kiando.ui.theme.BoardColor
 fun MainScreen() {
     val question = sampleQuestion
     val context = LocalContext.current
+    val moveInfo = remember {
+        mutableStateListOf<Int>()
+    }
+    // TODO highlight legal moves with moveInfo
+
+    var panelClickedOnce by remember {
+        mutableStateOf(false)
+    }
     val handlePanelClick: (PanelState) -> Unit = {
-        when (it) {
-            is PanelState.Empty ->
-                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
-            is PanelState.Piece ->
-                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+        when (panelClickedOnce) {
+            true -> {
+                panelClickedOnce = !panelClickedOnce
+                when (it) {
+                    is PanelState.Empty -> {
+                        moveInfo.addAll(listOf(it.row, it.column))
+                    }
+                    is PanelState.Piece -> {
+                        moveInfo.addAll(listOf(it.row, it.column))
+                    }
+                }
+                val move = Move(moveInfo[0], moveInfo[1], moveInfo[2], moveInfo[3])
+                Toast.makeText(context, move.toString(), Toast.LENGTH_SHORT).show()
+                // judge
+                if (move == question.answerMove) {
+                    Toast.makeText(context, "Correct", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Wrong", Toast.LENGTH_SHORT).show()
+                }
+                moveInfo.clear()
+            }
+            false -> {
+                panelClickedOnce = !panelClickedOnce
+                when (it) {
+                    is PanelState.Empty -> {
+                        Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+                    }
+                    is PanelState.Piece -> {
+                        Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+                        moveInfo.addAll(listOf(it.row, it.column))
+                    }
+                }
+            }
         }
     }
     Column(
@@ -64,7 +100,10 @@ private fun BoardRow(boardRow: List<PanelState>, handlePanelClick: (PanelState) 
 }
 
 @Composable
-private fun Panel(panelState: PanelState, handlePanelClick: (PanelState) -> Unit) {
+private fun Panel(
+    panelState: PanelState,
+    handlePanelClick: (PanelState) -> Unit,
+) {
     Button(
         onClick = { handlePanelClick(panelState) },
         modifier = Modifier
