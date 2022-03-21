@@ -15,11 +15,22 @@ enum class PieceKind {
 
 data class Position(val row: Int, val column: Int)
 
+data class Move(
+    val from: Position,
+    val to: Position,
+//    val fromRow: Int,
+//    val fromCol: Int,
+//    val toRow: Int,
+//    val toCol: Int,
+    val isPromote: Boolean = false
+)
+
+
 fun listLegalMoves(panelState: PanelState): List<Position> {
     val originalRow = panelState.row
     val originalColumn = panelState.column
     val list = when (panelState) {
-        is PanelState.Empty -> listOf<Position>()
+        is PanelState.Empty -> listOf()
         is PanelState.Piece -> if (panelState.isEnemy) listOf() else
             when (panelState.pieceKind) {
                 PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))

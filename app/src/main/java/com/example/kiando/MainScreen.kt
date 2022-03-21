@@ -38,7 +38,7 @@ fun MainScreen() {
         mutableStateOf(false)
     }
     // TODO list legal moves
-    var legalMovePositions = remember {
+    val legalMovePositions = remember {
         mutableStateListOf<Position>()
     }
     val handlePanelClick: (PanelState) -> Unit = {
@@ -46,7 +46,10 @@ fun MainScreen() {
             true -> {
                 panelClickedOnce = !panelClickedOnce
                 moveInfo.addAll(listOf(it.row, it.column))
-                val move = Move(moveInfo[0], moveInfo[1], moveInfo[2], moveInfo[3])
+                val move = Move(
+                    Position(moveInfo[0], moveInfo[1]),
+                    Position(moveInfo[2], moveInfo[3])
+                )
                 Toast.makeText(context, move.toString(), Toast.LENGTH_SHORT).show()
                 // judge
                 if (move == question.answerMove) {
