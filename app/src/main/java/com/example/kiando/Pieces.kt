@@ -17,15 +17,18 @@ data class Position(val row: Int, val column: Int)
 
 
 sealed class PanelState {
+    abstract val row: Int
+    abstract val column: Int
+
     data class Piece(
-        val row: Int,
-        val column: Int,
+        override val row: Int,
+        override val column: Int,
         val pieceKind: PieceKind,
         val isEnemy: Boolean,
         val isPromoted: Boolean = false
     ) : PanelState()
 
-    data class Empty(val row: Int, val column: Int) : PanelState()
+    data class Empty(override val row: Int, override val column: Int) : PanelState()
 }
 
 

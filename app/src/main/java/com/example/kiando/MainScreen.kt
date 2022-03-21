@@ -30,8 +30,6 @@ fun MainScreen() {
     val moveInfo = remember {
         mutableStateListOf<Int>()
     }
-    // TODO highlight legal moves with moveInfo
-    // FIXME crush when tapped repeatedly
     var clickedPanelPos by remember {
         mutableStateOf(Position(-1, -1))
     }
@@ -39,19 +37,14 @@ fun MainScreen() {
     var panelClickedOnce by remember {
         mutableStateOf(false)
     }
+
+    // TODO list legal moves
+    val legalMovePositions = listOf(Position(5, 2))
     val handlePanelClick: (PanelState) -> Unit = {
         when (panelClickedOnce) {
             true -> {
                 panelClickedOnce = !panelClickedOnce
-                // TODO このwhenの判定なしにrow,columnにアクセスできないか
-                when (it) {
-                    is PanelState.Empty -> {
-                        moveInfo.addAll(listOf(it.row, it.column))
-                    }
-                    is PanelState.Piece -> {
-                        moveInfo.addAll(listOf(it.row, it.column))
-                    }
-                }
+                moveInfo.addAll(listOf(it.row, it.column))
                 val move = Move(moveInfo[0], moveInfo[1], moveInfo[2], moveInfo[3])
                 Toast.makeText(context, move.toString(), Toast.LENGTH_SHORT).show()
                 // judge
@@ -64,17 +57,9 @@ fun MainScreen() {
             }
             false -> {
                 panelClickedOnce = !panelClickedOnce
-                when (it) {
-                    is PanelState.Empty -> {
-                        Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
-                        clickedPanelPos = Position(it.row, it.column)
-                    }
-                    is PanelState.Piece -> {
-                        Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
-                        moveInfo.addAll(listOf(it.row, it.column))
-                        clickedPanelPos = Position(it.row, it.column)
-                    }
-                }
+                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+                moveInfo.addAll(listOf(it.row, it.column))
+                clickedPanelPos = Position(it.row, it.column)
             }
         }
     }
@@ -83,7 +68,13 @@ fun MainScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Board(sampleQuestion.boardState, handlePanelClick, panelClickedOnce, clickedPanelPos)
+        Board(
+            sampleQuestion.boardState,
+            handlePanelClick,
+            panelClickedOnce,
+            clickedPanelPos,
+            legalMovePositions
+        )
         Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
     }
 }
@@ -94,10 +85,17 @@ private fun Board(
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
     clickedPanelPos: Position,
+    legalMovePositions: List<Position>,
 ) {
     Column {
         repeat(9) { rowIndex ->
-            BoardRow(boardState[rowIndex], handlePanelClick, panelClickedOnce, clickedPanelPos)
+            BoardRow(
+                boardState[rowIndex],
+                handlePanelClick,
+                panelClickedOnce,
+                clickedPanelPos,
+                legalMovePositions
+            )
         }
     }
 }
@@ -108,10 +106,17 @@ private fun BoardRow(
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
     clickedPanelPos: Position,
+    legalMovePositions: List<Position>,
 ) {
     Row() {
         repeat(9) { colIndex ->
-            Panel(boardRow[colIndex], handlePanelClick, panelClickedOnce, clickedPanelPos)
+            Panel(
+                boardRow[colIndex],
+                handlePanelClick,
+                panelClickedOnce,
+                clickedPanelPos,
+                legalMovePositions
+            )
 
         }
     }
@@ -123,6 +128,7 @@ private fun Panel(
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
     clickedPanelPos: Position,
+    legalMovePositions: List<Position>,
 ) {
     Button(
         onClick = { handlePanelClick(panelState) },
@@ -131,13 +137,10 @@ private fun Panel(
             .border(BorderStroke(0.1.dp, Color.Black)),
         colors = ButtonDefaults.textButtonColors(
             backgroundColor = if (panelClickedOnce) {
-                val pos: Position = when (panelState) {
-                    is PanelState.Empty -> Position(panelState.row, panelState.column)
-                    is PanelState.Piece -> Position(panelState.row, panelState.column)
-                }
-                when (pos == clickedPanelPos) {
-                    true -> BoardColor
-                    false -> BoardColorUnfocused
+                when (Position(panelState.row, panelState.column)) {
+                    clickedPanelPos -> BoardColor
+                    in legalMovePositions -> BoardColor
+                    else -> BoardColorUnfocused
                 }
             } else {
                 BoardColor
