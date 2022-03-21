@@ -15,6 +15,34 @@ enum class PieceKind {
 
 data class Position(val row: Int, val column: Int)
 
+fun listLegalMoves(panelState: PanelState): List<Position> {
+    val originalRow = panelState.row
+    val originalColumn = panelState.column
+    val todoLegalMoves = listOf(Position(4, 4))
+    val list = when (panelState) {
+        is PanelState.Empty -> listOf<Position>()
+        is PanelState.Piece -> when (panelState.pieceKind) {
+            PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))
+            // TODO implement below
+            //    should know boardState
+            PieceKind.KING -> listOf((-1..1).forEach { dx ->
+                (-1..1).forEach { dy ->
+                    Position(originalRow + dx, originalColumn + dy)
+                }
+            }) as List<Position> // FIXME not work
+            PieceKind.ROOK -> todoLegalMoves
+            PieceKind.BISHOP -> todoLegalMoves
+            PieceKind.GOLD -> todoLegalMoves
+            PieceKind.SILVER -> todoLegalMoves
+            PieceKind.KNIGHT -> listOf(
+                Position(originalRow - 2, originalColumn + 1),
+                Position(originalRow - 2, originalColumn - 1),
+            )
+            PieceKind.LANCE -> todoLegalMoves
+        }
+    }
+    return list
+}
 
 sealed class PanelState {
     abstract val row: Int
@@ -127,14 +155,14 @@ val initialBoardState: BoardState = listOf(
     ),
 
     listOf(
-        PanelState.Piece(0, 0, PieceKind.LANCE, isEnemy = false),
-        PanelState.Piece(0, 1, PieceKind.KNIGHT, isEnemy = false),
-        PanelState.Piece(0, 2, PieceKind.SILVER, isEnemy = false),
-        PanelState.Piece(0, 3, PieceKind.GOLD, isEnemy = false),
-        PanelState.Piece(0, 4, PieceKind.KING, isEnemy = false),
-        PanelState.Piece(0, 5, PieceKind.GOLD, isEnemy = false),
-        PanelState.Piece(0, 6, PieceKind.SILVER, isEnemy = false),
-        PanelState.Piece(0, 7, PieceKind.KNIGHT, isEnemy = false),
-        PanelState.Piece(0, 8, PieceKind.LANCE, isEnemy = false),
+        PanelState.Piece(8, 0, PieceKind.LANCE, isEnemy = false),
+        PanelState.Piece(8, 1, PieceKind.KNIGHT, isEnemy = false),
+        PanelState.Piece(8, 2, PieceKind.SILVER, isEnemy = false),
+        PanelState.Piece(8, 3, PieceKind.GOLD, isEnemy = false),
+        PanelState.Piece(8, 4, PieceKind.KING, isEnemy = false),
+        PanelState.Piece(8, 5, PieceKind.GOLD, isEnemy = false),
+        PanelState.Piece(8, 6, PieceKind.SILVER, isEnemy = false),
+        PanelState.Piece(8, 7, PieceKind.KNIGHT, isEnemy = false),
+        PanelState.Piece(8, 8, PieceKind.LANCE, isEnemy = false),
     ),
 )
