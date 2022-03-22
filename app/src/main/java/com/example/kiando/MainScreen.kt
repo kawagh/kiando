@@ -69,7 +69,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
                 Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
                 moveInfo.addAll(listOf(it.row, it.column))
                 clickedPanelPos = Position(it.row, it.column)
-                legalMovePositions.addAll(listLegalMoves(it))
+                legalMovePositions.addAll(viewModel.listPotentialMoves(it))
             }
         }
     }
@@ -78,10 +78,6 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Button(onClick = {
-            viewModel.boardState[0] = initialBoardState[1][1]
-        }) {
-        }
         Board(
             viewModel.boardState,
             handlePanelClick,
