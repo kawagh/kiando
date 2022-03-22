@@ -63,7 +63,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     Position(moveInfo[0], moveInfo[1]),
                     Position(moveInfo[2], moveInfo[3])
                 )
-                Toast.makeText(context, move.toString(), Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, move.toString(), Toast.LENGTH_SHORT).show()
                 // judge
                 if (move == question.answerMove) {
                     Toast.makeText(context, "Correct", Toast.LENGTH_SHORT).show()
@@ -76,7 +76,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
             false -> {
                 panelClickedOnce = !panelClickedOnce
-                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
                 moveInfo.addAll(listOf(it.row, it.column))
                 clickedPanelPos = Position(it.row, it.column)
                 legalMovePositions.addAll(viewModel.listLegalMoves(it))
