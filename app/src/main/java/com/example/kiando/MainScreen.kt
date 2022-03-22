@@ -75,9 +75,10 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
     }
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Komadai()
         Board(
             viewModel.boardState,
             handlePanelClick,
@@ -85,9 +86,46 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
             clickedPanelPos,
             legalMovePositions
         )
+        Komadai()
         Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
     }
 }
+
+
+@Composable
+fun Komadai(modifier: Modifier = Modifier) {
+    val piecesCount: Map<PieceKind, Int> = mapOf(
+        PieceKind.PAWN to 2,
+        PieceKind.GOLD to 3,
+    )
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        piecesCount.forEach { (pieceKind, count) ->
+            Piece(pieceKind)
+            Text(text = "x", fontSize = 15.sp)
+            Text(text = "$count")
+        }
+    }
+}
+
+@Composable
+fun Piece(pieceKind: PieceKind) {
+    val text = when (pieceKind) {
+        PieceKind.EMPTY -> ""
+        PieceKind.KING -> "王"
+        PieceKind.ROOK -> "飛"
+        PieceKind.BISHOP -> "角"
+        PieceKind.GOLD -> "金"
+        PieceKind.SILVER -> "銀"
+        PieceKind.KNIGHT -> "桂"
+        PieceKind.LANCE -> "香"
+        PieceKind.PAWN -> "歩"
+    }
+    Text(text = text, fontSize = 17.sp)
+}
+
 
 @Composable
 private fun Board(
@@ -97,7 +135,8 @@ private fun Board(
     clickedPanelPos: Position,
     legalMovePositions: List<Position>,
 ) {
-    Column {
+    Column(
+    ) {
         repeat(9) { rowIndex ->
             BoardRow(
                 boardState.subList(rowIndex * 9, rowIndex * 9 + 9),
