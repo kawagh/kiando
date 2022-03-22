@@ -137,9 +137,9 @@ private fun Board(
 ) {
     Column(
     ) {
-        repeat(9) { rowIndex ->
+        repeat(BOARD_SIZE) { rowIndex ->
             BoardRow(
-                boardState.subList(rowIndex * 9, rowIndex * 9 + 9),
+                boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
                 handlePanelClick,
                 panelClickedOnce,
                 clickedPanelPos,
@@ -158,7 +158,7 @@ private fun BoardRow(
     legalMovePositions: List<Position>,
 ) {
     Row() {
-        repeat(9) { colIndex ->
+        repeat(BOARD_SIZE) { colIndex ->
             Panel(
                 boardRow[colIndex],
                 handlePanelClick,

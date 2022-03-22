@@ -8,14 +8,14 @@ const val BOARD_SIZE = 9
 
 class GameViewModel : ViewModel() {
     var boardState: SnapshotStateList<PanelState> =
-        List(9 * 9) {
-            PanelState(it / 9, it % 9, PieceKind.EMPTY)
+        List(BOARD_SIZE * BOARD_SIZE) {
+            PanelState(it / BOARD_SIZE, it % BOARD_SIZE, PieceKind.EMPTY)
         }.toMutableStateList()
 
     init {
-        for (i in 0 until 9) {
-            for (j in 0 until 9) {
-                val index = i * 9 + j
+        for (i in 0 until BOARD_SIZE) {
+            for (j in 0 until BOARD_SIZE) {
+                val index = i * BOARD_SIZE + j
                 boardState[index] = initialBoardState[i][j]
             }
         }
@@ -45,7 +45,7 @@ class GameViewModel : ViewModel() {
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
-        val resluts = if (panelState.isEnemy) listOf() else
+        val results = if (panelState.isEnemy) listOf() else
             when (panelState.pieceKind) {
                 // TODO promotion
                 PieceKind.EMPTY -> {
@@ -67,11 +67,10 @@ class GameViewModel : ViewModel() {
                             it
                         )].isEnemy)
                     }
-                // 線駒は自駒に衝突するかはじめに遭遇する敵駒マスまで進める
                 PieceKind.ROOK -> {
                     val nextPositions = mutableListOf<Position>()
                     for (dir in 0 until 4) {
-                        for (length in 1 until 9) {
+                        for (length in 1 until BOARD_SIZE) {
                             val nextPosition = when (dir) {
                                 0 -> Position(originalRow, originalColumn + length)
                                 1 -> Position(originalRow - length, originalColumn)
@@ -79,6 +78,7 @@ class GameViewModel : ViewModel() {
                                 else -> Position(originalRow + length, originalColumn)
                             }
                             if (!isInside(nextPosition)) break
+                            // 線駒は各方向に自駒に衝突するかはじめに遭遇する敵駒マスまで進める
                             if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
                                 || boardState[posToIndex(nextPosition)].isEnemy
                             ) {
@@ -92,7 +92,7 @@ class GameViewModel : ViewModel() {
                 PieceKind.BISHOP -> {
                     val nextPositions = mutableListOf<Position>()
                     for (dir in 0 until 4) {
-                        for (length in 1 until 9) {
+                        for (length in 1 until BOARD_SIZE) {
                             val nextPosition = when (dir) {
                                 0 -> Position(originalRow - length, originalColumn + length)
                                 1 -> Position(originalRow - length, originalColumn - length)
@@ -145,7 +145,7 @@ class GameViewModel : ViewModel() {
                 }
                 PieceKind.LANCE -> {
                     val nextPositions = mutableListOf<Position>()
-                    for (length in 1 until 9) {
+                    for (length in 1 until BOARD_SIZE) {
                         val nextPosition = Position(originalRow - length, originalColumn)
                         if (!isInside(nextPosition)) break
                         if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
@@ -158,6 +158,6 @@ class GameViewModel : ViewModel() {
                     return nextPositions.toList()
                 }
             }
-        return resluts
+        return results
     }
 }
