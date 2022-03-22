@@ -7,19 +7,7 @@ import androidx.lifecycle.ViewModel
 const val BOARD_SIZE = 9
 
 class GameViewModel : ViewModel() {
-    var boardState: SnapshotStateList<PanelState> =
-        List(BOARD_SIZE * BOARD_SIZE) {
-            PanelState(it / BOARD_SIZE, it % BOARD_SIZE, PieceKind.EMPTY)
-        }.toMutableStateList()
-
-    init {
-        for (i in 0 until BOARD_SIZE) {
-            for (j in 0 until BOARD_SIZE) {
-                val index = i * BOARD_SIZE + j
-                boardState[index] = initialBoardState[i][j]
-            }
-        }
-    }
+    var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
 
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
