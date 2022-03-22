@@ -11,6 +11,7 @@ enum class PieceKind {
     KNIGHT,
     LANCE,
     PAWN,
+    EMPTY,
 }
 
 data class Position(val row: Int, val column: Int)
@@ -18,10 +19,6 @@ data class Position(val row: Int, val column: Int)
 data class Move(
     val from: Position,
     val to: Position,
-//    val fromRow: Int,
-//    val fromCol: Int,
-//    val toRow: Int,
-//    val toCol: Int,
     val isPromote: Boolean = false
 )
 
@@ -29,183 +26,181 @@ data class Move(
 fun listLegalMoves(panelState: PanelState): List<Position> {
     val originalRow = panelState.row
     val originalColumn = panelState.column
-    val list = when (panelState) {
-        is PanelState.Empty -> listOf()
-        is PanelState.Piece -> if (panelState.isEnemy) listOf() else
-            when (panelState.pieceKind) {
-                PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))
-                // TODO implement below
-                // should know boardState to avoid overlap
-                // promotion
-                PieceKind.KING -> (-1..1).map { dx ->
-                    (-1..1).map { dy ->
-                        Position(originalRow + dx, originalColumn + dy)
-                    }
-                }.flatten()
-                PieceKind.ROOK -> (1 until 9).map { length ->
-                    (0 until 4).map { dir ->
-                        when (dir) {
-                            0 -> Position(originalRow, originalColumn + length)
-                            1 -> Position(originalRow - length, originalColumn)
-                            2 -> Position(originalRow, originalColumn - length)
-                            else -> Position(originalRow + length, originalColumn)
-                        }
-                    }
-                }.flatten()
-                PieceKind.BISHOP -> (1 until 9).map { length ->
-                    (0 until 4).map { dir ->
-                        when (dir) {
-                            0 -> Position(originalRow - length, originalColumn + length)
-                            1 -> Position(originalRow - length, originalColumn - length)
-                            2 -> Position(originalRow + length, originalColumn - length)
-                            else -> Position(originalRow + length, originalColumn + length)
-                        }
-                    }
-                }.flatten()
-                PieceKind.GOLD -> (-1..1).map { dx ->
-                    (-1..1).map { dy ->
-                        Position(originalRow + dx, originalColumn + dy)
-                    }
-                }.flatten().filterNot {
-                    it == Position(originalRow + 1, originalColumn + 1)
-                            || it == Position(originalRow + 1, originalColumn - 1)
+    val list = if (panelState.isEnemy) listOf() else
+        when (panelState.pieceKind) {
+            PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))
+            // TODO implement below
+            // should know boardState to avoid overlap
+            // promotion
+            PieceKind.EMPTY -> listOf()
+            PieceKind.KING -> (-1..1).map { dx ->
+                (-1..1).map { dy ->
+                    Position(originalRow + dx, originalColumn + dy)
                 }
-                PieceKind.SILVER -> listOf(
-                    Position(originalRow - 1, originalColumn - 1),
-                    Position(originalRow - 1, originalColumn),
-                    Position(originalRow - 1, originalColumn + 1),
-                    Position(originalRow + 1, originalColumn + 1),
-                    Position(originalRow + 1, originalColumn - 1),
-                )
-                PieceKind.KNIGHT -> listOf(
-                    Position(originalRow - 2, originalColumn + 1),
-                    Position(originalRow - 2, originalColumn - 1),
-                )
-                PieceKind.LANCE -> (0 until 9).map { Position(originalRow - it, originalColumn) }
+            }.flatten()
+            PieceKind.ROOK -> (1 until 9).map { length ->
+                (0 until 4).map { dir ->
+                    when (dir) {
+                        0 -> Position(originalRow, originalColumn + length)
+                        1 -> Position(originalRow - length, originalColumn)
+                        2 -> Position(originalRow, originalColumn - length)
+                        else -> Position(originalRow + length, originalColumn)
+                    }
+                }
+            }.flatten()
+            PieceKind.BISHOP -> (1 until 9).map { length ->
+                (0 until 4).map { dir ->
+                    when (dir) {
+                        0 -> Position(originalRow - length, originalColumn + length)
+                        1 -> Position(originalRow - length, originalColumn - length)
+                        2 -> Position(originalRow + length, originalColumn - length)
+                        else -> Position(originalRow + length, originalColumn + length)
+                    }
+                }
+            }.flatten()
+            PieceKind.GOLD -> (-1..1).map { dx ->
+                (-1..1).map { dy ->
+                    Position(originalRow + dx, originalColumn + dy)
+                }
+            }.flatten().filterNot {
+                it == Position(originalRow + 1, originalColumn + 1)
+                        || it == Position(originalRow + 1, originalColumn - 1)
             }
-    }
+            PieceKind.SILVER -> listOf(
+                Position(originalRow - 1, originalColumn - 1),
+                Position(originalRow - 1, originalColumn),
+                Position(originalRow - 1, originalColumn + 1),
+                Position(originalRow + 1, originalColumn + 1),
+                Position(originalRow + 1, originalColumn - 1),
+            )
+            PieceKind.KNIGHT -> listOf(
+                Position(originalRow - 2, originalColumn + 1),
+                Position(originalRow - 2, originalColumn - 1),
+            )
+            PieceKind.LANCE -> (0 until 9).map { Position(originalRow - it, originalColumn) }
+        }
     return list
 }
 
-sealed class PanelState {
-    abstract val row: Int
-    abstract val column: Int
-
-    data class Piece(
-        override val row: Int,
-        override val column: Int,
-        val pieceKind: PieceKind,
-        val isEnemy: Boolean,
-        val isPromoted: Boolean = false
-    ) : PanelState()
-
-    data class Empty(override val row: Int, override val column: Int) : PanelState()
-}
+data class PanelState(
+    val row: Int,
+    val column: Int,
+    val pieceKind: PieceKind,
+    val isEnemy: Boolean = false,
+    val isPromoted: Boolean = false,
+)
 
 
 val initialBoardState: BoardState = listOf(
     listOf(
-        PanelState.Piece(0, 0, PieceKind.LANCE, isEnemy = true),
-        PanelState.Piece(0, 1, PieceKind.KNIGHT, isEnemy = true),
-        PanelState.Piece(0, 2, PieceKind.SILVER, isEnemy = true),
-        PanelState.Piece(0, 3, PieceKind.GOLD, isEnemy = true),
-        PanelState.Piece(0, 4, PieceKind.KING, isEnemy = true),
-        PanelState.Piece(0, 5, PieceKind.GOLD, isEnemy = true),
-        PanelState.Piece(0, 6, PieceKind.SILVER, isEnemy = true),
-        PanelState.Piece(0, 7, PieceKind.KNIGHT, isEnemy = true),
-        PanelState.Piece(0, 8, PieceKind.LANCE, isEnemy = true),
+        PanelState(
+            0, 0, PieceKind.LANCE, isEnemy = true
+        ),
+        PanelState(0, 1, PieceKind.KNIGHT, isEnemy = true),
+        PanelState(0, 2, PieceKind.SILVER, isEnemy = true),
+        PanelState(0, 3, PieceKind.GOLD, isEnemy = true),
+        PanelState(0, 4, PieceKind.KING, isEnemy = true),
+        PanelState(0, 5, PieceKind.GOLD, isEnemy = true),
+        PanelState(0, 6, PieceKind.SILVER, isEnemy = true),
+        PanelState(0, 7, PieceKind.KNIGHT, isEnemy = true),
+        PanelState(0, 8, PieceKind.LANCE, isEnemy = true),
     ),
     listOf(
-        PanelState.Empty(1, 0),
-        PanelState.Piece(1, 1, PieceKind.ROOK, true),
-        PanelState.Empty(1, 2),
-        PanelState.Empty(1, 3),
-        PanelState.Empty(1, 4),
-        PanelState.Empty(1, 5),
-        PanelState.Empty(1, 6),
-        PanelState.Piece(1, 7, PieceKind.BISHOP, true),
-        PanelState.Empty(1, 8)
-    ),
-
-    listOf(
-        PanelState.Piece(2, 0, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 1, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 2, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 3, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 4, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 5, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 6, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 7, PieceKind.PAWN, isEnemy = true),
-        PanelState.Piece(2, 8, PieceKind.PAWN, isEnemy = true),
+        PanelState(1, 0, PieceKind.EMPTY),
+        PanelState(1, 1, PieceKind.ROOK, true),
+        PanelState(1, 2, PieceKind.EMPTY),
+        PanelState(1, 3, PieceKind.EMPTY),
+        PanelState(1, 4, PieceKind.EMPTY),
+        PanelState(1, 5, PieceKind.EMPTY),
+        PanelState(1, 6, PieceKind.EMPTY),
+        PanelState(1, 7, PieceKind.BISHOP, true),
+        PanelState(1, 8, PieceKind.EMPTY),
     ),
 
     listOf(
-        PanelState.Empty(3, 0),
-        PanelState.Empty(3, 1),
-        PanelState.Empty(3, 2),
-        PanelState.Empty(3, 3),
-        PanelState.Empty(3, 4),
-        PanelState.Empty(3, 5),
-        PanelState.Empty(3, 6),
-        PanelState.Empty(3, 7),
-        PanelState.Empty(3, 8)
-    ),
-    listOf(
-        PanelState.Empty(4, 0),
-        PanelState.Empty(4, 1),
-        PanelState.Empty(4, 2),
-        PanelState.Empty(4, 3),
-        PanelState.Empty(4, 4),
-        PanelState.Empty(4, 5),
-        PanelState.Empty(4, 6),
-        PanelState.Empty(4, 7),
-        PanelState.Empty(4, 8)
-    ),
-    listOf(
-        PanelState.Empty(5, 0),
-        PanelState.Empty(5, 1),
-        PanelState.Empty(5, 2),
-        PanelState.Empty(5, 3),
-        PanelState.Empty(5, 4),
-        PanelState.Empty(5, 5),
-        PanelState.Empty(5, 6),
-        PanelState.Empty(5, 7),
-        PanelState.Empty(5, 8)
+        PanelState(2, 0, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 1, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 2, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 3, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 4, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 5, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 6, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 7, PieceKind.PAWN, isEnemy = true),
+        PanelState(2, 8, PieceKind.PAWN, isEnemy = true),
     ),
 
     listOf(
-        PanelState.Piece(6, 0, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 1, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 2, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 3, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 4, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 5, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 6, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 7, PieceKind.PAWN, isEnemy = false),
-        PanelState.Piece(6, 8, PieceKind.PAWN, isEnemy = false),
+        PanelState(3, 0, PieceKind.EMPTY),
+        PanelState(3, 1, PieceKind.EMPTY),
+        PanelState(3, 2, PieceKind.EMPTY),
+        PanelState(3, 3, PieceKind.EMPTY),
+        PanelState(3, 4, PieceKind.EMPTY),
+        PanelState(3, 5, PieceKind.EMPTY),
+        PanelState(3, 6, PieceKind.EMPTY),
+        PanelState(3, 7, PieceKind.EMPTY),
+        PanelState(3, 8, PieceKind.EMPTY)
     ),
 
     listOf(
-        PanelState.Empty(7, 0),
-        PanelState.Piece(7, 1, PieceKind.BISHOP, false),
-        PanelState.Empty(7, 2),
-        PanelState.Empty(7, 3),
-        PanelState.Empty(7, 4),
-        PanelState.Empty(7, 5),
-        PanelState.Empty(7, 6),
-        PanelState.Piece(7, 7, PieceKind.ROOK, false),
-        PanelState.Empty(7, 8)
+        PanelState(4, 0, PieceKind.EMPTY),
+        PanelState(4, 1, PieceKind.EMPTY),
+        PanelState(4, 2, PieceKind.EMPTY),
+        PanelState(4, 3, PieceKind.EMPTY),
+        PanelState(4, 4, PieceKind.EMPTY),
+        PanelState(4, 5, PieceKind.EMPTY),
+        PanelState(4, 6, PieceKind.EMPTY),
+        PanelState(4, 7, PieceKind.EMPTY),
+        PanelState(4, 8, PieceKind.EMPTY)
+    ),
+
+
+    listOf(
+        PanelState(5, 0, PieceKind.EMPTY),
+        PanelState(5, 1, PieceKind.EMPTY),
+        PanelState(5, 2, PieceKind.EMPTY),
+        PanelState(5, 3, PieceKind.EMPTY),
+        PanelState(5, 4, PieceKind.EMPTY),
+        PanelState(5, 5, PieceKind.EMPTY),
+        PanelState(5, 6, PieceKind.EMPTY),
+        PanelState(5, 7, PieceKind.EMPTY),
+        PanelState(5, 8, PieceKind.EMPTY)
     ),
 
     listOf(
-        PanelState.Piece(8, 0, PieceKind.LANCE, isEnemy = false),
-        PanelState.Piece(8, 1, PieceKind.KNIGHT, isEnemy = false),
-        PanelState.Piece(8, 2, PieceKind.SILVER, isEnemy = false),
-        PanelState.Piece(8, 3, PieceKind.GOLD, isEnemy = false),
-        PanelState.Piece(8, 4, PieceKind.KING, isEnemy = false),
-        PanelState.Piece(8, 5, PieceKind.GOLD, isEnemy = false),
-        PanelState.Piece(8, 6, PieceKind.SILVER, isEnemy = false),
-        PanelState.Piece(8, 7, PieceKind.KNIGHT, isEnemy = false),
-        PanelState.Piece(8, 8, PieceKind.LANCE, isEnemy = false),
+        PanelState(6, 0, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 1, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 2, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 3, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 4, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 5, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 6, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 7, PieceKind.PAWN, isEnemy = false),
+        PanelState(6, 8, PieceKind.PAWN, isEnemy = false),
+    ),
+
+    listOf(
+        PanelState(
+            7, 0, PieceKind.EMPTY
+        ),
+        PanelState(7, 1, PieceKind.BISHOP, false),
+        PanelState(7, 2, PieceKind.EMPTY),
+        PanelState(7, 3, PieceKind.EMPTY),
+        PanelState(7, 4, PieceKind.EMPTY),
+        PanelState(7, 5, PieceKind.EMPTY),
+        PanelState(7, 6, PieceKind.EMPTY),
+        PanelState(7, 7, PieceKind.ROOK, false),
+        PanelState(7, 8, PieceKind.EMPTY),
+    ),
+
+    listOf(
+        PanelState(8, 0, PieceKind.LANCE, isEnemy = false),
+        PanelState(8, 1, PieceKind.KNIGHT, isEnemy = false),
+        PanelState(8, 2, PieceKind.SILVER, isEnemy = false),
+        PanelState(8, 3, PieceKind.GOLD, isEnemy = false),
+        PanelState(8, 4, PieceKind.KING, isEnemy = false),
+        PanelState(8, 5, PieceKind.GOLD, isEnemy = false),
+        PanelState(8, 6, PieceKind.SILVER, isEnemy = false),
+        PanelState(8, 7, PieceKind.KNIGHT, isEnemy = false),
+        PanelState(8, 8, PieceKind.LANCE, isEnemy = false),
     ),
 )

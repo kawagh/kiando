@@ -9,7 +9,7 @@ const val BOARD_SIZE = 9
 class GameViewModel : ViewModel() {
     var boardState: SnapshotStateList<PanelState> =
         List(9 * 9) {
-            PanelState.Empty(it / 9, it % 9)
+            PanelState(it / 9, it % 9, PieceKind.EMPTY, false, false)
         }.toMutableStateList()
 
     init {
@@ -24,7 +24,9 @@ class GameViewModel : ViewModel() {
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column
-        boardState[toIndex] = boardState[fromIndex]
-        boardState[fromIndex] = PanelState.Empty(move.from.row, move.from.column)
+        if (fromIndex == toIndex) return
+        boardState[toIndex] =
+            PanelState(move.to.row, move.to.column, boardState[fromIndex].pieceKind)
+        boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
     }
 }

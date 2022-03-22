@@ -162,26 +162,22 @@ private fun Panel(
             contentColor = Color.Black,
         )
     ) {
-        when (panelState) {
-            is PanelState.Empty -> Text(text = "", fontSize = 15.sp)
-            is PanelState.Piece -> {
-                val text = when (panelState.pieceKind) {
-                    PieceKind.KING -> "王"
-                    PieceKind.ROOK -> if (panelState.isPromoted) "龍" else "飛"
-                    PieceKind.BISHOP -> if (panelState.isPromoted) "馬" else "角"
-                    PieceKind.GOLD -> "金"
-                    PieceKind.SILVER -> if (panelState.isPromoted) "全" else "銀"
-                    PieceKind.KNIGHT -> if (panelState.isPromoted) "圭" else "桂"
-                    PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
-                    PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
-                }
-                Text(
-                    text = text, fontSize = 17.sp,
-                    modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-            }
+        val text = when (panelState.pieceKind) {
+            PieceKind.EMPTY -> ""
+            PieceKind.KING -> "王"
+            PieceKind.ROOK -> if (panelState.isPromoted) "龍" else "飛"
+            PieceKind.BISHOP -> if (panelState.isPromoted) "馬" else "角"
+            PieceKind.GOLD -> "金"
+            PieceKind.SILVER -> if (panelState.isPromoted) "全" else "銀"
+            PieceKind.KNIGHT -> if (panelState.isPromoted) "圭" else "桂"
+            PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
+            PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
         }
+        Text(
+            text = text, fontSize = 17.sp,
+            modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+        )
     }
 }
