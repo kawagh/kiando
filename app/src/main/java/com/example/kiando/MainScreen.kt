@@ -9,6 +9,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -22,9 +23,11 @@ import androidx.compose.ui.unit.sp
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 @Preview
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: GameViewModel = viewModel()) {
     val question = sampleQuestion
     val context = LocalContext.current
     val moveInfo = remember {
@@ -57,6 +60,7 @@ fun MainScreen() {
                 } else {
                     Toast.makeText(context, "Wrong", Toast.LENGTH_SHORT).show()
                 }
+                viewModel.move(move)
                 moveInfo.clear()
                 legalMovePositions.clear()
             }
@@ -74,8 +78,12 @@ fun MainScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        Button(onClick = {
+            viewModel.boardState[0] = initialBoardState[1][1]
+        }) {
+        }
         Board(
-            sampleQuestion.boardState,
+            viewModel.boardState,
             handlePanelClick,
             panelClickedOnce,
             clickedPanelPos,
@@ -87,7 +95,7 @@ fun MainScreen() {
 
 @Composable
 private fun Board(
-    boardState: BoardState,
+    boardState: SnapshotStateList<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
     clickedPanelPos: Position,
@@ -96,7 +104,7 @@ private fun Board(
     Column {
         repeat(9) { rowIndex ->
             BoardRow(
-                boardState[rowIndex],
+                boardState.subList(rowIndex * 9, rowIndex * 9 + 9),
                 handlePanelClick,
                 panelClickedOnce,
                 clickedPanelPos,
