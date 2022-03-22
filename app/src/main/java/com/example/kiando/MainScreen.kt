@@ -69,7 +69,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
                 Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
                 moveInfo.addAll(listOf(it.row, it.column))
                 clickedPanelPos = Position(it.row, it.column)
-                legalMovePositions.addAll(viewModel.listPotentialMoves(it))
+                legalMovePositions.addAll(viewModel.listLegalMoves(it))
             }
         }
     }

@@ -33,46 +33,84 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    private fun posToIndex(position: Position): Int = position.row * BOARD_SIZE + position.column
+
+    private fun isInside(position: Position): Boolean =
+        0 <= posToIndex(position) && posToIndex(position) < BOARD_SIZE * BOARD_SIZE
+
     private fun isValidMove(move: Move, panelState: PanelState): Boolean {
-        return move.to in listPotentialMoves(panelState)
+        return move.to in listLegalMoves(panelState)
     }
 
-
-    fun listPotentialMoves(panelState: PanelState): List<Position> {
+    fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
-        val list = if (panelState.isEnemy) listOf() else
+        val resluts = if (panelState.isEnemy) listOf() else
             when (panelState.pieceKind) {
+                // TODO promotion
+                PieceKind.EMPTY -> {
+                    return listOf()
+                }
                 PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))
-                // TODO implement below
-                // should know boardState to avoid overlap
-                // promotion
-                PieceKind.EMPTY -> listOf()
+                    .filter {
+                        isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
+                            it
+                        )].isEnemy)
+                    }
                 PieceKind.KING -> (-1..1).map { dx ->
                     (-1..1).map { dy ->
                         Position(originalRow + dx, originalColumn + dy)
                     }
                 }.flatten()
-                PieceKind.ROOK -> (1 until 9).map { length ->
-                    (0 until 4).map { dir ->
-                        when (dir) {
-                            0 -> Position(originalRow, originalColumn + length)
-                            1 -> Position(originalRow - length, originalColumn)
-                            2 -> Position(originalRow, originalColumn - length)
-                            else -> Position(originalRow + length, originalColumn)
+                    .filter {
+                        isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
+                            it
+                        )].isEnemy)
+                    }
+                // 線駒は自駒に衝突するかはじめに遭遇する敵駒マスまで進める
+                PieceKind.ROOK -> {
+                    val nextPositions = mutableListOf<Position>()
+                    for (dir in 0 until 4) {
+                        for (length in 1 until 9) {
+                            val nextPosition = when (dir) {
+                                0 -> Position(originalRow, originalColumn + length)
+                                1 -> Position(originalRow - length, originalColumn)
+                                2 -> Position(originalRow, originalColumn - length)
+                                else -> Position(originalRow + length, originalColumn)
+                            }
+                            if (!isInside(nextPosition)) break
+                            if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
+                                || boardState[posToIndex(nextPosition)].isEnemy
+                            ) {
+                                nextPositions.add(nextPosition)
+                            }
+                            if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                         }
                     }
-                }.flatten()
-                PieceKind.BISHOP -> (1 until 9).map { length ->
-                    (0 until 4).map { dir ->
-                        when (dir) {
-                            0 -> Position(originalRow - length, originalColumn + length)
-                            1 -> Position(originalRow - length, originalColumn - length)
-                            2 -> Position(originalRow + length, originalColumn - length)
-                            else -> Position(originalRow + length, originalColumn + length)
+                    return nextPositions.toList()
+                }
+                PieceKind.BISHOP -> {
+                    val nextPositions = mutableListOf<Position>()
+                    for (dir in 0 until 4) {
+                        for (length in 1 until 9) {
+                            val nextPosition = when (dir) {
+                                0 -> Position(originalRow - length, originalColumn + length)
+                                1 -> Position(originalRow - length, originalColumn - length)
+                                2 -> Position(originalRow + length, originalColumn - length)
+                                else -> Position(originalRow + length, originalColumn + length)
+                            }
+                            if (!isInside(nextPosition)) break
+
+                            if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
+                                || boardState[posToIndex(nextPosition)].isEnemy
+                            ) {
+                                nextPositions.add(nextPosition)
+                            }
+                            if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                         }
                     }
-                }.flatten()
+                    return nextPositions.toList()
+                }
                 PieceKind.GOLD -> (-1..1).map { dx ->
                     (-1..1).map { dy ->
                         Position(originalRow + dx, originalColumn + dy)
@@ -80,6 +118,10 @@ class GameViewModel : ViewModel() {
                 }.flatten().filterNot {
                     it == Position(originalRow + 1, originalColumn + 1)
                             || it == Position(originalRow + 1, originalColumn - 1)
+                }.filter {
+                    isInside(it) && (
+                            boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
+                                    || boardState[posToIndex(it)].isEnemy)
                 }
                 PieceKind.SILVER -> listOf(
                     Position(originalRow - 1, originalColumn - 1),
@@ -88,13 +130,34 @@ class GameViewModel : ViewModel() {
                     Position(originalRow + 1, originalColumn + 1),
                     Position(originalRow + 1, originalColumn - 1),
                 )
+                    .filter {
+                        isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
+                            it
+                        )].isEnemy)
+                    }
                 PieceKind.KNIGHT -> listOf(
                     Position(originalRow - 2, originalColumn + 1),
                     Position(originalRow - 2, originalColumn - 1),
-                )
-                PieceKind.LANCE -> (0 until 9).map { Position(originalRow - it, originalColumn) }
+                ).filter {
+                    isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
+                        it
+                    )].isEnemy)
+                }
+                PieceKind.LANCE -> {
+                    val nextPositions = mutableListOf<Position>()
+                    for (length in 1 until 9) {
+                        val nextPosition = Position(originalRow - length, originalColumn)
+                        if (!isInside(nextPosition)) break
+                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
+                            || boardState[posToIndex(nextPosition)].isEnemy
+                        ) {
+                            nextPositions.add(nextPosition)
+                        }
+                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY) break
+                    }
+                    return nextPositions.toList()
+                }
             }
-        return list
+        return resluts
     }
-
 }
