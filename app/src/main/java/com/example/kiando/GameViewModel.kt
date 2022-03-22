@@ -11,7 +11,7 @@ class GameViewModel : ViewModel() {
 
 
     fun loadQuestion(questionId: Int) {
-        boardState = sampleQuestions[questionId].boardState.flatten().toMutableStateList()
+        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
 
     }
 

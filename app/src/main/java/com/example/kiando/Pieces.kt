@@ -1,6 +1,7 @@
 package com.example.kiando
 
 typealias BoardState = List<List<PanelState>>
+typealias BoardStateFlatten = List<PanelState>
 
 enum class PieceKind {
     KING,

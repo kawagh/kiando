@@ -38,7 +38,7 @@ class SFENConverter {
                     )
                     i += 1
                 }
-                in '1' .. '9' -> {
+                in '1'..'9' -> {
                     val digit: Int = ch - '0'
                     repeat(digit) {
                         val ni = i + it
@@ -51,6 +51,7 @@ class SFENConverter {
                     }
                     i += digit
                 }
+                ' ' -> break //盤面以降は読み込まない
             }
         }
         return board.toList()
