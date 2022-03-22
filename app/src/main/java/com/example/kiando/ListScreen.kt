@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -17,12 +18,15 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen { }
+    ListScreen({ }, { })
 
 }
 
 @Composable
-fun ListScreen(onNavigateMain: () -> Unit) {
+fun ListScreen(
+    onNavigateMain: () -> Unit,
+    navigateToQuestion: (questionId: Int) -> Unit
+) {
     val questions = sampleQuestions
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -33,30 +37,32 @@ fun ListScreen(onNavigateMain: () -> Unit) {
         Button(onClick = onNavigateMain) {
             Text(text = "List")
         }
-        QuestionsList(questions = questions)
-
+        QuestionsList(questions = questions, navigateToQuestion)
     }
 }
 
 @Composable
-fun QuestionsList(questions: List<Question>) {
+fun QuestionsList(questions: List<Question>, navigateToQuestion: (Int) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        items(questions) { question ->
-            QuestionRow(question)
+        itemsIndexed(questions) { index, question ->
+            QuestionRow(
+                question = question,
+                onClick = { navigateToQuestion(index) }
+            )
         }
     }
 }
 
 @Composable
-fun QuestionRow(question: Question) {
+fun QuestionRow(question: Question, onClick: () -> Unit) {
     Row() {
         Text(text = question.description)
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = onClick) {
             Text(text = "solve")
         }
     }

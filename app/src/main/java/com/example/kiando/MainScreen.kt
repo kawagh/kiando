@@ -24,13 +24,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
 
-@Preview
 @Composable
-fun MainScreen(viewModel: GameViewModel = viewModel()) {
+fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
 
     // state
     var questionId by remember {
-        mutableStateOf(0)
+        mutableStateOf(questionId)
     }
     val moveInfo = remember {
         mutableStateListOf<Int>()
