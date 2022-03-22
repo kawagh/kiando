@@ -9,6 +9,12 @@ const val BOARD_SIZE = 9
 class GameViewModel : ViewModel() {
     var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
 
+
+    fun loadQuestion(questionId: Int) {
+        boardState = sampleQuestions[questionId].boardState.flatten().toMutableStateList()
+
+    }
+
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column

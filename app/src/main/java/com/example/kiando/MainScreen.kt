@@ -20,23 +20,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
-
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Preview
 @Composable
 fun MainScreen(viewModel: GameViewModel = viewModel()) {
-    val question = sampleQuestion
-    val context = LocalContext.current
+
+    // state
+    var questionId by remember {
+        mutableStateOf(0)
+    }
     val moveInfo = remember {
         mutableStateListOf<Int>()
     }
     var clickedPanelPos by remember {
         mutableStateOf(Position(-1, -1))
     }
-
     var panelClickedOnce by remember {
         mutableStateOf(false)
     }
@@ -44,6 +45,16 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
     val legalMovePositions = remember {
         mutableStateListOf<Position>()
     }
+    val handleClearState: () -> Unit = {
+        moveInfo.clear()
+        clickedPanelPos = Position(-1, -1)
+        panelClickedOnce = false
+        legalMovePositions.clear()
+        viewModel.loadQuestion(questionId)
+    }
+
+    val question = sampleQuestions[questionId]
+    val context = LocalContext.current
     val handlePanelClick: (PanelState) -> Unit = {
         when (panelClickedOnce) {
             true -> {
@@ -88,6 +99,25 @@ fun MainScreen(viewModel: GameViewModel = viewModel()) {
         )
         Komadai()
         Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
+
+        Row() {
+            Button(onClick = {
+                if (questionId > 0) {
+                    questionId--
+                    handleClearState()
+                }
+            }) {
+                Text(text = "prev")
+            }
+            Button(onClick = {
+                if (questionId + 1 < sampleQuestions.size) {
+                    questionId++
+                    handleClearState()
+                }
+            }) {
+                Text(text = "next")
+            }
+        }
     }
 }
 
