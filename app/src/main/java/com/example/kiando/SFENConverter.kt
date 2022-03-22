@@ -21,8 +21,53 @@ class SFENConverter {
         'r' to Pair(PieceKind.ROOK, true),
         'R' to Pair(PieceKind.ROOK, false),
     )
+    private val reverseMapping: Map<PieceKind, Char> = mapOf(
+        PieceKind.LANCE to 'l',
+        PieceKind.KNIGHT to 'n',
+        PieceKind.SILVER to 's',
+        PieceKind.GOLD to 'g',
+        PieceKind.KING to 'k',
+        PieceKind.PAWN to 'p',
+        PieceKind.BISHOP to 'b',
+        PieceKind.ROOK to 'r',
 
-    fun convertFrom(sfen: String): List<PanelState> {
+        )
+
+    fun covertTo(boardStateFlatten: BoardStateFlatten): String {
+        val sb = StringBuilder()
+        var emptyCount = 0
+        boardStateFlatten.forEachIndexed { index, ps ->
+            when (ps.pieceKind) {
+                PieceKind.EMPTY -> {
+                    emptyCount++
+                }
+                else -> {
+                    if (emptyCount != 0) {
+                        sb.append(emptyCount.toString())
+                        emptyCount = 0
+                    }
+                    sb.append(
+                        if (ps.isEnemy) reverseMapping[ps.pieceKind] else reverseMapping[ps.pieceKind]!!.uppercase()
+                    )
+
+                }
+            }
+            if (index % BOARD_SIZE == BOARD_SIZE - 1) {
+
+                if (emptyCount != 0) {
+                    sb.append(emptyCount.toString())
+                    emptyCount = 0
+                }
+                if (index != BOARD_SIZE * BOARD_SIZE - 1) {
+                    sb.append("/")
+                }
+            }
+        }
+        return sb.toString()
+    }
+
+
+    fun convertFrom(sfen: String): BoardStateFlatten {
         val board = MutableList(BOARD_SIZE * BOARD_SIZE) {
             PanelState(it / BOARD_SIZE, it % BOARD_SIZE, PieceKind.EMPTY)
         }

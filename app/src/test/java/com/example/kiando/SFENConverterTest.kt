@@ -27,4 +27,14 @@ class SFENConverterTest {
         }
     }
 
+    @Test
+    fun testConvertTo() {
+        val initialBoardStateFlatten = initialBoardState.flatten()
+        val expectedSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL"
+        val encodedState = SFENConverter().covertTo(initialBoardStateFlatten)
+        assert(encodedState == expectedSFEN) {
+            "Converting to SFEN failed: $encodedState, $expectedSFEN"
+        }
+    }
+
 }
