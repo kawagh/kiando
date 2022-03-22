@@ -38,7 +38,7 @@ class SFENConverter {
                     )
                     i += 1
                 }
-                in "123456789" -> {
+                in '1' .. '9' -> {
                     val digit: Int = ch - '0'
                     repeat(digit) {
                         val ni = i + it
