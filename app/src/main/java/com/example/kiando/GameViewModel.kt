@@ -15,6 +15,11 @@ class GameViewModel : ViewModel() {
 
     }
 
+    fun isPromotable(move: Move): Boolean {
+        val fromIndex = move.from.row * BOARD_SIZE + move.from.column
+        return !boardState[fromIndex].isPromoted && (move.from.row <= 2 || move.to.row <= 2)
+    }
+
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column

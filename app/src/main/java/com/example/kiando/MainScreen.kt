@@ -81,8 +81,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     Position(moveInfo[2], moveInfo[3])
                 )
                 // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
-                val isPromotable = moveInfo[2] <= 2
-                when (isPromotable) {
+                when (viewModel.isPromotable(move)) {
                     true -> {
                         // judge promote here
                         shouldShowPromotionDialog = true
