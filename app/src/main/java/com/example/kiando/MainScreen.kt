@@ -1,6 +1,7 @@
 package com.example.kiando
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -47,7 +48,6 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     }
     val scaffoldState = rememberScaffoldState()
     val snackbarCoroutineScope = rememberCoroutineScope()
-    // TODO list legal moves
     val legalMovePositions = remember {
         mutableStateListOf<Position>()
     }
@@ -134,6 +134,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     processMove(move)
                 })
             Komadai()
+            Spacer(modifier = Modifier.size(10.dp))
             Board(
                 viewModel.boardState,
                 handlePanelClick,
@@ -141,6 +142,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 clickedPanelPos,
                 legalMovePositions
             )
+            Spacer(modifier = Modifier.size(10.dp))
             Komadai()
             Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
 
@@ -200,14 +202,16 @@ private fun Komadai(modifier: Modifier = Modifier) {
         PieceKind.PAWN to 2,
         PieceKind.GOLD to 3,
     )
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        piecesCount.forEach { (pieceKind, count) ->
-            Piece(pieceKind)
-            Text(text = "x", fontSize = 15.sp)
-            Text(text = "$count")
+    Box(modifier = Modifier.background(BoardColorUnfocused)) {
+        Row(
+            modifier = modifier.width((40 * BOARD_SIZE).dp), // button size
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            piecesCount.forEach { (pieceKind, count) ->
+                Piece(pieceKind)
+                Text(text = "x", fontSize = 15.sp)
+                Text(text = "$count")
+            }
         }
     }
 }
