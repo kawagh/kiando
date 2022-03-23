@@ -1,6 +1,5 @@
 package com.example.kiando
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -20,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
@@ -29,7 +29,6 @@ private fun MainScreenPreview() {
 
 @Composable
 fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
-
     // state
     var questionId by remember {
         mutableStateOf(questionId)
@@ -46,6 +45,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     var shouldShowPromotionDialog by remember {
         mutableStateOf(false)
     }
+    val scaffoldState = rememberScaffoldState()
+    val snackbarCoroutineScope = rememberCoroutineScope()
     // TODO list legal moves
     val legalMovePositions = remember {
         mutableStateListOf<Position>()
@@ -58,13 +59,15 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         viewModel.loadQuestion(questionId)
     }
     val question = sampleQuestions[questionId]
-    val context = LocalContext.current
     fun processMove(move: Move) {
         // judge
         if (move == question.answerMove) {
-            Toast.makeText(context, "Correct", Toast.LENGTH_SHORT).show()
+            snackbarCoroutineScope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(
+                    "Good Move👍"
+                )
+            }
         } else {
-            Toast.makeText(context, "Wrong", Toast.LENGTH_SHORT).show()
         }
         viewModel.move(move)
         moveInfo.clear()
@@ -99,61 +102,66 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
         }
     }
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PromotionDialog(
-            shouldShowPromotionDialog = shouldShowPromotionDialog,
-            onConfirmClick = {
-                shouldShowPromotionDialog = false
-                // processMove
-                val move = Move(
-                    Position(moveInfo[0], moveInfo[1]),
-                    Position(moveInfo[2], moveInfo[3]),
-                    true,
-                )
-                processMove(move)
-            },
-            onDismissClick = {
-                shouldShowPromotionDialog = false
-                val move = Move(
-                    Position(moveInfo[0], moveInfo[1]),
-                    Position(moveInfo[2], moveInfo[3]),
-                    false,
-                )
-                processMove(move)
-            })
-        Komadai()
-        Board(
-            viewModel.boardState,
-            handlePanelClick,
-            panelClickedOnce,
-            clickedPanelPos,
-            legalMovePositions
-        )
-        Komadai()
-        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
 
-        Row() {
-            Button(
-                onClick = {
-                    questionId--
-                    handleClearState()
+    Scaffold(scaffoldState = scaffoldState) {
+
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PromotionDialog(
+                shouldShowPromotionDialog = shouldShowPromotionDialog,
+                onConfirmClick = {
+                    shouldShowPromotionDialog = false
+                    // processMove
+                    val move = Move(
+                        Position(moveInfo[0], moveInfo[1]),
+                        Position(moveInfo[2], moveInfo[3]),
+                        true,
+                    )
+                    processMove(move)
                 },
-                enabled = questionId > 0
-            ) {
-                Text(text = "prev")
-            }
-            Button(
-                onClick = {
-                    questionId++
-                    handleClearState()
-                },
-                enabled = questionId + 1 < sampleQuestions.size
-            ) {
-                Text(text = "next")
+                onDismissClick = {
+                    shouldShowPromotionDialog = false
+                    val move = Move(
+                        Position(moveInfo[0], moveInfo[1]),
+                        Position(moveInfo[2], moveInfo[3]),
+                        false,
+                    )
+                    processMove(move)
+                })
+            Komadai()
+            Board(
+                viewModel.boardState,
+                handlePanelClick,
+                panelClickedOnce,
+                clickedPanelPos,
+                legalMovePositions
+            )
+            Komadai()
+            Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
+
+            Row() {
+                Button(
+                    onClick = {
+                        questionId--
+                        handleClearState()
+                    },
+                    enabled = questionId > 0
+                ) {
+                    Text(text = "prev")
+                }
+                Button(
+                    onClick = {
+                        questionId++
+                        handleClearState()
+                    },
+                    enabled = questionId + 1 < sampleQuestions.size
+                ) {
+                    Text(text = "next")
+                }
             }
         }
     }
