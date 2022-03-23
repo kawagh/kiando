@@ -115,6 +115,17 @@ class GameViewModel : ViewModel() {
                             if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                         }
                     }
+                    if (panelState.isPromoted) {
+                        val directions = listOf(Pair(1, 1), Pair(1, -1), Pair(-1, -1), Pair(-1, 1))
+                        val additionalMoves = directions.map {
+                            Position(originalRow + it.first, originalColumn + it.second)
+                        }.filter {
+                            isInside(it) && (
+                                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
+                                            || boardState[posToIndex(it)].isEnemy)
+                        }
+                        nextPositions.addAll(additionalMoves)
+                    }
                     return nextPositions.toList()
                 }
                 PieceKind.BISHOP -> {
@@ -140,6 +151,19 @@ class GameViewModel : ViewModel() {
                             if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                         }
                     }
+                    // promote
+                    if (panelState.isPromoted) {
+                        val directions = listOf(Pair(1, 0), Pair(-1, 0), Pair(0, -1), Pair(0, 1))
+                        val additionalMoves = directions.map {
+                            Position(originalRow + it.first, originalColumn + it.second)
+                        }.filter {
+                            isInside(it) && (
+                                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
+                                            || boardState[posToIndex(it)].isEnemy)
+                        }
+                        nextPositions.addAll(additionalMoves)
+                    }
+
                     return nextPositions.toList()
                 }
                 PieceKind.GOLD -> goldMoves(panelState)
