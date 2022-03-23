@@ -1,8 +1,10 @@
 package com.example.kiando
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -83,17 +85,23 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     Position(moveInfo[0], moveInfo[1]),
                     Position(moveInfo[2], moveInfo[3])
                 )
-                // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
+                //  駒台からの打ち込み
+                if (move.from.row == -1) {
+                    processMove(move)
+                } else {
+                    // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
 //                when (viewModel.listLegalMoves(it)
 //                    .contains(Position(moveInfo[2], moveInfo[3])) && viewModel.isPromotable(move)) {
-                // FIXME 上だとdialogが出ない。下だと合法手でなくともdialogが出る
-                when (viewModel.isPromotable(move)) {
-                    true -> {
-                        // judge promote here
-                        shouldShowPromotionDialog = true
-                    }
-                    false -> {
-                        processMove(move)
+                    // FIXME 上だとdialogが出ない。下だと合法手でなくともdialogが出る
+                    // it(panelState)がクリックされたところと違うので正しい場所が列挙されていない
+                    when (viewModel.isPromotable(move)) {
+                        true -> {
+                            // judge promote here
+                            shouldShowPromotionDialog = true
+                        }
+                        false -> {
+                            processMove(move)
+                        }
                     }
                 }
             }
@@ -105,6 +113,23 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
         }
     }
+
+    // komadai
+    val handleKomadaiClick: (PieceKind) -> Unit = {
+        when (panelClickedOnce) {
+            true -> {
+                panelClickedOnce = !panelClickedOnce
+            }
+            false -> {
+                panelClickedOnce = !panelClickedOnce
+                moveInfo.addAll(listOf(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+                legalMovePositions.addAll(viewModel.listLegalMovesFromKomadai(it))
+                clickedPanelPos = Position(-1, -1) // 駒台を表す
+            }
+        }
+    }
+
+    val piecesCount: Map<PieceKind, Int> = viewModel.komadaiState.groupingBy { it }.eachCount()
 
     Scaffold(scaffoldState = scaffoldState) {
 
@@ -135,7 +160,6 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     )
                     processMove(move)
                 })
-            Komadai()
             Spacer(modifier = Modifier.size(10.dp))
             Board(
                 viewModel.boardState,
@@ -145,7 +169,10 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 legalMovePositions
             )
             Spacer(modifier = Modifier.size(10.dp))
-            Komadai()
+            Komadai(
+                piecesCount,
+                handleKomadaiClick
+            )
             Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
 
             Row() {
@@ -199,20 +226,22 @@ private fun PromotionDialog(
 }
 
 @Composable
-private fun Komadai(modifier: Modifier = Modifier) {
-    val piecesCount: Map<PieceKind, Int> = mapOf(
-        PieceKind.PAWN to 2,
-        PieceKind.GOLD to 3,
-    )
+private fun Komadai(
+    piecesCount: Map<PieceKind, Int>,
+    handleKomadaiClick: (PieceKind) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier = Modifier.background(BoardColorUnfocused)) {
         Row(
             modifier = modifier.width((40 * BOARD_SIZE).dp), // button size
             horizontalArrangement = Arrangement.Center,
         ) {
             piecesCount.forEach { (pieceKind, count) ->
-                Piece(pieceKind)
-                Text(text = "x", fontSize = 15.sp)
-                Text(text = "$count")
+                Button(onClick = { handleKomadaiClick(pieceKind) }) {
+                    Piece(pieceKind)
+                    Text(text = "x", fontSize = 15.sp)
+                    Text(text = "$count")
+                }
             }
         }
     }

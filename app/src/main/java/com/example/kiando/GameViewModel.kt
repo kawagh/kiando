@@ -8,10 +8,13 @@ const val BOARD_SIZE = 9
 
 class GameViewModel : ViewModel() {
     var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
+    var komadaiState: SnapshotStateList<PieceKind> =
+        listOf<PieceKind>().toMutableStateList()
 
 
     fun loadQuestion(questionId: Int) {
         boardState = sampleQuestions[questionId].boardState.toMutableStateList()
+        komadaiState = listOf(PieceKind.PAWN, PieceKind.GOLD).toMutableStateList()
 
     }
 
@@ -24,8 +27,19 @@ class GameViewModel : ViewModel() {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column
         if (fromIndex == toIndex) return
+        // 駒台からの打ち込み
+        if (move.from.row == -1) {
+            val pieceKind: PieceKind = PieceKind.values()[move.from.column]
+            boardState[toIndex] = PanelState(move.to.row, move.to.column, pieceKind)
+            komadaiState.remove(pieceKind)
+            return
+        }
+
         val panelState = boardState[fromIndex]
         if (isValidMove(move, panelState)) {
+            if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
+                komadaiState.add(boardState[toIndex].pieceKind)
+            }
             boardState[toIndex] =
                 PanelState(
                     move.to.row,
@@ -63,12 +77,18 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> {
+        // TODO 二歩,進行方向なしの考慮
+        return List(BOARD_SIZE * BOARD_SIZE) {
+            Position(it / BOARD_SIZE, it % BOARD_SIZE)
+        }.filter { boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY }
+    }
+
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
         val results = if (panelState.isEnemy) listOf() else
             when (panelState.pieceKind) {
-                // TODO promotion
                 PieceKind.EMPTY -> {
                     return listOf()
                 }
