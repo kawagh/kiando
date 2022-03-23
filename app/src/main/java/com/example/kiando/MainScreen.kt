@@ -100,26 +100,23 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
 
         Row() {
-            if (questionId > 0) {
-
-                Button(onClick = {
-                    if (questionId > 0) {
-                        questionId--
-                        handleClearState()
-                    }
-                }) {
-                    Text(text = "prev")
-                }
+            Button(
+                onClick = {
+                    questionId--
+                    handleClearState()
+                },
+                enabled = questionId > 0
+            ) {
+                Text(text = "prev")
             }
-            if (questionId + 1 < sampleQuestions.size) {
-                Button(onClick = {
-                    if (questionId + 1 < sampleQuestions.size) {
-                        questionId++
-                        handleClearState()
-                    }
-                }) {
-                    Text(text = "next")
-                }
+            Button(
+                onClick = {
+                    questionId++
+                    handleClearState()
+                },
+                enabled = questionId + 1 < sampleQuestions.size
+            ) {
+                Text(text = "next")
             }
         }
     }
