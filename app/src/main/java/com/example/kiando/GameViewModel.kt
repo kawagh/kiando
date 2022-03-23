@@ -15,6 +15,11 @@ class GameViewModel : ViewModel() {
 
     }
 
+    fun isPromotable(move: Move): Boolean {
+        val fromIndex = move.from.row * BOARD_SIZE + move.from.column
+        return !boardState[fromIndex].isPromoted && (move.from.row <= 2 || move.to.row <= 2)
+    }
+
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column
@@ -22,7 +27,12 @@ class GameViewModel : ViewModel() {
         val panelState = boardState[fromIndex]
         if (isValidMove(move, panelState)) {
             boardState[toIndex] =
-                PanelState(move.to.row, move.to.column, boardState[fromIndex].pieceKind)
+                PanelState(
+                    move.to.row,
+                    move.to.column,
+                    boardState[fromIndex].pieceKind,
+                    isPromoted = move.isPromote || boardState[fromIndex].isPromoted // 成駒は維持
+                )
             boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
         }
     }
@@ -36,6 +46,23 @@ class GameViewModel : ViewModel() {
         return move.to in listLegalMoves(panelState)
     }
 
+    private fun goldMoves(panelState: PanelState): List<Position> {
+        val originalRow = panelState.row
+        val originalColumn = panelState.column
+        return (-1..1).map { dx ->
+            (-1..1).map { dy ->
+                Position(originalRow + dx, originalColumn + dy)
+            }
+        }.flatten().filterNot {
+            it == Position(originalRow + 1, originalColumn + 1)
+                    || it == Position(originalRow + 1, originalColumn - 1)
+        }.filter {
+            isInside(it) && (
+                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
+                            || boardState[posToIndex(it)].isEnemy)
+        }
+    }
+
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
@@ -45,11 +72,18 @@ class GameViewModel : ViewModel() {
                 PieceKind.EMPTY -> {
                     return listOf()
                 }
-                PieceKind.PAWN -> listOf(Position(originalRow - 1, originalColumn))
-                    .filter {
-                        isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
-                            it
-                        )].isEnemy)
+                PieceKind.PAWN ->
+                    when (panelState.isPromoted) {
+                        true -> goldMoves(panelState)
+                        false -> {
+                            listOf(Position(originalRow - 1, originalColumn))
+                                .filter {
+                                    isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
+                                        it
+                                    )].isEnemy)
+                                }
+                        }
+
                     }
                 PieceKind.KING -> (-1..1).map { dx ->
                     (-1..1).map { dy ->
@@ -81,6 +115,17 @@ class GameViewModel : ViewModel() {
                             if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                         }
                     }
+                    if (panelState.isPromoted) {
+                        val directions = listOf(Pair(1, 1), Pair(1, -1), Pair(-1, -1), Pair(-1, 1))
+                        val additionalMoves = directions.map {
+                            Position(originalRow + it.first, originalColumn + it.second)
+                        }.filter {
+                            isInside(it) && (
+                                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
+                                            || boardState[posToIndex(it)].isEnemy)
+                        }
+                        nextPositions.addAll(additionalMoves)
+                    }
                     return nextPositions.toList()
                 }
                 PieceKind.BISHOP -> {
@@ -91,7 +136,10 @@ class GameViewModel : ViewModel() {
                                 0 -> Position(originalRow - length, originalColumn + length)
                                 1 -> Position(originalRow - length, originalColumn - length)
                                 2 -> Position(originalRow + length, originalColumn - length)
-                                else -> Position(originalRow + length, originalColumn + length)
+                                else -> Position(
+                                    originalRow + length,
+                                    originalColumn + length
+                                )
                             }
                             if (!isInside(nextPosition)) break
 
@@ -103,54 +151,67 @@ class GameViewModel : ViewModel() {
                             if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                         }
                     }
+                    // promote
+                    if (panelState.isPromoted) {
+                        val directions = listOf(Pair(1, 0), Pair(-1, 0), Pair(0, -1), Pair(0, 1))
+                        val additionalMoves = directions.map {
+                            Position(originalRow + it.first, originalColumn + it.second)
+                        }.filter {
+                            isInside(it) && (
+                                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
+                                            || boardState[posToIndex(it)].isEnemy)
+                        }
+                        nextPositions.addAll(additionalMoves)
+                    }
+
                     return nextPositions.toList()
                 }
-                PieceKind.GOLD -> (-1..1).map { dx ->
-                    (-1..1).map { dy ->
-                        Position(originalRow + dx, originalColumn + dy)
-                    }
-                }.flatten().filterNot {
-                    it == Position(originalRow + 1, originalColumn + 1)
-                            || it == Position(originalRow + 1, originalColumn - 1)
-                }.filter {
-                    isInside(it) && (
-                            boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
-                                    || boardState[posToIndex(it)].isEnemy)
+                PieceKind.GOLD -> goldMoves(panelState)
+                PieceKind.SILVER -> when (panelState.isPromoted) {
+                    false -> listOf(
+                        Position(originalRow - 1, originalColumn - 1),
+                        Position(originalRow - 1, originalColumn),
+                        Position(originalRow - 1, originalColumn + 1),
+                        Position(originalRow + 1, originalColumn + 1),
+                        Position(originalRow + 1, originalColumn - 1),
+                    )
+                        .filter {
+                            isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
+                                it
+                            )].isEnemy)
+                        }
+                    true -> goldMoves(panelState)
                 }
-                PieceKind.SILVER -> listOf(
-                    Position(originalRow - 1, originalColumn - 1),
-                    Position(originalRow - 1, originalColumn),
-                    Position(originalRow - 1, originalColumn + 1),
-                    Position(originalRow + 1, originalColumn + 1),
-                    Position(originalRow + 1, originalColumn - 1),
-                )
-                    .filter {
+                PieceKind.KNIGHT -> when (panelState.isPromoted) {
+                    true -> goldMoves(panelState)
+                    false -> listOf(
+                        Position(originalRow - 2, originalColumn + 1),
+                        Position(originalRow - 2, originalColumn - 1),
+                    ).filter {
                         isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
                             it
                         )].isEnemy)
                     }
-                PieceKind.KNIGHT -> listOf(
-                    Position(originalRow - 2, originalColumn + 1),
-                    Position(originalRow - 2, originalColumn - 1),
-                ).filter {
-                    isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
-                        it
-                    )].isEnemy)
                 }
-                PieceKind.LANCE -> {
-                    val nextPositions = mutableListOf<Position>()
-                    for (length in 1 until BOARD_SIZE) {
-                        val nextPosition = Position(originalRow - length, originalColumn)
-                        if (!isInside(nextPosition)) break
-                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                            || boardState[posToIndex(nextPosition)].isEnemy
-                        ) {
-                            nextPositions.add(nextPosition)
+                PieceKind.LANCE ->
+                    when (panelState.isPromoted) {
+                        true -> goldMoves(panelState)
+                        false -> {
+                            val nextPositions = mutableListOf<Position>()
+                            for (length in 1 until BOARD_SIZE) {
+                                val nextPosition = Position(originalRow - length, originalColumn)
+                                if (!isInside(nextPosition)) break
+                                if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
+                                    || boardState[posToIndex(nextPosition)].isEnemy
+                                ) {
+                                    nextPositions.add(nextPosition)
+                                }
+                                if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
+                            }
+                            return nextPositions.toList()
+
                         }
-                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY) break
                     }
-                    return nextPositions.toList()
-                }
             }
         return results
     }

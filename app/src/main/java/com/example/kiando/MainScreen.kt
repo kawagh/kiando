@@ -4,10 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -23,6 +20,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
+
+@Preview
+@Composable
+private fun MainScreenPreview() {
+    MainScreen(questionId = 0)
+}
 
 @Composable
 fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
@@ -40,6 +43,9 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     var panelClickedOnce by remember {
         mutableStateOf(false)
     }
+    var shouldShowPromotionDialog by remember {
+        mutableStateOf(false)
+    }
     // TODO list legal moves
     val legalMovePositions = remember {
         mutableStateListOf<Position>()
@@ -51,9 +57,20 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         legalMovePositions.clear()
         viewModel.loadQuestion(questionId)
     }
-
     val question = sampleQuestions[questionId]
     val context = LocalContext.current
+    fun processMove(move: Move) {
+        // judge
+        if (move == question.answerMove) {
+            Toast.makeText(context, "Correct", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Wrong", Toast.LENGTH_SHORT).show()
+        }
+        viewModel.move(move)
+        moveInfo.clear()
+        legalMovePositions.clear()
+    }
+
     val handlePanelClick: (PanelState) -> Unit = {
         when (panelClickedOnce) {
             true -> {
@@ -63,20 +80,19 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     Position(moveInfo[0], moveInfo[1]),
                     Position(moveInfo[2], moveInfo[3])
                 )
-//                Toast.makeText(context, move.toString(), Toast.LENGTH_SHORT).show()
-                // judge
-                if (move == question.answerMove) {
-                    Toast.makeText(context, "Correct", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Wrong", Toast.LENGTH_SHORT).show()
+                // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
+                when (viewModel.isPromotable(move)) {
+                    true -> {
+                        // judge promote here
+                        shouldShowPromotionDialog = true
+                    }
+                    false -> {
+                        processMove(move)
+                    }
                 }
-                viewModel.move(move)
-                moveInfo.clear()
-                legalMovePositions.clear()
             }
             false -> {
                 panelClickedOnce = !panelClickedOnce
-//                Toast.makeText(context, "$it clicked", Toast.LENGTH_SHORT).show()
                 moveInfo.addAll(listOf(it.row, it.column))
                 clickedPanelPos = Position(it.row, it.column)
                 legalMovePositions.addAll(viewModel.listLegalMoves(it))
@@ -88,6 +104,27 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        PromotionDialog(
+            shouldShowPromotionDialog = shouldShowPromotionDialog,
+            onConfirmClick = {
+                shouldShowPromotionDialog = false
+                // processMove
+                val move = Move(
+                    Position(moveInfo[0], moveInfo[1]),
+                    Position(moveInfo[2], moveInfo[3]),
+                    true,
+                )
+                processMove(move)
+            },
+            onDismissClick = {
+                shouldShowPromotionDialog = false
+                val move = Move(
+                    Position(moveInfo[0], moveInfo[1]),
+                    Position(moveInfo[2], moveInfo[3]),
+                    false,
+                )
+                processMove(move)
+            })
         Komadai()
         Board(
             viewModel.boardState,
@@ -122,9 +159,34 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     }
 }
 
+@Composable
+private fun PromotionDialog(
+    shouldShowPromotionDialog: Boolean,
+    onConfirmClick: () -> Unit,
+    onDismissClick: () -> Unit,
+) {
+    if (shouldShowPromotionDialog) {
+        AlertDialog(onDismissRequest = {},
+            title = {
+                Text(text = "promote?")
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirmClick) {
+                    Text(text = "YES")
+
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissClick) {
+                    Text(text = "NO")
+                }
+            }
+        )
+    }
+}
 
 @Composable
-fun Komadai(modifier: Modifier = Modifier) {
+private fun Komadai(modifier: Modifier = Modifier) {
     val piecesCount: Map<PieceKind, Int> = mapOf(
         PieceKind.PAWN to 2,
         PieceKind.GOLD to 3,
@@ -142,7 +204,7 @@ fun Komadai(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Piece(pieceKind: PieceKind) {
+private fun Piece(pieceKind: PieceKind) {
     val text = when (pieceKind) {
         PieceKind.EMPTY -> ""
         PieceKind.KING -> "王"
