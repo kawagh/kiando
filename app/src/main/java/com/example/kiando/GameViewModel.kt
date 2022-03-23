@@ -14,7 +14,7 @@ class GameViewModel : ViewModel() {
 
     fun loadQuestion(questionId: Int) {
         boardState = sampleQuestions[questionId].boardState.toMutableStateList()
-        komadaiState = listOf(PieceKind.PAWN, PieceKind.GOLD).toMutableStateList()
+        komadaiState = listOf<PieceKind>().toMutableStateList()
 
     }
 
