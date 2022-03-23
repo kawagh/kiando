@@ -87,6 +87,8 @@ class GameViewModel : ViewModel() {
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
+        // TODO isEnemy
+        // negate offset
         val results = if (panelState.isEnemy) listOf() else
             when (panelState.pieceKind) {
                 PieceKind.EMPTY -> {
