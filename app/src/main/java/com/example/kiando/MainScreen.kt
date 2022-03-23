@@ -303,6 +303,7 @@ private fun Panel(
         }
         Text(
             text = text, fontSize = 17.sp,
+            color = if (panelState.isPromoted) Color.Red else Color.Black,
             modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
