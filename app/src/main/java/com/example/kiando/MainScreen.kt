@@ -112,7 +112,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 // processMove
                 val move = Move(
                     Position(moveInfo[0], moveInfo[1]),
-                    Position(moveInfo[2], moveInfo[3])
+                    Position(moveInfo[2], moveInfo[3]),
+                    true,
                 )
                 processMove(move)
             },
@@ -120,7 +121,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 shouldShowPromotionDialog = false
                 val move = Move(
                     Position(moveInfo[0], moveInfo[1]),
-                    Position(moveInfo[2], moveInfo[3])
+                    Position(moveInfo[2], moveInfo[3]),
+                    false,
                 )
                 processMove(move)
             })

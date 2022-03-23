@@ -22,7 +22,12 @@ class GameViewModel : ViewModel() {
         val panelState = boardState[fromIndex]
         if (isValidMove(move, panelState)) {
             boardState[toIndex] =
-                PanelState(move.to.row, move.to.column, boardState[fromIndex].pieceKind)
+                PanelState(
+                    move.to.row,
+                    move.to.column,
+                    boardState[fromIndex].pieceKind,
+                    isPromoted = move.isPromote || boardState[fromIndex].isPromoted // 成駒は維持
+                )
             boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
         }
     }
