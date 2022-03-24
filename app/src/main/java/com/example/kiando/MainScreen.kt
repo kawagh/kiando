@@ -7,6 +7,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
 import kotlinx.coroutines.launch
+import kotlin.concurrent.timerTask
 
 @Preview
 @Composable
@@ -144,77 +148,107 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     val enemyPiecesCount: Map<PieceKind, Int> =
         viewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
-    Scaffold(scaffoldState = scaffoldState) {
-
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            PromotionDialog(
-                shouldShowPromotionDialog = shouldShowPromotionDialog,
-                onConfirmClick = {
-                    shouldShowPromotionDialog = false
-                    // processMove
-                    val move = Move(
-                        positionStack.first(),
-                        positionStack.last(),
-                        true,
-                    )
-                    processMove(move)
-                },
-                onDismissClick = {
-                    shouldShowPromotionDialog = false
-                    val move = Move(
-                        positionStack.first(),
-                        positionStack.last(),
-                        false,
-                    )
-                    processMove(move)
-                })
-            // enemy
-            Komadai(
-                enemyPiecesCount,
-                handleEnemyKomadaiClick,
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Board(
-                viewModel.boardState,
-                handlePanelClick,
-                panelClickedOnce,
-                lastClickedPanelPos,
-                legalMovePositions
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Komadai(
-                piecesCount,
-                handleKomadaiClick
-            )
-            Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
-
-            Row() {
-                Button(
-                    onClick = {
-                        questionId--
-                        handleClearState()
-                    },
-                    enabled = questionId > 0
-                ) {
-                    Text(text = "prev")
+    Scaffold(scaffoldState = scaffoldState,
+        topBar = {
+            TopAppBar(
+                title = { Text(text = stringResource(id = R.string.app_name)) },
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Filled.Share, "share sfen")
+                    }
                 }
-                Button(
-                    onClick = {
-                        questionId++
-                        handleClearState()
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PromotionDialog(
+                    shouldShowPromotionDialog = shouldShowPromotionDialog,
+                    onConfirmClick = {
+                        shouldShowPromotionDialog = false
+                        // processMove
+                        val move = Move(
+                            positionStack.first(),
+                            positionStack.last(),
+                            true,
+                        )
+                        processMove(move)
                     },
-                    enabled = questionId + 1 < sampleQuestions.size
-                ) {
-                    Text(text = "next")
+                    onDismissClick = {
+                        shouldShowPromotionDialog = false
+                        val move = Move(
+                            positionStack.first(),
+                            positionStack.last(),
+                            false,
+                        )
+                        processMove(move)
+                    })
+                // Debug
+                Text(text = SFENConverter().covertTo(viewModel.boardState))
+                Text(
+                    text = "Enemy Komadai:${
+                        SFENConverter().convertKomadaiTo(
+                            pieceCount = enemyPiecesCount,
+                            isOwnedEnemy = true
+                        )
+                    }"
+                )
+                Text(
+                    text = "My komadai:${
+                        SFENConverter().convertKomadaiTo(
+                            pieceCount = piecesCount,
+                            isOwnedEnemy = false
+                        )
+                    }"
+                )
+
+
+                // enemy
+                Komadai(
+                    enemyPiecesCount,
+                    handleEnemyKomadaiClick,
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Board(
+                    viewModel.boardState,
+                    handlePanelClick,
+                    panelClickedOnce,
+                    lastClickedPanelPos,
+                    legalMovePositions
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Komadai(
+                    piecesCount,
+                    handleKomadaiClick
+                )
+                Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
+
+                Row() {
+                    Button(
+                        onClick = {
+                            questionId--
+                            handleClearState()
+                        },
+                        enabled = questionId > 0
+                    ) {
+                        Text(text = "prev")
+                    }
+                    Button(
+                        onClick = {
+                            questionId++
+                            handleClearState()
+                        },
+                        enabled = questionId + 1 < sampleQuestions.size
+                    ) {
+                        Text(text = "next")
+                    }
                 }
             }
         }
-    }
+    )
 }
 
 @Composable

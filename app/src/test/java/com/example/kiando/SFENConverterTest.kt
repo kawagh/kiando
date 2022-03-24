@@ -37,4 +37,28 @@ class SFENConverterTest {
         }
     }
 
+    @Test
+    fun testConvertKomadaiTo() {
+        val pieceCount = mapOf(
+            PieceKind.PAWN to 2,
+            PieceKind.GOLD to 1,
+        )
+        val out = SFENConverter().convertKomadaiTo(pieceCount, isOwnedEnemy = false)
+        val expectedResult = "2PG"
+        assert(expectedResult == out)
+
+    }
+
+    @Test
+    fun testConvertKomadaiToOwnedEnemyCase() {
+        val pieceCount = mapOf(
+            PieceKind.PAWN to 2,
+            PieceKind.GOLD to 2,
+        )
+        val out = SFENConverter().convertKomadaiTo(pieceCount, isOwnedEnemy = true)
+        val expectedResult = "2p2g"
+        assert(expectedResult == out)
+
+    }
+
 }
