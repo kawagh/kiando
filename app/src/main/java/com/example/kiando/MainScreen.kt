@@ -188,8 +188,22 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     })
                 // Debug
                 Text(text = SFENConverter().covertTo(viewModel.boardState))
-                Text(text = "Enemy Komadai:")
-                Text(text = "My komadai:")
+                Text(
+                    text = "Enemy Komadai:${
+                        SFENConverter().convertKomadaiTo(
+                            pieceCount = enemyPiecesCount,
+                            isOwnedEnemy = true
+                        )
+                    }"
+                )
+                Text(
+                    text = "My komadai:${
+                        SFENConverter().convertKomadaiTo(
+                            pieceCount = piecesCount,
+                            isOwnedEnemy = false
+                        )
+                    }"
+                )
 
 
                 // enemy

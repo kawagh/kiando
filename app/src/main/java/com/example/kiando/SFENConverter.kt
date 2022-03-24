@@ -66,6 +66,31 @@ class SFENConverter {
         return sb.toString()
     }
 
+    fun convertKomadaiTo(pieceCount: Map<PieceKind, Int>, isOwnedEnemy: Boolean): String {
+        val sb = StringBuilder()
+        listOf(
+            PieceKind.PAWN,
+            PieceKind.LANCE,
+            PieceKind.KNIGHT,
+            PieceKind.SILVER,
+            PieceKind.BISHOP,
+            PieceKind.ROOK,
+            PieceKind.GOLD,
+        ).filter { pieceCount[it] != null }
+            .filter { pieceCount[it]!! >= 1 }
+            .forEach {
+                if (pieceCount[it]!! > 1) {
+                    sb.append(pieceCount[it])
+                }
+                if (isOwnedEnemy) {
+                    sb.append(reverseMapping[it])
+                } else {
+                    sb.append(reverseMapping[it]!!.uppercase())
+                }
+            }
+        return sb.toString()
+    }
+
 
     fun convertFrom(sfen: String): BoardStateFlatten {
         val board = MutableList(BOARD_SIZE * BOARD_SIZE) {
