@@ -36,10 +36,10 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     var questionId by remember {
         mutableStateOf(questionId)
     }
-    val moveInfo = remember {
-        mutableStateListOf<Int>()
+    val positionStack = remember {
+        mutableStateListOf<Position>()
     }
-    var clickedPanelPos by remember {
+    var lastClickedPanelPos by remember {
         mutableStateOf(Position(-1, -1))
     }
     var panelClickedOnce by remember {
@@ -54,8 +54,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         mutableStateListOf<Position>()
     }
     val handleClearState: () -> Unit = {
-        moveInfo.clear()
-        clickedPanelPos = Position(-1, -1)
+        positionStack.clear()
+        lastClickedPanelPos = Position(-1, -1)
         panelClickedOnce = false
         legalMovePositions.clear()
         viewModel.loadQuestion(questionId)
@@ -69,10 +69,9 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     "Good Move👍"
                 )
             }
-        } else {
         }
         viewModel.move(move)
-        moveInfo.clear()
+        positionStack.clear()
         legalMovePositions.clear()
     }
 
@@ -80,17 +79,14 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         when (panelClickedOnce) {
             true -> {
                 panelClickedOnce = !panelClickedOnce
-                moveInfo.addAll(listOf(it.row, it.column))
-                val move = Move(
-                    Position(moveInfo[0], moveInfo[1]),
-                    Position(moveInfo[2], moveInfo[3])
-                )
+                positionStack.add(Position(it.row, it.column))
+                val move = Move(positionStack.first(), positionStack.last())
                 if (viewModel.isMoveFromKomadai(move)) {
                     processMove(move)
                 } else {
                     // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
 //                when (viewModel.listLegalMoves(it)
-//                    .contains(Position(moveInfo[2], moveInfo[3])) && viewModel.isPromotable(move)) {
+//                    .contains(Position(positionStack[2], positionStack[3])) && viewModel.isPromotable(move)) {
                     // FIXME 上だとdialogが出ない。下だと合法手でなくともdialogが出る
                     // it(panelState)がクリックされたところと違うので正しい場所が列挙されていない
                     when (viewModel.isPromotable(move)) {
@@ -106,8 +102,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
             false -> {
                 panelClickedOnce = !panelClickedOnce
-                moveInfo.addAll(listOf(it.row, it.column))
-                clickedPanelPos = Position(it.row, it.column)
+                positionStack.add(Position(it.row, it.column))
+                lastClickedPanelPos = Position(it.row, it.column)
                 legalMovePositions.addAll(viewModel.listLegalMoves(it))
             }
         }
@@ -123,9 +119,9 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
             false -> {
                 panelClickedOnce = !panelClickedOnce
-                moveInfo.addAll(listOf(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+                positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
                 legalMovePositions.addAll(viewModel.listLegalMovesFromKomadai(it))
-                clickedPanelPos = Position(-1, -1) // 駒台を表す
+                lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
     }
@@ -136,9 +132,9 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
             false -> {
                 panelClickedOnce = !panelClickedOnce
-                moveInfo.addAll(listOf(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+                positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
                 legalMovePositions.addAll(viewModel.listLegalMovesFromKomadai(it))
-                clickedPanelPos = Position(-1, -1) // 駒台を表す
+                lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
     }
@@ -161,8 +157,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     shouldShowPromotionDialog = false
                     // processMove
                     val move = Move(
-                        Position(moveInfo[0], moveInfo[1]),
-                        Position(moveInfo[2], moveInfo[3]),
+                        positionStack.first(),
+                        positionStack.last(),
                         true,
                     )
                     processMove(move)
@@ -170,8 +166,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 onDismissClick = {
                     shouldShowPromotionDialog = false
                     val move = Move(
-                        Position(moveInfo[0], moveInfo[1]),
-                        Position(moveInfo[2], moveInfo[3]),
+                        positionStack.first(),
+                        positionStack.last(),
                         false,
                     )
                     processMove(move)
@@ -187,7 +183,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 viewModel.boardState,
                 handlePanelClick,
                 panelClickedOnce,
-                clickedPanelPos,
+                lastClickedPanelPos,
                 legalMovePositions
             )
             Spacer(modifier = Modifier.size(10.dp))
@@ -291,7 +287,7 @@ private fun Board(
     boardState: SnapshotStateList<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
-    clickedPanelPos: Position,
+    lastClickedPanelPos: Position,
     legalMovePositions: List<Position>,
 ) {
     Column(
@@ -301,7 +297,7 @@ private fun Board(
                 boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
                 handlePanelClick,
                 panelClickedOnce,
-                clickedPanelPos,
+                lastClickedPanelPos,
                 legalMovePositions
             )
         }
@@ -313,7 +309,7 @@ private fun BoardRow(
     boardRow: List<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
-    clickedPanelPos: Position,
+    lastClickedPanelPos: Position,
     legalMovePositions: List<Position>,
 ) {
     Row() {
@@ -322,7 +318,7 @@ private fun BoardRow(
                 boardRow[colIndex],
                 handlePanelClick,
                 panelClickedOnce,
-                clickedPanelPos,
+                lastClickedPanelPos,
                 legalMovePositions
             )
 
@@ -335,7 +331,7 @@ private fun Panel(
     panelState: PanelState,
     handlePanelClick: (PanelState) -> Unit,
     panelClickedOnce: Boolean,
-    clickedPanelPos: Position,
+    lastClickedPanelPos: Position,
     legalMovePositions: List<Position>,
 ) {
     Button(
@@ -346,7 +342,7 @@ private fun Panel(
         colors = ButtonDefaults.textButtonColors(
             backgroundColor = if (panelClickedOnce) {
                 when (Position(panelState.row, panelState.column)) {
-                    clickedPanelPos -> BoardColor
+                    lastClickedPanelPos -> BoardColor
                     in legalMovePositions -> BoardColor
                     else -> BoardColorUnfocused
                 }
