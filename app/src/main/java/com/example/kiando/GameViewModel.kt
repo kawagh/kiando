@@ -1,21 +1,46 @@
 package com.example.kiando
 
+import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val BOARD_SIZE = 9
 
-class GameViewModel : ViewModel() {
+class GameViewModel(application: Application) : AndroidViewModel(application) {
+    private val db: AppDatabase = AppDatabase.getInstance(application)
+    internal val questions: LiveData<List<Question>> = db.qustionDao().getAll()
     var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
 
+    fun saveQuestion() {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.qustionDao().insert(
+                Question(
+                    id = 0,
+                    description = "saved from room",
+                    sfen = SFENConverter().covertTo(boardState),
+                    answerMove = Move(
+                        Position(-1, -1), Position(-1, -1)
+                    )
+                )
+            )
+        }
+    }
+
 
     fun loadQuestion(questionId: Int) {
-        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
+        boardState = db.qustionDao().findById(questionId).boardState.toMutableStateList()
+//        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
         komadaiState = listOf<PieceKind>().toMutableStateList()
 
     }

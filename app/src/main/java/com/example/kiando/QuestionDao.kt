@@ -11,6 +11,9 @@ interface QuestionDao {
     @Query("SELECT * FROM questions")
     fun getAll(): LiveData<List<Question>>
 
+    @Query("SELECT * FROM questions WHERE id = :questionId")
+    fun findById(questionId: Int): Question
+
     @Query("DELETE FROM questions")
     fun deleteAll(): Unit
 

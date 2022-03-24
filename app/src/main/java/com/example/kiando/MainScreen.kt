@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +68,9 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         legalMovePositions.clear()
         viewModel.loadQuestion(questionId)
     }
-    val question = sampleQuestions[questionId]
+    var question: Question = sampleQuestions[questionId]
+    val questions = viewModel.questions.observeAsState(initial = listOf())
+
     fun processMove(move: Move) {
         // judge
         if (move == question.answerMove) {
@@ -187,6 +190,14 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                         processMove(move)
                     })
                 // Debug
+
+                Button(onClick = { viewModel.saveQuestion() }) {
+                    Text(text = "Save")
+                }
+                Button(onClick = { question = questions.value.first() }) {
+                    Text(text = "Load")
+                }
+                Text(questions.value.size.toString())
                 Text(text = SFENConverter().covertTo(viewModel.boardState))
                 Text(
                     text = "Enemy Komadai:${
