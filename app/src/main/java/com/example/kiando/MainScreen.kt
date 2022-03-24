@@ -173,7 +173,6 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     )
                     processMove(move)
                 })
-
             // enemy
             Komadai(
                 enemyPiecesCount,

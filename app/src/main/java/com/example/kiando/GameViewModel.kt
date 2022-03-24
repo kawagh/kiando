@@ -38,6 +38,7 @@ class GameViewModel : ViewModel() {
         // 駒台からの打ち込み
         if (isMoveFromKomadai(move)) {
             val pieceKind: PieceKind = PieceKind.values()[move.from.column]
+            if (boardState[posToIndex(move.to)].pieceKind != PieceKind.EMPTY) return
             when (move.from.row) {
                 -1 -> {
                     boardState[toIndex] =
@@ -111,12 +112,11 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> {
+    fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> =
         // TODO 二歩,進行方向なしの考慮
-        return List(BOARD_SIZE * BOARD_SIZE) {
+        List(BOARD_SIZE * BOARD_SIZE) {
             Position(it / BOARD_SIZE, it % BOARD_SIZE)
         }.filter { boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY }
-    }
 
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
