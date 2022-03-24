@@ -108,12 +108,13 @@ class GameViewModel : ViewModel() {
                 when (panelState.isPromoted) {
                     true -> goldMoves(panelState)
                     false -> {
-                        listOf(Position(originalRow - 1, originalColumn))
-                            .filter {
-                                isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
-                                    it
-                                )].isEnemy)
-                            }
+                        when (panelState.isEnemy) {
+                            true -> listOf(Position(originalRow + 1, originalColumn))
+                                .filterMovable(panelState)
+
+                            false -> listOf(Position(originalRow - 1, originalColumn))
+                                .filterMovable(panelState)
+                        }
                     }
                 }
             PieceKind.KING -> (-1..1).map { dx ->
@@ -121,11 +122,7 @@ class GameViewModel : ViewModel() {
                     Position(originalRow + dx, originalColumn + dy)
                 }
             }.flatten()
-                .filter {
-                    isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
-                        it
-                    )].isEnemy)
-                }
+                .filterMovable(panelState)
             PieceKind.ROOK -> {
                 val nextPositions = mutableListOf<Position>()
                 for (dir in 0 until 4) {
@@ -139,7 +136,7 @@ class GameViewModel : ViewModel() {
                         if (!isInside(nextPosition)) break
                         // 線駒は各方向に自駒に衝突するかはじめに遭遇する敵駒マスまで進める
                         if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                            || boardState[posToIndex(nextPosition)].isEnemy
+                            || boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
                         ) {
                             nextPositions.add(nextPosition)
                         }
@@ -150,11 +147,7 @@ class GameViewModel : ViewModel() {
                     val directions = listOf(Pair(1, 1), Pair(1, -1), Pair(-1, -1), Pair(-1, 1))
                     val additionalMoves = directions.map {
                         Position(originalRow + it.first, originalColumn + it.second)
-                    }.filter {
-                        isInside(it) && (
-                                boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
-                                        || boardState[posToIndex(it)].isEnemy)
-                    }
+                    }.filterMovable(panelState)
                     nextPositions.addAll(additionalMoves)
                 }
                 return nextPositions.toList()
@@ -175,7 +168,7 @@ class GameViewModel : ViewModel() {
                         if (!isInside(nextPosition)) break
 
                         if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                            || boardState[posToIndex(nextPosition)].isEnemy
+                            || (boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy))
                         ) {
                             nextPositions.add(nextPosition)
                         }
@@ -187,11 +180,7 @@ class GameViewModel : ViewModel() {
                     val directions = listOf(Pair(1, 0), Pair(-1, 0), Pair(0, -1), Pair(0, 1))
                     val additionalMoves = directions.map {
                         Position(originalRow + it.first, originalColumn + it.second)
-                    }.filter {
-                        isInside(it) && (
-                                boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
-                                        || boardState[posToIndex(it)].isEnemy)
-                    }
+                    }.filterMovable(panelState)
                     nextPositions.addAll(additionalMoves)
                 }
 
@@ -199,29 +188,27 @@ class GameViewModel : ViewModel() {
             }
             PieceKind.GOLD -> goldMoves(panelState)
             PieceKind.SILVER -> when (panelState.isPromoted) {
-                false -> listOf(
-                    Position(originalRow - 1, originalColumn - 1),
-                    Position(originalRow - 1, originalColumn),
-                    Position(originalRow - 1, originalColumn + 1),
-                    Position(originalRow + 1, originalColumn + 1),
-                    Position(originalRow + 1, originalColumn - 1),
-                )
-                    .filter {
-                        isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
-                            it
-                        )].isEnemy)
-                    }
+                false -> {
+                    val sign = if (panelState.isEnemy) -1 else 1
+                    listOf(
+                        Position(originalRow - sign * 1, originalColumn - 1),
+                        Position(originalRow - sign * 1, originalColumn),
+                        Position(originalRow - sign * 1, originalColumn + 1),
+                        Position(originalRow + sign * 1, originalColumn + 1),
+                        Position(originalRow + sign * 1, originalColumn - 1),
+                    )
+                        .filterMovable(panelState)
+                }
                 true -> goldMoves(panelState)
             }
             PieceKind.KNIGHT -> when (panelState.isPromoted) {
                 true -> goldMoves(panelState)
-                false -> listOf(
-                    Position(originalRow - 2, originalColumn + 1),
-                    Position(originalRow - 2, originalColumn - 1),
-                ).filter {
-                    isInside(it) && (boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY || boardState[posToIndex(
-                        it
-                    )].isEnemy)
+                false -> {
+                    val sign = if (panelState.isEnemy) -1 else 1
+                    listOf(
+                        Position(originalRow - sign * 2, originalColumn + 1),
+                        Position(originalRow - sign * 2, originalColumn - 1),
+                    ).filterMovable(panelState)
                 }
             }
             PieceKind.LANCE ->
@@ -229,11 +216,12 @@ class GameViewModel : ViewModel() {
                     true -> goldMoves(panelState)
                     false -> {
                         val nextPositions = mutableListOf<Position>()
+                        val sign = if (panelState.isEnemy) -1 else 1
                         for (length in 1 until BOARD_SIZE) {
-                            val nextPosition = Position(originalRow - length, originalColumn)
+                            val nextPosition = Position(originalRow - sign * length, originalColumn)
                             if (!isInside(nextPosition)) break
                             if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                                || boardState[posToIndex(nextPosition)].isEnemy
+                                || boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
                             ) {
                                 nextPositions.add(nextPosition)
                             }
