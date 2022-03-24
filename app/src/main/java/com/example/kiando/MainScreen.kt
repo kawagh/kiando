@@ -39,6 +39,9 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     val positionStack = remember {
         mutableStateListOf<Position>()
     }
+    var lastClickedPanel = remember {
+        PanelState(-1, -1, pieceKind = PieceKind.EMPTY)
+    }
     var lastClickedPanelPos by remember {
         mutableStateOf(Position(-1, -1))
     }
@@ -85,11 +88,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     processMove(move)
                 } else {
                     // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
-//                when (viewModel.listLegalMoves(it)
-//                    .contains(Position(positionStack[2], positionStack[3])) && viewModel.isPromotable(move)) {
-                    // FIXME 上だとdialogが出ない。下だと合法手でなくともdialogが出る
-                    // it(panelState)がクリックされたところと違うので正しい場所が列挙されていない
-                    when (viewModel.isPromotable(move)) {
+                    when (viewModel.listLegalMoves(lastClickedPanel)
+                        .contains(positionStack.last()) && viewModel.isPromotable(move)) {
                         true -> {
                             // judge promote here
                             shouldShowPromotionDialog = true
@@ -104,6 +104,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
+                lastClickedPanel = it
                 legalMovePositions.addAll(viewModel.listLegalMoves(it))
             }
         }
