@@ -10,6 +10,8 @@ class GameViewModel : ViewModel() {
     var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
+    var enemyKomadaiState: SnapshotStateList<PieceKind> =
+        listOf<PieceKind>().toMutableStateList()
 
 
     fun loadQuestion(questionId: Int) {
@@ -28,22 +30,38 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun isMoveFromKomadai(move: Move): Boolean = move.from.row < 0
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column
         if (fromIndex == toIndex) return
         // 駒台からの打ち込み
-        if (move.from.row == -1) {
+        if (isMoveFromKomadai(move)) {
             val pieceKind: PieceKind = PieceKind.values()[move.from.column]
-            boardState[toIndex] = PanelState(move.to.row, move.to.column, pieceKind)
-            komadaiState.remove(pieceKind)
+            when (move.from.row) {
+                -1 -> {
+                    boardState[toIndex] =
+                        PanelState(move.to.row, move.to.column, pieceKind, isEnemy = false)
+                    komadaiState.remove(pieceKind)
+
+                }
+                -2 -> {
+                    enemyKomadaiState.remove(pieceKind)
+                    boardState[toIndex] =
+                        PanelState(move.to.row, move.to.column, pieceKind, isEnemy = true)
+
+                }
+            }
             return
         }
 
         val panelState = boardState[fromIndex]
         if (isValidMove(move, panelState)) {
             if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
-                komadaiState.add(boardState[toIndex].pieceKind)
+                when (boardState[toIndex].isEnemy) {
+                    true -> komadaiState.add(boardState[toIndex].pieceKind)
+                    false -> enemyKomadaiState.add(boardState[toIndex].pieceKind)
+                }
             }
             boardState[toIndex] =
                 PanelState(

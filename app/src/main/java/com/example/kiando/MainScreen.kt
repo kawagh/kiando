@@ -85,8 +85,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     Position(moveInfo[0], moveInfo[1]),
                     Position(moveInfo[2], moveInfo[3])
                 )
-                //  駒台からの打ち込み
-                if (move.from.row == -1) {
+                if (viewModel.isMoveFromKomadai(move)) {
                     processMove(move)
                 } else {
                     // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
@@ -115,6 +114,8 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     }
 
     // komadai
+    //    myKomadai:-1,
+    //    enemyKomadai:-2,
     val handleKomadaiClick: (PieceKind) -> Unit = {
         when (panelClickedOnce) {
             true -> {
@@ -128,8 +129,23 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             }
         }
     }
+    val handleEnemyKomadaiClick: (PieceKind) -> Unit = {
+        when (panelClickedOnce) {
+            true -> {
+                panelClickedOnce = !panelClickedOnce
+            }
+            false -> {
+                panelClickedOnce = !panelClickedOnce
+                moveInfo.addAll(listOf(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+                legalMovePositions.addAll(viewModel.listLegalMovesFromKomadai(it))
+                clickedPanelPos = Position(-1, -1) // 駒台を表す
+            }
+        }
+    }
 
     val piecesCount: Map<PieceKind, Int> = viewModel.komadaiState.groupingBy { it }.eachCount()
+    val enemyPiecesCount: Map<PieceKind, Int> =
+        viewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
     Scaffold(scaffoldState = scaffoldState) {
 
@@ -160,6 +176,12 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     )
                     processMove(move)
                 })
+
+            // enemy
+            Komadai(
+                enemyPiecesCount,
+                handleEnemyKomadaiClick,
+            )
             Spacer(modifier = Modifier.size(10.dp))
             Board(
                 viewModel.boardState,
