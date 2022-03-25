@@ -5,6 +5,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -417,18 +419,26 @@ private fun PromotionDialog(
 private fun Komadai(
     piecesCount: Map<PieceKind, Int>,
     handleKomadaiClick: (PieceKind) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    Box(modifier = Modifier.background(BoardColorUnfocused)) {
-        Row(
-            modifier = modifier.width((40 * BOARD_SIZE).dp), // button size
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            piecesCount.forEach { (pieceKind, count) ->
-                Button(onClick = { handleKomadaiClick(pieceKind) }) {
+    Box(
+        modifier = Modifier
+            .background(BoardColorUnfocused)
+            .width((40 * BOARD_SIZE).dp)
+            .height(40.dp)
+    ) {
+        LazyRow {
+            items(piecesCount.keys.toList()) { pieceKind ->
+                Button(
+                    onClick = { handleKomadaiClick(pieceKind) },
+                    colors = ButtonDefaults.textButtonColors(
+                        backgroundColor = BoardColor,
+                        contentColor = Color.Black,
+                    ),
+                    modifier = Modifier.width(70.dp)
+                ) {
                     Piece(pieceKind)
                     Text(text = "x", fontSize = 15.sp)
-                    Text(text = "$count")
+                    Text(text = "${piecesCount[pieceKind]}")
                 }
             }
         }
