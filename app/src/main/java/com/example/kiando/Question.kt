@@ -14,7 +14,7 @@ class Converters {
 
     @TypeConverter
     fun toMove(s: String): Move {
-        return Move(Position(-1, -1), Position(-1, -1))
+        return Move(Position(8, 4), Position(7, 4))
     }
 
 }
