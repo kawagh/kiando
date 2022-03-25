@@ -36,17 +36,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
 
     fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.qustionDao().insert(
-                question
-//                Question(
-//                    id = 0,
-//                    description = "saved from room",
-//                    sfen = SFENConverter().covertTo(boardState),
-//                    answerMove = Move(
-//                        Position(-1, -1), Position(-1, -1)
-//                    )
-//                )
-            )
+            db.qustionDao().insert(question)
         }
     }
 
