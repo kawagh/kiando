@@ -1,10 +1,8 @@
 package com.example.kiando
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import java.lang.StringBuilder
 
 class Converters {
     // encode Move -> fromRow_fromCol_toRow_toCol_isPromote
@@ -57,14 +55,14 @@ val initialSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL"
 val sample3_SFEN = "lnsgkgsnl/1+r5b1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/1B5R1/LNSGKGSNL b - 1"
 
 val sampleQuestion = Question(
-    id = 0,
+    id = -1,
     description = "角道を開ける手は?",
     answerMove = Move(Position(6, 2), Position(5, 2)),
     sfen = initialSFEN,
     komadaiSfen = ""
 )
 val sampleQuestion2 = Question(
-    id = 1,
+    id = -2,
     description = "飛車先を突く手は?",
     answerMove = Move(Position(6, 7), Position(5, 7)),
     sfen = initialSFEN,
@@ -73,7 +71,7 @@ val sampleQuestion2 = Question(
 
 val sampleQuestion3 =
     Question(
-        id = 2,
+        id = -3,
         description = "角交換を防ぐ手は?",
         answerMove = Move(
             Position(6, 3),

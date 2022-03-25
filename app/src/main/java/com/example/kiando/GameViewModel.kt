@@ -30,14 +30,11 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
 
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
-
-    //        listOf<PieceKind>().toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
-//        listOf<PieceKind>().toMutableStateList()
 
     fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.qustionDao().insert(question)
+            db.questionDao().insert(question)
         }
     }
 

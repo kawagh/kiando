@@ -291,7 +291,7 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
 
                 }
 
-                // FIXME
+                // TODO nextQuestion navigation
 //                Row() {
 //                    Button(
 //                        onClick = {
@@ -457,8 +457,7 @@ private fun Board(
     lastClickedPanelPos: Position,
     legalMovePositions: List<Position>,
 ) {
-    Column(
-    ) {
+    Column {
         repeat(BOARD_SIZE) { rowIndex ->
             BoardRow(
                 boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),

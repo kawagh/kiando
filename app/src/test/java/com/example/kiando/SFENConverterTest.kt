@@ -1,7 +1,5 @@
 package com.example.kiando
 
-import org.junit.Assert.*
-
 import org.junit.Test
 
 class SFENConverterTest {

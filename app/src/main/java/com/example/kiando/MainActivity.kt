@@ -48,8 +48,8 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 composable("list") {
                     ListScreen(
                         questions = allQuestions,
-                        navigateToQuestion,
-                        { questionsViewModel.deleteAll() }
+                        navigateToQuestion = navigateToQuestion,
+                        handleDeleteQuestions = { questionsViewModel.deleteAll() },
                     )
                 }
                 composable(
@@ -58,7 +58,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         type = NavType.IntType
                     })
                 ) {
-                    val questionId = it.arguments?.getInt("questionId") ?: 0
+                    val questionId = it.arguments?.getInt("questionId") ?: -1
                     val question =
                         allQuestions.find { question -> question.id == questionId }
                             ?: sampleQuestion

@@ -9,11 +9,11 @@ import kotlinx.coroutines.launch
 
 class QuestionsViewModel(application: Application) : AndroidViewModel(application) {
     private val db: AppDatabase = AppDatabase.getInstance(application)
-    internal val questions: LiveData<List<Question>> = db.qustionDao().getAll()
+    internal val questions: LiveData<List<Question>> = db.questionDao().getAll()
 
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
-            db.qustionDao().deleteAll()
+            db.questionDao().deleteAll()
         }
 
     }

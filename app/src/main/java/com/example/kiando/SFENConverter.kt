@@ -1,7 +1,5 @@
 package com.example.kiando
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
-
 
 class SFENConverter {
     // TODO Promotion
