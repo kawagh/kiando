@@ -59,7 +59,13 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         type = NavType.IntType
                     })
                 ) {
-                    MainScreen(questionId = it.arguments?.getInt("questionId") ?: 0)
+                    val questionId = it.arguments?.getInt("questionId") ?: 0
+                    val question =
+                        registeredQuestions.find { question -> question.id == questionId }
+                            ?: sampleQuestion
+//                    MainScreen(questionId = it.arguments?.getInt("questionId") ?: 0)
+                    MainScreen(question = question)
+//                    MainScreen(question = sampleQuestion)
                 }
             }
         }

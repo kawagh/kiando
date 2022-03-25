@@ -34,29 +34,24 @@ import kotlin.concurrent.timerTask
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    MainScreen(questionId = 0)
+    MainScreen(sampleQuestion)
 }
 
-//fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
 
 @Composable
-//fun MainScreen(_viewModel: GameViewModel = viewModel(), questionId: Int) {
-fun MainScreen(questionId: Int) {
-//    val viewmodel = ViewModelProvider(
-//        this,
-//        GameViewModelFactory(LocalContext.current.applicationContext as Application, sampleQuestion)
-//    )
+fun MainScreen(question: Question) {
     val gameViewModel: GameViewModel = viewModel<GameViewModel>(
         factory = GameViewModelFactory(
-            LocalContext.current.applicationContext as Application, sampleQuestion
+            LocalContext.current.applicationContext as Application, question
         )
     )
 
     // state
     var questionId by remember {
-        mutableStateOf(questionId)
+        mutableStateOf(question.id)
     }
-    val question: Question = sampleQuestions[questionId]
+//    val question: Question = sampleQuestions[questionId]
+
 //    val questions = viewModel.questions.observeAsState(initial = listOf())
 //     FIXME index error
 //    val question = questions.value[questionId]
