@@ -4,17 +4,33 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import java.lang.StringBuilder
 
-// TODO implement
 class Converters {
+    // encode Move -> fromRow_fromCol_toRow_toCol_isPromote
     @TypeConverter
-    fun fromMove(move: Move): String {
-        return "a"
-    }
+    fun fromMove(move: Move): String = StringBuilder().apply {
+        append(move.from.row)
+        append('_')
+        append(move.from.column)
+        append('_')
+        append(move.to.row)
+        append('_')
+        append(move.to.column)
+        append('_')
+        if (move.isPromote) append('1') else append('0')
+    }.toString().trimStart().trimEnd()
 
     @TypeConverter
     fun toMove(s: String): Move {
-        return Move(Position(8, 4), Position(7, 4))
+        val tokens = s.split("_").map {
+            it.toInt()
+        }
+        return Move(
+            Position(tokens[0], tokens[1]),
+            Position(tokens[2], tokens[3]),
+            tokens[4] == 1
+        )
     }
 
 }
