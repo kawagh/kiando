@@ -50,6 +50,9 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
     var inputSFEN by remember {
         mutableStateOf("")
     }
+    var inputKomadaiSFEN by remember {
+        mutableStateOf("")
+    }
     var inputQuestionDescription by remember {
         mutableStateOf("")
     }
@@ -200,6 +203,10 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
                         // modeに入った時点の局面を保持する
                         if (isRegisterQuestionMode) {
                             inputSFEN = SFENConverter().covertTo(gameViewModel.boardState)
+                            inputKomadaiSFEN = SFENConverter().convertKomadaiTo(
+                                piecesCount,
+                                false
+                            ) + SFENConverter().convertKomadaiTo(enemyPiecesCount, true)
                         }
                     }) {
                         when (isRegisterQuestionMode) {
@@ -244,33 +251,12 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
                             true -> registerMove(move)
                         }
                     })
-                // Debug
-                Text(text = question.answerMove.toString())
-                Text(text = SFENConverter().covertTo(gameViewModel.boardState))
-                Text(
-                    text = "Enemy Komadai:${
-                        SFENConverter().convertKomadaiTo(
-                            pieceCount = enemyPiecesCount,
-                            isOwnedEnemy = true
-                        )
-                    }"
-                )
-                Text(
-                    text = "My komadai:${
-                        SFENConverter().convertKomadaiTo(
-                            pieceCount = piecesCount,
-                            isOwnedEnemy = false
-                        )
-                    }"
-                ) // debug end
-
                 if (isRegisterQuestionMode) {
                     Text(
                         text = "Do move to register",
                         fontSize = MaterialTheme.typography.h5.fontSize
                     )
                 }
-
 
                 // enemy
                 Komadai(
@@ -334,7 +320,8 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
                     id = 0,
                     description = inputQuestionDescription,
                     answerMove = moveToRegister,
-                    sfen = inputSFEN
+                    sfen = inputSFEN,
+                    komadaiSfen = inputKomadaiSFEN,
                 )
                 FloatingActionButton(onClick = {
                     when (validateQuestion(newQuestion)) {

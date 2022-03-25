@@ -42,9 +42,14 @@ data class Question(
     val description: String,
     val answerMove: Move,
     val sfen: String,
+    val komadaiSfen: String,
 ) {
     val boardState
         get() = SFENConverter().convertFrom(sfen)
+    val myKomadai
+        get() = SFENConverter().convertKomadaiFrom(komadaiSfen).first
+    val enemyKomadai
+        get() = SFENConverter().convertKomadaiFrom(komadaiSfen).second
 
 }
 
@@ -56,12 +61,14 @@ val sampleQuestion = Question(
     description = "角道を開ける手は?",
     answerMove = Move(Position(6, 2), Position(5, 2)),
     sfen = initialSFEN,
+    komadaiSfen = ""
 )
 val sampleQuestion2 = Question(
     id = 1,
     description = "飛車先を突く手は?",
     answerMove = Move(Position(6, 7), Position(5, 7)),
     sfen = initialSFEN,
+    komadaiSfen = ""
 )
 
 val sampleQuestion3 =
@@ -73,6 +80,7 @@ val sampleQuestion3 =
             Position(5, 3)
         ),
         sfen = sample3_SFEN,
+        komadaiSfen = ""
     )
 val sampleQuestions: List<Question> = listOf(
     sampleQuestion,
