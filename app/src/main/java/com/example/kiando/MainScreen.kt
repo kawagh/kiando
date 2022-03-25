@@ -1,5 +1,6 @@
 package com.example.kiando
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kiando.ui.theme.BoardColor
 import com.example.kiando.ui.theme.BoardColorUnfocused
@@ -35,8 +37,21 @@ private fun MainScreenPreview() {
     MainScreen(questionId = 0)
 }
 
+//fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
+
 @Composable
-fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
+//fun MainScreen(_viewModel: GameViewModel = viewModel(), questionId: Int) {
+fun MainScreen(questionId: Int) {
+//    val viewmodel = ViewModelProvider(
+//        this,
+//        GameViewModelFactory(LocalContext.current.applicationContext as Application, sampleQuestion)
+//    )
+    val gameViewModel: GameViewModel = viewModel<GameViewModel>(
+        factory = GameViewModelFactory(
+            LocalContext.current.applicationContext as Application, sampleQuestion
+        )
+    )
+
     // state
     var questionId by remember {
         mutableStateOf(questionId)
@@ -71,7 +86,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         lastClickedPanelPos = Position(-1, -1)
         panelClickedOnce = false
         legalMovePositions.clear()
-        viewModel.loadQuestion(questionId)
+        gameViewModel.loadQuestion(questionId)
     }
 
     fun processMove(move: Move) {
@@ -83,7 +98,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 )
             }
         }
-        viewModel.move(move)
+        gameViewModel.move(move)
         positionStack.clear()
         legalMovePositions.clear()
     }
@@ -94,12 +109,12 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(it.row, it.column))
                 val move = Move(positionStack.first(), positionStack.last())
-                if (viewModel.isMoveFromKomadai(move)) {
+                if (gameViewModel.isMoveFromKomadai(move)) {
                     processMove(move)
                 } else {
                     // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
-                    when (viewModel.listLegalMoves(lastClickedPanel)
-                        .contains(positionStack.last()) && viewModel.isPromotable(move)) {
+                    when (gameViewModel.listLegalMoves(lastClickedPanel)
+                        .contains(positionStack.last()) && gameViewModel.isPromotable(move)) {
                         true -> {
                             // judge promote here
                             shouldShowPromotionDialog = true
@@ -115,7 +130,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
                 lastClickedPanel = it
-                legalMovePositions.addAll(viewModel.listLegalMoves(it))
+                legalMovePositions.addAll(gameViewModel.listLegalMoves(it))
             }
         }
     }
@@ -131,7 +146,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(viewModel.listLegalMovesFromKomadai(it))
+                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
@@ -144,15 +159,15 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(viewModel.listLegalMovesFromKomadai(it))
+                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
     }
 
-    val piecesCount: Map<PieceKind, Int> = viewModel.komadaiState.groupingBy { it }.eachCount()
+    val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
     val enemyPiecesCount: Map<PieceKind, Int> =
-        viewModel.enemyKomadaiState.groupingBy { it }.eachCount()
+        gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
     Scaffold(scaffoldState = scaffoldState,
         topBar = {
@@ -194,14 +209,14 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                     })
                 // Debug
 
-                Button(onClick = { viewModel.saveQuestion() }) {
+                Button(onClick = { gameViewModel.saveQuestion() }) {
                     Text(text = "Save")
                 }
 //                Button(onClick = { question = questions.value.first() }) {
 //                    Text(text = "Load")
 //                }
 //                Text(questions.value.size.toString())
-                Text(text = SFENConverter().covertTo(viewModel.boardState))
+                Text(text = SFENConverter().covertTo(gameViewModel.boardState))
                 Text(
                     text = "Enemy Komadai:${
                         SFENConverter().convertKomadaiTo(
@@ -227,7 +242,7 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 Board(
-                    viewModel.boardState,
+                    gameViewModel.boardState,
                     handlePanelClick,
                     panelClickedOnce,
                     lastClickedPanelPos,

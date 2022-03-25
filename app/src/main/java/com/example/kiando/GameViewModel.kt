@@ -3,16 +3,36 @@ package com.example.kiando
 import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.IllegalArgumentException
 
 const val BOARD_SIZE = 9
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModelFactory(private val application: Application, private val question: Question) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GameViewModel(application, question) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel Class")
+    }
+
+}
+
+class GameViewModel(application: Application, question: Question) : AndroidViewModel(application) {
     private val db: AppDatabase = AppDatabase.getInstance(application)
-    var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
+
+    //    var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
+    var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
+
+
     var komadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> =
