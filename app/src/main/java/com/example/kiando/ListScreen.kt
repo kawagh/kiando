@@ -42,19 +42,16 @@ fun ListScreen(
         Button(onClick = onNavigateMain) {
             Text(text = "List")
         }
-        QuestionsList(questions = sampleQuestions, navigateToQuestion)
-        Text(text = "below saved by app")
         QuestionsList(questions = questions, navigateToQuestion)
     }
 }
 
 @Composable
 fun QuestionsList(questions: List<Question>, navigateToQuestion: (Int) -> Unit) {
-    LazyColumn() {
-        itemsIndexed(questions) { index, question ->
+    LazyColumn {
+        items(questions) { question ->
             QuestionRow(
                 question = question,
-//                onClick = { navigateToQuestion(index) },
                 onClick = { navigateToQuestion(question.id) },
             )
         }

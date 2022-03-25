@@ -47,15 +47,9 @@ fun MainScreen(question: Question) {
     )
 
     // state
-    var questionId by remember {
-        mutableStateOf(question.id)
-    }
-//    val question: Question = sampleQuestions[questionId]
-
-//    val questions = viewModel.questions.observeAsState(initial = listOf())
-//     FIXME index error
-//    val question = questions.value[questionId]
-
+//    var questionId by remember {
+//        mutableStateOf(question.id)
+//    }
     val positionStack = remember {
         mutableStateListOf<Position>()
     }
@@ -81,7 +75,7 @@ fun MainScreen(question: Question) {
         lastClickedPanelPos = Position(-1, -1)
         panelClickedOnce = false
         legalMovePositions.clear()
-        gameViewModel.loadQuestion(questionId)
+//        gameViewModel.loadQuestion(questionId)
     }
 
     fun processMove(move: Move) {
@@ -207,10 +201,6 @@ fun MainScreen(question: Question) {
                 Button(onClick = { gameViewModel.saveQuestion() }) {
                     Text(text = "Save")
                 }
-//                Button(onClick = { question = questions.value.first() }) {
-//                    Text(text = "Load")
-//                }
-//                Text(questions.value.size.toString())
                 Text(text = SFENConverter().covertTo(gameViewModel.boardState))
                 Text(
                     text = "Enemy Komadai:${
@@ -250,26 +240,27 @@ fun MainScreen(question: Question) {
                 )
                 Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
 
-                Row() {
-                    Button(
-                        onClick = {
-                            questionId--
-                            handleClearState()
-                        },
-                        enabled = questionId > 0
-                    ) {
-                        Text(text = "prev")
-                    }
-                    Button(
-                        onClick = {
-                            questionId++
-                            handleClearState()
-                        },
-                        enabled = questionId + 1 < sampleQuestions.size
-                    ) {
-                        Text(text = "next")
-                    }
-                }
+                // FIXME
+//                Row() {
+//                    Button(
+//                        onClick = {
+//                            questionId--
+//                            handleClearState()
+//                        },
+//                        enabled = questionId > 0
+//                    ) {
+//                        Text(text = "prev")
+//                    }
+//                    Button(
+//                        onClick = {
+//                            questionId++
+//                            handleClearState()
+//                        },
+//                        enabled = questionId + 1 < sampleQuestions.size
+//                    ) {
+//                        Text(text = "next")
+//                    }
+//                }
             }
         }
     )

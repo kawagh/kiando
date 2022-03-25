@@ -35,8 +35,8 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
         val navigateToQuestion: (Int) -> Unit = { questionId ->
             navController.navigate("main/${questionId}")
         }
-        val registeredQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
-
+        val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
+        val allQuestions = sampleQuestions + userAddedQuestions
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
@@ -47,7 +47,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 }
                 composable("list") {
                     ListScreen(
-                        questions = registeredQuestions,
+                        questions = allQuestions,
                         onNavigateMain = { navController.navigate("main/0") },
                         navigateToQuestion,
                         { questionsViewModel.deleteAll() }
@@ -61,11 +61,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 ) {
                     val questionId = it.arguments?.getInt("questionId") ?: 0
                     val question =
-                        registeredQuestions.find { question -> question.id == questionId }
+                        allQuestions.find { question -> question.id == questionId }
                             ?: sampleQuestion
-//                    MainScreen(questionId = it.arguments?.getInt("questionId") ?: 0)
                     MainScreen(question = question)
-//                    MainScreen(question = sampleQuestion)
                 }
             }
         }

@@ -3,7 +3,6 @@ package com.example.kiando
 import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -29,10 +28,7 @@ class GameViewModelFactory(private val application: Application, private val que
 class GameViewModel(application: Application, question: Question) : AndroidViewModel(application) {
     private val db: AppDatabase = AppDatabase.getInstance(application)
 
-    //    var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
-
-
     var komadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> =
@@ -162,7 +158,6 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
-        // TODO isEnemy
         // negate offset
         val results = when (panelState.pieceKind) {
             PieceKind.EMPTY -> {
