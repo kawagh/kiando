@@ -18,41 +18,44 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen({ }, { })
+    ListScreen(sampleQuestions, {}, { }, {})
 
 }
 
 @Composable
 fun ListScreen(
+    questions: List<Question>,
     onNavigateMain: () -> Unit,
-    navigateToQuestion: (questionId: Int) -> Unit
+    navigateToQuestion: (questionId: Int) -> Unit,
+    handleDeleteQuestions: () -> Unit
 ) {
-    val questions = sampleQuestions
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+
         Text(text = "List Screen")
+        Button(onClick = handleDeleteQuestions) {
+            Text(text = "delete")
+        }
         Button(onClick = onNavigateMain) {
             Text(text = "List")
         }
+        QuestionsList(questions = sampleQuestions, navigateToQuestion)
+        Text(text = "below saved by app")
         QuestionsList(questions = questions, navigateToQuestion)
     }
 }
 
 @Composable
 fun QuestionsList(questions: List<Question>, navigateToQuestion: (Int) -> Unit) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
+    LazyColumn() {
         itemsIndexed(questions) { index, question ->
             QuestionRow(
                 question = question,
-                onClick = { navigateToQuestion(index) }
+//                onClick = { navigateToQuestion(index) },
+                onClick = { navigateToQuestion(question.id) },
             )
         }
     }

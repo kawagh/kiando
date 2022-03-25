@@ -41,6 +41,11 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
     var questionId by remember {
         mutableStateOf(questionId)
     }
+    val question: Question = sampleQuestions[questionId]
+//    val questions = viewModel.questions.observeAsState(initial = listOf())
+//     FIXME index error
+//    val question = questions.value[questionId]
+
     val positionStack = remember {
         mutableStateListOf<Position>()
     }
@@ -68,8 +73,6 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
         legalMovePositions.clear()
         viewModel.loadQuestion(questionId)
     }
-    var question: Question = sampleQuestions[questionId]
-    val questions = viewModel.questions.observeAsState(initial = listOf())
 
     fun processMove(move: Move) {
         // judge
@@ -194,10 +197,10 @@ fun MainScreen(viewModel: GameViewModel = viewModel(), questionId: Int) {
                 Button(onClick = { viewModel.saveQuestion() }) {
                     Text(text = "Save")
                 }
-                Button(onClick = { question = questions.value.first() }) {
-                    Text(text = "Load")
-                }
-                Text(questions.value.size.toString())
+//                Button(onClick = { question = questions.value.first() }) {
+//                    Text(text = "Load")
+//                }
+//                Text(questions.value.size.toString())
                 Text(text = SFENConverter().covertTo(viewModel.boardState))
                 Text(
                     text = "Enemy Komadai:${

@@ -4,10 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -15,7 +12,6 @@ const val BOARD_SIZE = 9
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val db: AppDatabase = AppDatabase.getInstance(application)
-    internal val questions: LiveData<List<Question>> = db.qustionDao().getAll()
     var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
@@ -39,8 +35,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun loadQuestion(questionId: Int) {
-        boardState = db.qustionDao().findById(questionId).boardState.toMutableStateList()
-//        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
+//        boardState = db.qustionDao().findById(questionId).boardState.toMutableStateList()
+        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
         komadaiState = listOf<PieceKind>().toMutableStateList()
 
     }
