@@ -29,10 +29,11 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
     private val db: AppDatabase = AppDatabase.getInstance(application)
 
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
-    var komadaiState: SnapshotStateList<PieceKind> =
-        listOf<PieceKind>().toMutableStateList()
-    var enemyKomadaiState: SnapshotStateList<PieceKind> =
-        listOf<PieceKind>().toMutableStateList()
+    var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
+
+    //        listOf<PieceKind>().toMutableStateList()
+    var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
+//        listOf<PieceKind>().toMutableStateList()
 
     fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {

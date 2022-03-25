@@ -28,6 +28,16 @@ class SFENConverterTest {
     }
 
     @Test
+    fun testConvertKomadaiFrom() {
+        val inputKomadaiSFEN = "2pl"
+        val expectedKomadai =
+            Pair(listOf(PieceKind.PAWN, PieceKind.PAWN, PieceKind.LANCE), listOf<PieceKind>())
+        val decodedResult = SFENConverter().convertKomadaiFrom(inputKomadaiSFEN)
+        assert(expectedKomadai == decodedResult)
+
+    }
+
+    @Test
     fun testConvertTo() {
         val initialBoardStateFlatten = initialBoardState.flatten()
         val expectedSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL"
@@ -44,7 +54,7 @@ class SFENConverterTest {
             PieceKind.GOLD to 1,
         )
         val out = SFENConverter().convertKomadaiTo(pieceCount, isOwnedEnemy = false)
-        val expectedResult = "2PG"
+        val expectedResult = "2pg"
         assert(expectedResult == out)
 
     }
@@ -56,7 +66,7 @@ class SFENConverterTest {
             PieceKind.GOLD to 2,
         )
         val out = SFENConverter().convertKomadaiTo(pieceCount, isOwnedEnemy = true)
-        val expectedResult = "2p2g"
+        val expectedResult = "2P2G"
         assert(expectedResult == out)
 
     }

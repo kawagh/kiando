@@ -1,5 +1,7 @@
 package com.example.kiando
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
+
 
 class SFENConverter {
     // TODO Promotion
@@ -66,6 +68,35 @@ class SFENConverter {
         return sb.toString()
     }
 
+    fun convertKomadaiFrom(komadaiSFEN: String): Pair<List<PieceKind>, List<PieceKind>> {
+        val myKomadai = mutableListOf<PieceKind>()
+        val enemyKomadai = mutableListOf<PieceKind>()
+        var count = 0
+        for (ch in komadaiSFEN) {
+            when (ch) {
+                in '1'..'9' -> {
+                    count = ch - '0'
+                }
+                in mapping.keys -> {
+                    if (ch.isUpperCase()) {
+                        if (count == 0) enemyKomadai.add(mapping[ch]!!.first)
+                        else {
+                            enemyKomadai.addAll(List(count) { mapping[ch]!!.first })
+                        }
+                    } else {
+                        if (count == 0) myKomadai.add(mapping[ch]!!.first)
+                        else {
+                            myKomadai.addAll(List(count) { mapping[ch]!!.first })
+                        }
+                    }
+                    count = 0
+                }
+                else -> {} // unreachable
+            }
+        }
+        return Pair(myKomadai.toList(), enemyKomadai.toList())
+    }
+
     fun convertKomadaiTo(pieceCount: Map<PieceKind, Int>, isOwnedEnemy: Boolean): String {
         val sb = StringBuilder()
         listOf(
@@ -83,9 +114,9 @@ class SFENConverter {
                     sb.append(pieceCount[it])
                 }
                 if (isOwnedEnemy) {
-                    sb.append(reverseMapping[it])
-                } else {
                     sb.append(reverseMapping[it]!!.uppercase())
+                } else {
+                    sb.append(reverseMapping[it])
                 }
             }
         return sb.toString()
