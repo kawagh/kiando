@@ -34,17 +34,18 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
     var enemyKomadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
 
-    fun saveQuestion() {
+    fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
             db.qustionDao().insert(
-                Question(
-                    id = 0,
-                    description = "saved from room",
-                    sfen = SFENConverter().covertTo(boardState),
-                    answerMove = Move(
-                        Position(-1, -1), Position(-1, -1)
-                    )
-                )
+                question
+//                Question(
+//                    id = 0,
+//                    description = "saved from room",
+//                    sfen = SFENConverter().covertTo(boardState),
+//                    answerMove = Move(
+//                        Position(-1, -1), Position(-1, -1)
+//                    )
+//                )
             )
         }
     }

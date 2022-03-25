@@ -9,6 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -45,6 +48,19 @@ fun MainScreen(question: Question) {
             LocalContext.current.applicationContext as Application, question
         )
     )
+    var isRegisterQuestionMode by remember {
+        mutableStateOf(false)
+    }
+    var inputSFEN by remember {
+        mutableStateOf("")
+    }
+    var inputQuestionDescription by remember {
+        mutableStateOf("")
+    }
+    var moveToRegister by remember {
+        mutableStateOf(NonMove)
+    }
+
 
     // state
 //    var questionId by remember {
@@ -57,7 +73,7 @@ fun MainScreen(question: Question) {
         PanelState(-1, -1, pieceKind = PieceKind.EMPTY)
     }
     var lastClickedPanelPos by remember {
-        mutableStateOf(Position(-1, -1))
+        mutableStateOf(NonPosition)
     }
     var panelClickedOnce by remember {
         mutableStateOf(false)
@@ -72,10 +88,22 @@ fun MainScreen(question: Question) {
     }
     val handleClearState: () -> Unit = {
         positionStack.clear()
-        lastClickedPanelPos = Position(-1, -1)
+        lastClickedPanelPos = NonPosition
         panelClickedOnce = false
         legalMovePositions.clear()
 //        gameViewModel.loadQuestion(questionId)
+    }
+
+    fun registerMove(move: Move) {
+        snackbarCoroutineScope.launch {
+            scaffoldState.snackbarHostState.showSnackbar(
+                "Your move is $move "
+            )
+        }
+        moveToRegister = move
+        gameViewModel.move(move)
+        positionStack.clear()
+        legalMovePositions.clear()
     }
 
     fun processMove(move: Move) {
@@ -99,7 +127,10 @@ fun MainScreen(question: Question) {
                 positionStack.add(Position(it.row, it.column))
                 val move = Move(positionStack.first(), positionStack.last())
                 if (gameViewModel.isMoveFromKomadai(move)) {
-                    processMove(move)
+                    when (isRegisterQuestionMode) {
+                        false -> processMove(move)
+                        true -> registerMove(move)
+                    }
                 } else {
                     // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
                     when (gameViewModel.listLegalMoves(lastClickedPanel)
@@ -109,7 +140,10 @@ fun MainScreen(question: Question) {
                             shouldShowPromotionDialog = true
                         }
                         false -> {
-                            processMove(move)
+                            when (isRegisterQuestionMode) {
+                                false -> processMove(move)
+                                true -> registerMove(move)
+                            }
                         }
                     }
                 }
@@ -163,8 +197,17 @@ fun MainScreen(question: Question) {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Filled.Share, "share sfen")
+                    IconButton(onClick = {
+                        isRegisterQuestionMode = !isRegisterQuestionMode
+                        // modeに入った時点の局面を保持する
+                        if (isRegisterQuestionMode) {
+                            inputSFEN = SFENConverter().covertTo(gameViewModel.boardState)
+                        }
+                    }) {
+                        when (isRegisterQuestionMode) {
+                            false -> Icon(Icons.Filled.Add, "enter in registering Question")
+                            true -> Icon(Icons.Filled.Cancel, "cancel registering ")
+                        }
                     }
                 }
             )
@@ -185,7 +228,11 @@ fun MainScreen(question: Question) {
                             positionStack.last(),
                             true,
                         )
-                        processMove(move)
+
+                        when (isRegisterQuestionMode) {
+                            false -> processMove(move)
+                            true -> registerMove(move)
+                        }
                     },
                     onDismissClick = {
                         shouldShowPromotionDialog = false
@@ -194,13 +241,13 @@ fun MainScreen(question: Question) {
                             positionStack.last(),
                             false,
                         )
-                        processMove(move)
+                        when (isRegisterQuestionMode) {
+                            false -> processMove(move)
+                            true -> registerMove(move)
+                        }
                     })
                 // Debug
-
-                Button(onClick = { gameViewModel.saveQuestion() }) {
-                    Text(text = "Save")
-                }
+                Text(text = question.answerMove.toString())
                 Text(text = SFENConverter().covertTo(gameViewModel.boardState))
                 Text(
                     text = "Enemy Komadai:${
@@ -217,7 +264,14 @@ fun MainScreen(question: Question) {
                             isOwnedEnemy = false
                         )
                     }"
-                )
+                ) // debug end
+
+                if (isRegisterQuestionMode) {
+                    Text(
+                        text = "Do move to register",
+                        fontSize = MaterialTheme.typography.h5.fontSize
+                    )
+                }
 
 
                 // enemy
@@ -238,7 +292,20 @@ fun MainScreen(question: Question) {
                     piecesCount,
                     handleKomadaiClick
                 )
-                Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
+                when (isRegisterQuestionMode) {
+                    false -> Text(
+                        text = question.description,
+                        fontSize = MaterialTheme.typography.h5.fontSize
+                    )
+                    true -> TextField(
+                        value = inputQuestionDescription,
+                        onValueChange = { inputQuestionDescription = it },
+                        label = {
+                            Text(text = "Input question description")
+                        },
+                    )
+
+                }
 
                 // FIXME
 //                Row() {
@@ -262,9 +329,67 @@ fun MainScreen(question: Question) {
 //                    }
 //                }
             }
+        },
+        floatingActionButton = {
+            if (isRegisterQuestionMode) {
+                val newQuestion = Question(
+                    id = 0,
+                    description = inputQuestionDescription,
+                    answerMove = moveToRegister,
+                    sfen = inputSFEN
+                )
+                FloatingActionButton(onClick = {
+                    when (validateQuestion(newQuestion)) {
+                        QuestionValidationResults.EmptyDescription -> {
+                            snackbarCoroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    "🆖 empty description"
+                                )
+                            }
+                        }
+                        QuestionValidationResults.NeedMove -> {
+                            snackbarCoroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    "🆖 need move"
+                                )
+                            }
+
+                        }
+                        QuestionValidationResults.Valid -> {
+                            gameViewModel.saveQuestion(newQuestion)
+                            snackbarCoroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    "🆗 saved"
+                                )
+                            }
+                            isRegisterQuestionMode = false
+                            moveToRegister = NonMove
+                            inputQuestionDescription = ""
+                        }
+                    }
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "register new Question")
+                }
+            }
         }
     )
 }
+
+sealed class QuestionValidationResults {
+    object Valid : QuestionValidationResults()
+    object EmptyDescription : QuestionValidationResults()
+    object NeedMove : QuestionValidationResults()
+}
+
+fun validateQuestion(question: Question): QuestionValidationResults =
+    if (question.description.isEmpty()) {
+        QuestionValidationResults.EmptyDescription
+    } else {
+        when (question.answerMove == NonMove) {
+            true -> QuestionValidationResults.NeedMove
+            false -> QuestionValidationResults.Valid
+        }
+    }
 
 @Composable
 private fun PromotionDialog(

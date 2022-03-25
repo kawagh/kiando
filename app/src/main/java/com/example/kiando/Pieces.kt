@@ -23,6 +23,9 @@ data class Move(
     val isPromote: Boolean = false
 )
 
+val NonPosition = Position(-1, -1)
+val NonMove = Move(NonPosition, NonPosition)
+
 data class PanelState(
     val row: Int,
     val column: Int,
