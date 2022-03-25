@@ -48,7 +48,6 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 composable("list") {
                     ListScreen(
                         questions = allQuestions,
-                        onNavigateMain = { navController.navigate("main/0") },
                         navigateToQuestion,
                         { questionsViewModel.deleteAll() }
                     )
