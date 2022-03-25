@@ -39,9 +39,6 @@ fun ListScreen(
         Button(onClick = handleDeleteQuestions) {
             Text(text = "delete")
         }
-        Button(onClick = onNavigateMain) {
-            Text(text = "List")
-        }
         QuestionsList(questions = questions, navigateToQuestion)
     }
 }
