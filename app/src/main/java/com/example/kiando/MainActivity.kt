@@ -63,7 +63,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     val question =
                         allQuestions.find { question -> question.id == questionId }
                             ?: sampleQuestion
-                    MainScreen(question = question)
+                    MainScreen(question = question,
+                        navigateToList = { navController.navigate("list") }
+                    )
                 }
             }
         }
