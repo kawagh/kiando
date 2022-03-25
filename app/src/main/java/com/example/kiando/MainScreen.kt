@@ -57,9 +57,6 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
 
 
     // state
-//    var questionId by remember {
-//        mutableStateOf(question.id)
-//    }
     val positionStack = remember {
         mutableStateListOf<Position>()
     }

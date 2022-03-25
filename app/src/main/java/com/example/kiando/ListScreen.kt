@@ -1,19 +1,22 @@
 package com.example.kiando
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.kiando.ui.theme.BoardColor
 
 @Preview
 @Composable
@@ -68,7 +71,7 @@ fun ListScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(text = "List Screen")
+                Text(text = "Problem Set", fontSize = MaterialTheme.typography.h4.fontSize)
                 QuestionsList(questions = questions, navigateToQuestion)
             }
         },
@@ -83,17 +86,23 @@ fun QuestionsList(questions: List<Question>, navigateToQuestion: (Int) -> Unit) 
                 question = question,
                 onClick = { navigateToQuestion(question.id) },
             )
+            Spacer(Modifier.size(5.dp))
         }
     }
 }
 
 @Composable
 fun QuestionRow(question: Question, onClick: () -> Unit) {
-    Row() {
-        Text(text = question.description)
-        Button(onClick = onClick) {
-            Text(text = "solve")
-        }
+    Row(
+        modifier = Modifier
+            .width(300.dp)
+            .clip(shape = RoundedCornerShape(20.dp))
+            .clickable { onClick.invoke() }
+            .background(BoardColor),
+        horizontalArrangement = Arrangement.Center,
+    )
+    {
+        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
     }
 }
 
