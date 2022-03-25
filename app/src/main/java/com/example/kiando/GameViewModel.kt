@@ -1,20 +1,57 @@
 package com.example.kiando
 
+import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.IllegalArgumentException
 
 const val BOARD_SIZE = 9
 
-class GameViewModel : ViewModel() {
-    var boardState: SnapshotStateList<PanelState> = initialBoardState.flatten().toMutableStateList()
+class GameViewModelFactory(private val application: Application, private val question: Question) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GameViewModel(application, question) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel Class")
+    }
+
+}
+
+class GameViewModel(application: Application, question: Question) : AndroidViewModel(application) {
+    private val db: AppDatabase = AppDatabase.getInstance(application)
+
+    var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> =
         listOf<PieceKind>().toMutableStateList()
 
+    fun saveQuestion() {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.qustionDao().insert(
+                Question(
+                    id = 0,
+                    description = "saved from room",
+                    sfen = SFENConverter().covertTo(boardState),
+                    answerMove = Move(
+                        Position(-1, -1), Position(-1, -1)
+                    )
+                )
+            )
+        }
+    }
+
 
     fun loadQuestion(questionId: Int) {
+//        boardState = db.qustionDao().findById(questionId).boardState.toMutableStateList()
         boardState = sampleQuestions[questionId].boardState.toMutableStateList()
         komadaiState = listOf<PieceKind>().toMutableStateList()
 
@@ -121,7 +158,6 @@ class GameViewModel : ViewModel() {
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
         val originalColumn = panelState.column
-        // TODO isEnemy
         // negate offset
         val results = when (panelState.pieceKind) {
             PieceKind.EMPTY -> {

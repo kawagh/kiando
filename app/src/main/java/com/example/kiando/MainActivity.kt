@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,13 +28,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App() {
+fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     KiandoTheme {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
         val navigateToQuestion: (Int) -> Unit = { questionId ->
             navController.navigate("main/${questionId}")
         }
+        val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
+        val allQuestions = sampleQuestions + userAddedQuestions
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
@@ -42,8 +47,10 @@ fun App() {
                 }
                 composable("list") {
                     ListScreen(
+                        questions = allQuestions,
                         onNavigateMain = { navController.navigate("main/0") },
-                        navigateToQuestion
+                        navigateToQuestion,
+                        { questionsViewModel.deleteAll() }
                     )
                 }
                 composable(
@@ -52,7 +59,11 @@ fun App() {
                         type = NavType.IntType
                     })
                 ) {
-                    MainScreen(questionId = it.arguments?.getInt("questionId") ?: 0)
+                    val questionId = it.arguments?.getInt("questionId") ?: 0
+                    val question =
+                        allQuestions.find { question -> question.id == questionId }
+                            ?: sampleQuestion
+                    MainScreen(question = question)
                 }
             }
         }
