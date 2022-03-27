@@ -48,11 +48,17 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
 
     fun isPromotable(move: Move): Boolean {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
-        return when (boardState[fromIndex].isEnemy) {
-            true ->
-                !boardState[fromIndex].isPromoted && (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
-            false ->
-                !boardState[fromIndex].isPromoted && (move.from.row <= 2 || move.to.row <= 2)
+        return when (boardState[fromIndex].pieceKind) {
+            PieceKind.KING -> false
+            PieceKind.GOLD -> false
+            PieceKind.EMPTY -> false
+            else ->
+                when (boardState[fromIndex].isEnemy) {
+                    true ->
+                        !boardState[fromIndex].isPromoted && (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+                    false ->
+                        !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
+                }
         }
     }
 
