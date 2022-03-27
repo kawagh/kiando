@@ -2,7 +2,6 @@ package com.example.kiando
 
 
 class SFENConverter {
-    // TODO Promotion
     private val mapping: Map<Char, Pair<PieceKind, Boolean>> = mapOf(
         'l' to Pair(PieceKind.LANCE, true),
         'L' to Pair(PieceKind.LANCE, false),
@@ -46,6 +45,7 @@ class SFENConverter {
                         sb.append(emptyCount.toString())
                         emptyCount = 0
                     }
+                    if (ps.isPromoted) sb.append('+')
                     sb.append(
                         if (ps.isEnemy) reverseMapping[ps.pieceKind] else reverseMapping[ps.pieceKind]!!.uppercase()
                     )
@@ -126,15 +126,21 @@ class SFENConverter {
             PanelState(it / BOARD_SIZE, it % BOARD_SIZE, PieceKind.EMPTY)
         }
         var i = 0
+        var isPromoted = false
         for (ch in sfen) {
             when (ch) {
+                '+' -> {
+                    isPromoted = true
+                }
                 in mapping.keys -> {
                     board[i] = PanelState(
                         i / BOARD_SIZE,
                         i % BOARD_SIZE,
                         pieceKind = mapping[ch]!!.first,
                         isEnemy = mapping[ch]!!.second,
+                        isPromoted = isPromoted,
                     )
+                    isPromoted = false
                     i += 1
                 }
                 in '1'..'9' -> {

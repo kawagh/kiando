@@ -26,6 +26,18 @@ class SFENConverterTest {
     }
 
     @Test
+    fun testConvertFromWithPromotion() {
+        val initialSFENwithPromotedLance =
+            "+lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL"
+        val decodedBoard = SFENConverter().convertFrom(initialSFENwithPromotedLance)
+        val expected = PanelState(0, 0, PieceKind.LANCE, true, isPromoted = true)
+        assert(expected == decodedBoard[0]) {
+            "SFENの成駒の情報が反映されていない"
+            "Decode Failed at: ${decodedBoard[0]}"
+        }
+    }
+
+    @Test
     fun testConvertKomadaiFrom() {
         val inputKomadaiSFEN = "2pl"
         val expectedKomadai =
