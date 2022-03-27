@@ -33,13 +33,16 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    MainScreen(sampleQuestion, {})
+    MainScreen(sampleQuestion, {}, {})
 }
 
 
 @Composable
-fun MainScreen(question: Question, navigateToList: () -> Unit) {
-    val gameViewModel: GameViewModel = viewModel<GameViewModel>(
+fun MainScreen(
+    question: Question, navigateToList: () -> Unit,
+    navigateToNextQuestion: () -> Unit,
+) {
+    val gameViewModel: GameViewModel = viewModel(
         factory = GameViewModelFactory(
             LocalContext.current.applicationContext as Application, question
         )
@@ -87,7 +90,6 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
         lastClickedPanelPos = NonPosition
         panelClickedOnce = false
         legalMovePositions.clear()
-//        gameViewModel.loadQuestion(questionId)
     }
 
     fun registerMove(move: Move) {
@@ -106,9 +108,16 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
         // judge
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(
-                    "Good Move👍"
+                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                    message = "Good Move👍",
+                    actionLabel = "Next",
                 )
+                when (snackbarResult) {
+                    SnackbarResult.ActionPerformed -> {
+                        navigateToNextQuestion.invoke()
+                    }
+                    SnackbarResult.Dismissed -> {}
+                }
             }
         }
         gameViewModel.move(move)
@@ -288,30 +297,7 @@ fun MainScreen(question: Question, navigateToList: () -> Unit) {
                             Text(text = "Input question description")
                         },
                     )
-
                 }
-
-                // TODO nextQuestion navigation
-//                Row() {
-//                    Button(
-//                        onClick = {
-//                            questionId--
-//                            handleClearState()
-//                        },
-//                        enabled = questionId > 0
-//                    ) {
-//                        Text(text = "prev")
-//                    }
-//                    Button(
-//                        onClick = {
-//                            questionId++
-//                            handleClearState()
-//                        },
-//                        enabled = questionId + 1 < sampleQuestions.size
-//                    ) {
-//                        Text(text = "next")
-//                    }
-//                }
             }
         },
         floatingActionButton = {
@@ -477,18 +463,16 @@ private fun BoardRow(
     panelClickedOnce: Boolean,
     lastClickedPanelPos: Position,
     legalMovePositions: List<Position>,
-) {
-    Row() {
-        repeat(BOARD_SIZE) { colIndex ->
-            Panel(
-                boardRow[colIndex],
-                handlePanelClick,
-                panelClickedOnce,
-                lastClickedPanelPos,
-                legalMovePositions
-            )
+) = Row {
+    repeat(BOARD_SIZE) { colIndex ->
+        Panel(
+            boardRow[colIndex],
+            handlePanelClick,
+            panelClickedOnce,
+            lastClickedPanelPos,
+            legalMovePositions
+        )
 
-        }
     }
 }
 

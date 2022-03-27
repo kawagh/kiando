@@ -28,7 +28,7 @@ fun PreviewListScreen() {
 @Composable
 fun ListScreen(
     questions: List<Question>,
-    navigateToQuestion: (questionId: Int) -> Unit,
+    navigateToQuestion: (Question) -> Unit,
     handleDeleteQuestions: () -> Unit
 ) {
     var showDeleteDialog by remember {
@@ -79,12 +79,12 @@ fun ListScreen(
 }
 
 @Composable
-fun QuestionsList(questions: List<Question>, navigateToQuestion: (Int) -> Unit) {
+fun QuestionsList(questions: List<Question>, navigateToQuestion: (Question) -> Unit) {
     LazyColumn {
         items(questions) { question ->
             QuestionRow(
                 question = question,
-                onClick = { navigateToQuestion(question.id) },
+                onClick = { navigateToQuestion(question) },
             )
             Spacer(Modifier.size(5.dp))
         }

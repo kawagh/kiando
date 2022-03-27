@@ -32,8 +32,8 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     KiandoTheme {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
-        val navigateToQuestion: (Int) -> Unit = { questionId ->
-            navController.navigate("main/${questionId}")
+        val navigateToQuestion: (Question) -> Unit = { it ->
+            navController.navigate("main/${it.id}")
         }
         val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
         val allQuestions = sampleQuestions + userAddedQuestions
@@ -62,8 +62,12 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     val question =
                         allQuestions.find { question -> question.id == questionId }
                             ?: sampleQuestion
-                    MainScreen(question = question,
-                        navigateToList = { navController.navigate("list") }
+                    val nextQuestion =
+                        allQuestions.find { question -> question.id > questionId } ?: sampleQuestion
+                    MainScreen(
+                        question = question,
+                        navigateToList = { navController.navigate("list") },
+                        navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
                     )
                 }
             }
