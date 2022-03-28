@@ -41,7 +41,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
-            NavHost(navController = navController, startDestination = "entry") {
+            NavHost(navController = navController, startDestination = "list") {
                 composable("entry") {
                     EntryScreen(onNavigateList = { navController.navigate("list") })
                 }

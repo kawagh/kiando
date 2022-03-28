@@ -17,7 +17,7 @@ class Converters {
         append(move.to.column)
         append('_')
         if (move.isPromote) append('1') else append('0')
-    }.toString().trimStart().trimEnd()
+    }.toString()
 
     @TypeConverter
     fun toMove(s: String): Move {

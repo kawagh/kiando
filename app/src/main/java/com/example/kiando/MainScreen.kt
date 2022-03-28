@@ -93,11 +93,11 @@ fun MainScreen(
     }
 
     fun registerMove(move: Move) {
-        snackbarCoroutineScope.launch {
-            scaffoldState.snackbarHostState.showSnackbar(
-                "Your move is $move "
-            )
-        }
+//        snackbarCoroutineScope.launch {
+//            scaffoldState.snackbarHostState.showSnackbar(
+//                "Your move is $move "
+//            )
+//        }
         moveToRegister = move
         gameViewModel.move(move)
         positionStack.clear()
