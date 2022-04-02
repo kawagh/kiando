@@ -50,6 +50,11 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         questions = allQuestions,
                         navigateToQuestion = navigateToQuestion,
                         handleDeleteQuestions = { questionsViewModel.deleteAll() },
+                        handleDeleteAQuestion = { question ->
+                            questionsViewModel.deleteQuestion(
+                                question
+                            )
+                        }
                     )
                 }
                 composable(
