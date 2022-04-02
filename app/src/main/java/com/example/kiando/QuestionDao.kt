@@ -14,8 +14,11 @@ interface QuestionDao {
     @Query("SELECT * FROM questions WHERE id = :questionId")
     fun findById(questionId: Int): Question
 
+    @Query("DELETE FROM questions WHERE id = :questionId")
+    fun deleteById(questionId: Int)
+
     @Query("DELETE FROM questions")
-    fun deleteAll(): Unit
+    fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(question: Question)
