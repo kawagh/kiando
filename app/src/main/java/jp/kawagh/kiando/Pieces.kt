@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 typealias BoardState = List<List<PanelState>>
 typealias BoardStateFlatten = List<PanelState>

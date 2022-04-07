@@ -1,6 +1,4 @@
-package com.example.kiando
-
-import org.junit.Assert.*
+package jp.kawagh.kiando
 
 import org.junit.Test
 

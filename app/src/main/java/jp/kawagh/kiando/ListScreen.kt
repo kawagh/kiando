@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -18,7 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.kiando.ui.theme.BoardColor
+import jp.kawagh.kiando.ui.theme.BoardColor
 
 @Preview
 @Composable

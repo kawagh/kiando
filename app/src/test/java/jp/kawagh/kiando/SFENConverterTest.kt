@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import org.junit.Test
 

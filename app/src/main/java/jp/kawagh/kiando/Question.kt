@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

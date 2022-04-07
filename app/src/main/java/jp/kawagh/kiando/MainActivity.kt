@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,7 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.kiando.ui.theme.KiandoTheme
+import jp.kawagh.kiando.ui.theme.KiandoTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

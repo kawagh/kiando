@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

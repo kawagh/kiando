@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import android.app.Application
 import androidx.compose.foundation.BorderStroke
@@ -26,8 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.kiando.ui.theme.BoardColor
-import com.example.kiando.ui.theme.BoardColorUnfocused
+import jp.kawagh.kiando.ui.theme.BoardColor
+import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import kotlinx.coroutines.launch
 
 @Preview

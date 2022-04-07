@@ -1,4 +1,4 @@
-package com.example.kiando.ui.theme
+package jp.kawagh.kiando.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

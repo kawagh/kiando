@@ -1,4 +1,4 @@
-package com.example.kiando
+package jp.kawagh.kiando
 
 import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
