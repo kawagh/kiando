@@ -26,9 +26,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import jp.kawagh.kiando.ui.components.Piece
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import kotlinx.coroutines.launch
+
 
 @Preview
 @Composable
@@ -266,7 +268,6 @@ fun MainScreen(
                         fontSize = MaterialTheme.typography.h5.fontSize
                     )
                 }
-
                 // enemy
                 Komadai(
                     enemyPiecesCount,
@@ -393,6 +394,17 @@ private fun Komadai(
     piecesCount: Map<PieceKind, Int>,
     handleKomadaiClick: (PieceKind) -> Unit,
 ) {
+    val pieceKindMap: Map<PieceKind, String> = mapOf(
+        PieceKind.EMPTY to "",
+        PieceKind.KING to "王",
+        PieceKind.ROOK to "飛",
+        PieceKind.BISHOP to "角",
+        PieceKind.GOLD to "金",
+        PieceKind.SILVER to "銀",
+        PieceKind.KNIGHT to "桂",
+        PieceKind.LANCE to "香",
+        PieceKind.PAWN to "歩",
+    )
     Box(
         modifier = Modifier
             .background(BoardColorUnfocused)
@@ -409,29 +421,13 @@ private fun Komadai(
                     ),
                     modifier = Modifier.width(70.dp)
                 ) {
-                    Piece(pieceKind)
+                    Text(text = pieceKindMap[pieceKind]!!)
                     Text(text = "x", fontSize = 15.sp)
                     Text(text = "${piecesCount[pieceKind]}")
                 }
             }
         }
     }
-}
-
-@Composable
-private fun Piece(pieceKind: PieceKind) {
-    val text = when (pieceKind) {
-        PieceKind.EMPTY -> ""
-        PieceKind.KING -> "王"
-        PieceKind.ROOK -> "飛"
-        PieceKind.BISHOP -> "角"
-        PieceKind.GOLD -> "金"
-        PieceKind.SILVER -> "銀"
-        PieceKind.KNIGHT -> "桂"
-        PieceKind.LANCE -> "香"
-        PieceKind.PAWN -> "歩"
-    }
-    Text(text = text, fontSize = 17.sp)
 }
 
 
@@ -484,41 +480,58 @@ private fun Panel(
     lastClickedPanelPos: Position,
     legalMovePositions: List<Position>,
 ) {
-    Button(
-        onClick = { handlePanelClick(panelState) },
-        modifier = Modifier
-            .size(40.dp)
-            .border(BorderStroke(0.1.dp, Color.Black)),
-        colors = ButtonDefaults.textButtonColors(
-            backgroundColor = if (panelClickedOnce) {
-                when (Position(panelState.row, panelState.column)) {
-                    lastClickedPanelPos -> BoardColor
-                    in legalMovePositions -> BoardColor
-                    else -> BoardColorUnfocused
-                }
-            } else {
-                BoardColor
-            },
-            contentColor = Color.Black,
-        )
-    ) {
-        val text = when (panelState.pieceKind) {
-            PieceKind.EMPTY -> ""
-            PieceKind.KING -> "王"
-            PieceKind.ROOK -> if (panelState.isPromoted) "龍" else "飛"
-            PieceKind.BISHOP -> if (panelState.isPromoted) "馬" else "角"
-            PieceKind.GOLD -> "金"
-            PieceKind.SILVER -> if (panelState.isPromoted) "全" else "銀"
-            PieceKind.KNIGHT -> if (panelState.isPromoted) "圭" else "桂"
-            PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
-            PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
+    val text = when (panelState.pieceKind) {
+        PieceKind.EMPTY -> ""
+        PieceKind.KING -> "王"
+        PieceKind.ROOK -> if (panelState.isPromoted) "龍" else "飛"
+        PieceKind.BISHOP -> if (panelState.isPromoted) "馬" else "角"
+        PieceKind.GOLD -> "金"
+        PieceKind.SILVER -> if (panelState.isPromoted) "全" else "銀"
+        PieceKind.KNIGHT -> if (panelState.isPromoted) "圭" else "桂"
+        PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
+        PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
+    }
+    val backgroundColor = if (panelClickedOnce) {
+        when (Position(panelState.row, panelState.column)) {
+            lastClickedPanelPos -> BoardColor
+            in legalMovePositions -> BoardColor
+            else -> BoardColorUnfocused
         }
-        Text(
-            text = text, fontSize = 17.sp,
-            color = if (panelState.isPromoted) Color.Red else Color.Black,
-            modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-        )
+    } else BoardColor
+
+
+    when (panelState.pieceKind) {
+        PieceKind.EMPTY -> {
+            Button(
+                onClick = { handlePanelClick(panelState) },
+                modifier = Modifier
+                    .size(40.dp)
+                    .border(BorderStroke(0.1.dp, Color.Black)),
+                colors = ButtonDefaults.textButtonColors(
+                    backgroundColor = backgroundColor,
+                    contentColor = Color.Black,
+                )
+            ) {
+                Text(
+                    text = text, fontSize = 17.sp,
+                    color = if (panelState.isPromoted) Color.Red else Color.Black,
+                    modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        else -> {
+            Piece(
+                text = text,
+                onClick = { handlePanelClick(panelState) },
+                isEnemy = panelState.isEnemy,
+                isPromoted = panelState.isPromoted,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(backgroundColor)
+                    .border(BorderStroke(0.1.dp, Color.Black))
+            )
+        }
     }
 }
