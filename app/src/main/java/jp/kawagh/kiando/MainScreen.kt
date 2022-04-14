@@ -491,6 +491,14 @@ private fun Panel(
         PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
         PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
     }
+    val backgroundColor = if (panelClickedOnce) {
+        when (Position(panelState.row, panelState.column)) {
+            lastClickedPanelPos -> BoardColor
+            in legalMovePositions -> BoardColor
+            else -> BoardColorUnfocused
+        }
+    } else BoardColor
+
 
     when (panelState.pieceKind) {
         PieceKind.EMPTY -> {
@@ -500,15 +508,7 @@ private fun Panel(
                     .size(40.dp)
                     .border(BorderStroke(0.1.dp, Color.Black)),
                 colors = ButtonDefaults.textButtonColors(
-                    backgroundColor = if (panelClickedOnce) {
-                        when (Position(panelState.row, panelState.column)) {
-                            lastClickedPanelPos -> BoardColor
-                            in legalMovePositions -> BoardColor
-                            else -> BoardColorUnfocused
-                        }
-                    } else {
-                        BoardColor
-                    },
+                    backgroundColor = backgroundColor,
                     contentColor = Color.Black,
                 )
             ) {
@@ -529,17 +529,7 @@ private fun Panel(
                 isPromoted = panelState.isPromoted,
                 modifier = Modifier
                     .size(40.dp)
-                    .background(
-                        if (panelClickedOnce) {
-                            when (Position(panelState.row, panelState.column)) {
-                                lastClickedPanelPos -> BoardColor
-                                in legalMovePositions -> BoardColor
-                                else -> BoardColorUnfocused
-                            }
-                        } else {
-                            BoardColor
-                        }
-                    )
+                    .background(backgroundColor)
                     .border(BorderStroke(0.1.dp, Color.Black))
             )
         }
