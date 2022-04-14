@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import jp.kawagh.kiando.ui.theme.PieceColor
 
 @Composable
 fun Piece(
@@ -41,7 +42,7 @@ fun Piece(
                     lineTo(w / 4, h / 3)
                     close()
                 },
-                color = Color.White,
+                color = PieceColor,
             )
         }
         Text(text = text, fontSize = 17.sp, color = if (isPromoted) Color.Red else Color.Black)
