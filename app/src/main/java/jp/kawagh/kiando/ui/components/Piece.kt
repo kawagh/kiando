@@ -3,6 +3,7 @@ package jp.kawagh.kiando.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -52,5 +53,10 @@ fun Piece(
 @Preview
 @Composable
 private fun PiecePreview() {
-    Piece(text = "王", {}, modifier = Modifier.size(200.dp))
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Piece(text = "", {}, modifier = Modifier.size(200.dp))
+    }
 }
