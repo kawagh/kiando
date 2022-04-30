@@ -87,19 +87,8 @@ fun MainScreen(
     val legalMovePositions = remember {
         mutableStateListOf<Position>()
     }
-    val handleClearState: () -> Unit = {
-        positionStack.clear()
-        lastClickedPanelPos = NonPosition
-        panelClickedOnce = false
-        legalMovePositions.clear()
-    }
 
     fun registerMove(move: Move) {
-//        snackbarCoroutineScope.launch {
-//            scaffoldState.snackbarHostState.showSnackbar(
-//                "Your move is $move "
-//            )
-//        }
         moveToRegister = move
         gameViewModel.move(move)
         positionStack.clear()
