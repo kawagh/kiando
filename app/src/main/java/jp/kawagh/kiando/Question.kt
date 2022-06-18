@@ -41,6 +41,7 @@ data class Question(
     val answerMove: Move,
     val sfen: String,
     val komadaiSfen: String,
+    val tag_id: Int? = null
 ) {
     val boardState
         get() = SFENConverter().convertFrom(sfen)
