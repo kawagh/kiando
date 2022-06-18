@@ -67,6 +67,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                             questionsViewModel.deleteQuestion(
                                 question
                             )
+                        },
+                        handleFavoriteQuestion = { question ->
+                            questionsViewModel.toggleQuestionFavorite(question)
                         }
                     )
                 }

@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +25,7 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, {}, {}, {})
+    ListScreen(sampleQuestions, {}, {}, {}, {})
 
 }
 
@@ -33,6 +35,7 @@ fun ListScreen(
     navigateToQuestion: (Question) -> Unit,
     handleDeleteQuestions: () -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
+    handleFavoriteQuestion: (Question) -> Unit,
 ) {
     var showDeleteDialog by remember {
         mutableStateOf(false)
@@ -79,6 +82,7 @@ fun ListScreen(
                     questions = questions,
                     navigateToQuestion = navigateToQuestion,
                     handleDeleteAQuestion = handleDeleteAQuestion,
+                    handleFavoriteQuestion = handleFavoriteQuestion,
                 )
             }
         },
@@ -90,6 +94,7 @@ fun QuestionsList(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
+    handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
         items(questions) { question ->
@@ -97,6 +102,7 @@ fun QuestionsList(
                 question = question,
                 onClick = { navigateToQuestion(question) },
                 handleDeleteAQuestion = { handleDeleteAQuestion(question) },
+                handleFavoriteQuestion = { handleFavoriteQuestion(question) },
             )
             Spacer(Modifier.size(5.dp))
         }
@@ -105,7 +111,11 @@ fun QuestionsList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun QuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQuestion: () -> Unit) {
+fun QuestionRow(
+    question: Question, onClick: () -> Unit,
+    handleDeleteAQuestion: () -> Unit,
+    handleFavoriteQuestion: () -> Unit,
+) {
     var showDeleteButton by remember {
         mutableStateOf(false)
     }
@@ -123,11 +133,19 @@ fun QuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQuestion: 
     {
         Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
         if (showDeleteButton) {
-            Button(onClick = {
+            IconButton(onClick = {
                 handleDeleteAQuestion.invoke()
                 showDeleteButton = false
             }) {
-                Text(text = "delete")
+                Icon(Icons.Default.Delete, "delete")
+            }
+            IconButton(
+                onClick = { handleFavoriteQuestion.invoke() },
+            ) {
+                Icon(
+                    if (question.tag_id == 1) Icons.Default.Star else Icons.Default.Remove,
+                    "toggle favorite"
+                )
             }
         }
     }
