@@ -29,6 +29,11 @@ fun PreviewListScreen() {
 
 }
 
+sealed class TabItem(val name: String) {
+    object All : TabItem("All")
+    object Tagged : TabItem("Tagged")
+}
+
 @Composable
 fun ListScreen(
     questions: List<Question>,
@@ -39,6 +44,14 @@ fun ListScreen(
 ) {
     var showDeleteDialog by remember {
         mutableStateOf(false)
+    }
+    var tabRowIndex by remember {
+        mutableStateOf(0)
+    }
+    val tabs = listOf(TabItem.All, TabItem.Tagged)
+    val questionsToDisplay = when (tabs[tabRowIndex]) {
+        is TabItem.All -> questions
+        is TabItem.Tagged -> questions.filter { it.tag_id != null }
     }
     Scaffold(
         topBar = {
@@ -75,11 +88,17 @@ fun ListScreen(
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
             ) {
+                TabRow(selectedTabIndex = tabRowIndex) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
+                            Text(tab.name, fontSize = MaterialTheme.typography.h5.fontSize)
+                        }
+                    }
+                }
                 Text(text = "Problem Set", fontSize = MaterialTheme.typography.h4.fontSize)
                 QuestionsList(
-                    questions = questions,
+                    questions = questionsToDisplay,
                     navigateToQuestion = navigateToQuestion,
                     handleDeleteAQuestion = handleDeleteAQuestion,
                     handleFavoriteQuestion = handleFavoriteQuestion,
@@ -116,38 +135,39 @@ fun QuestionRow(
     handleDeleteAQuestion: () -> Unit,
     handleFavoriteQuestion: () -> Unit,
 ) {
-    var showDeleteButton by remember {
+    var showButtons by remember {
         mutableStateOf(false)
     }
     Row(
         modifier = Modifier
-            .width(300.dp)
+            .fillMaxWidth()
             .clip(shape = RoundedCornerShape(20.dp))
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = { showDeleteButton = !showDeleteButton },
+                onLongClick = { showButtons = !showButtons },
             )
             .background(BoardColor),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = if (showButtons) Arrangement.Start else Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     )
     {
-        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
-        if (showDeleteButton) {
-            IconButton(onClick = {
-                handleDeleteAQuestion.invoke()
-                showDeleteButton = false
-            }) {
-                Icon(Icons.Default.Delete, "delete")
-            }
+        if (showButtons) {
             IconButton(
                 onClick = { handleFavoriteQuestion.invoke() },
             ) {
                 Icon(
                     if (question.tag_id == 1) Icons.Default.Star else Icons.Default.Remove,
-                    "toggle favorite"
+                    "toggle favorite",
                 )
             }
+            IconButton(onClick = {
+                handleDeleteAQuestion.invoke()
+                showButtons = false
+            }) {
+                Icon(Icons.Default.Delete, "delete")
+            }
         }
+        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
     }
 }
 
