@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,8 +25,13 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, {}, {}, {})
+    ListScreen(sampleQuestions, {}, {}, {}, {})
 
+}
+
+sealed class TabItem(val name: String) {
+    object All : TabItem("All")
+    object Tagged : TabItem("Tagged")
 }
 
 @Composable
@@ -33,9 +40,18 @@ fun ListScreen(
     navigateToQuestion: (Question) -> Unit,
     handleDeleteQuestions: () -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
+    handleFavoriteQuestion: (Question) -> Unit,
 ) {
     var showDeleteDialog by remember {
         mutableStateOf(false)
+    }
+    var tabRowIndex by remember {
+        mutableStateOf(0)
+    }
+    val tabs = listOf(TabItem.All, TabItem.Tagged)
+    val questionsToDisplay = when (tabs[tabRowIndex]) {
+        is TabItem.All -> questions
+        is TabItem.Tagged -> questions.filter { it.tag_id != null }
     }
     Scaffold(
         topBar = {
@@ -72,13 +88,20 @@ fun ListScreen(
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
             ) {
+                TabRow(selectedTabIndex = tabRowIndex) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
+                            Text(tab.name, fontSize = MaterialTheme.typography.h5.fontSize)
+                        }
+                    }
+                }
                 Text(text = "Problem Set", fontSize = MaterialTheme.typography.h4.fontSize)
                 QuestionsList(
-                    questions = questions,
+                    questions = questionsToDisplay,
                     navigateToQuestion = navigateToQuestion,
                     handleDeleteAQuestion = handleDeleteAQuestion,
+                    handleFavoriteQuestion = handleFavoriteQuestion,
                 )
             }
         },
@@ -90,6 +113,7 @@ fun QuestionsList(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
+    handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
         items(questions) { question ->
@@ -97,6 +121,7 @@ fun QuestionsList(
                 question = question,
                 onClick = { navigateToQuestion(question) },
                 handleDeleteAQuestion = { handleDeleteAQuestion(question) },
+                handleFavoriteQuestion = { handleFavoriteQuestion(question) },
             )
             Spacer(Modifier.size(5.dp))
         }
@@ -105,31 +130,44 @@ fun QuestionsList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun QuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQuestion: () -> Unit) {
-    var showDeleteButton by remember {
+fun QuestionRow(
+    question: Question, onClick: () -> Unit,
+    handleDeleteAQuestion: () -> Unit,
+    handleFavoriteQuestion: () -> Unit,
+) {
+    var showButtons by remember {
         mutableStateOf(false)
     }
     Row(
         modifier = Modifier
-            .width(300.dp)
+            .fillMaxWidth()
             .clip(shape = RoundedCornerShape(20.dp))
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = { showDeleteButton = !showDeleteButton },
+                onLongClick = { showButtons = !showButtons },
             )
             .background(BoardColor),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = if (showButtons) Arrangement.Start else Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     )
     {
-        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
-        if (showDeleteButton) {
-            Button(onClick = {
+        if (showButtons) {
+            IconButton(
+                onClick = { handleFavoriteQuestion.invoke() },
+            ) {
+                Icon(
+                    if (question.tag_id == 1) Icons.Default.Star else Icons.Default.Remove,
+                    "toggle favorite",
+                )
+            }
+            IconButton(onClick = {
                 handleDeleteAQuestion.invoke()
-                showDeleteButton = false
+                showButtons = false
             }) {
-                Text(text = "delete")
+                Icon(Icons.Default.Delete, "delete")
             }
         }
+        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
     }
 }
 
