@@ -9,17 +9,17 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,6 +80,9 @@ fun MainScreen(
         mutableStateOf(false)
     }
     var shouldShowPromotionDialog by remember {
+        mutableStateOf(false)
+    }
+    var shouldShowSFENInput by remember {
         mutableStateOf(false)
     }
     val scaffoldState = rememberScaffoldState()
@@ -199,6 +202,11 @@ fun MainScreen(
                 },
                 actions = {
                     IconButton(onClick = {
+                        shouldShowSFENInput = !shouldShowSFENInput
+                    }) {
+                        Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
+                    }
+                    IconButton(onClick = {
                         isRegisterQuestionMode = !isRegisterQuestionMode
                         // modeに入った時点の局面を保持する
                         if (isRegisterQuestionMode) {
@@ -257,6 +265,57 @@ fun MainScreen(
                         fontSize = MaterialTheme.typography.h5.fontSize
                     )
                 }
+                if (shouldShowSFENInput) {
+                    val clipboardManager = LocalClipboardManager.current
+                    Row {
+                        TextField(
+                            value = inputSFEN,
+                            label = { Text("SFEN") },
+                            placeholder = { Text("Input SFEN") },
+                            onValueChange = { inputSFEN = it },
+                            trailingIcon = {
+                                Row {
+                                    IconButton(
+                                        onClick = {
+                                            clipboardManager.setText(buildAnnotatedString {
+                                                append(
+                                                    inputSFEN
+                                                )
+                                            }
+                                            )
+                                            snackbarCoroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "copied $inputSFEN"
+                                                )
+                                            }
+                                        },
+                                        enabled = inputSFEN.isNotEmpty(),
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.ContentCopy, null,
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                        )
+
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            gameViewModel.loadSFEN(inputSFEN)
+                                            isRegisterQuestionMode = false
+                                            isRegisterQuestionMode = true // invoke recompose
+                                            inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                        },
+                                        enabled = inputSFEN.isNotEmpty(),
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Sync, null,
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                        )
+                                    }
+                                }
+                            })
+                    }
+                }
+
                 // enemy
                 Komadai(
                     enemyPiecesCount,
