@@ -16,8 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -264,6 +266,7 @@ fun MainScreen(
                     )
                 }
                 if (shouldShowSFENInput) {
+                    val clipboardManager = LocalClipboardManager.current
                     Row {
                         TextField(
                             value = inputSFEN,
@@ -271,19 +274,43 @@ fun MainScreen(
                             placeholder = { Text("Input SFEN") },
                             onValueChange = { inputSFEN = it },
                             trailingIcon = {
-                                IconButton(
-                                    onClick = {
-                                        gameViewModel.loadSFEN(inputSFEN)
-                                        isRegisterQuestionMode = false
-                                        isRegisterQuestionMode = true // invoke recompose
-                                        inputKomadaiSFEN = "" // TODO parse komadai from sfen
-                                    },
-                                    enabled = inputSFEN.isNotEmpty(),
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Sync, null,
-                                        tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
-                                    )
+                                Row {
+                                    IconButton(
+                                        onClick = {
+                                            clipboardManager.setText(buildAnnotatedString {
+                                                append(
+                                                    inputSFEN
+                                                )
+                                            }
+                                            )
+                                            snackbarCoroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "copied $inputSFEN"
+                                                )
+                                            }
+                                        },
+                                        enabled = inputSFEN.isNotEmpty(),
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.ContentCopy, null,
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                        )
+
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            gameViewModel.loadSFEN(inputSFEN)
+                                            isRegisterQuestionMode = false
+                                            isRegisterQuestionMode = true // invoke recompose
+                                            inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                        },
+                                        enabled = inputSFEN.isNotEmpty(),
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Sync, null,
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                        )
+                                    }
                                 }
                             })
                     }
