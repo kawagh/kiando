@@ -46,6 +46,12 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
 
     }
 
+    fun loadSFEN(sfen: String) {
+        boardState = SFENConverter().convertFrom(sfen).toMutableStateList()
+        komadaiState = emptyList<PieceKind>().toMutableStateList()
+        enemyKomadaiState = emptyList<PieceKind>().toMutableStateList()
+    }
+
     fun isPromotable(move: Move): Boolean {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         return when (boardState[fromIndex].pieceKind) {
