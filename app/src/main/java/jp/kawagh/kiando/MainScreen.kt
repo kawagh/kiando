@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    MainScreen(sampleQuestion, {}, {})
+    MainScreen(sampleQuestion, {}, {}, {})
 }
 
 
@@ -43,6 +43,7 @@ private fun MainScreenPreview() {
 fun MainScreen(
     question: Question, navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
+    navigateToPrevtQuestion: () -> Unit,
 ) {
     val gameViewModel: GameViewModel = viewModel(
         factory = GameViewModelFactory(
@@ -335,10 +336,34 @@ fun MainScreen(
                     handleKomadaiClick
                 )
                 when (isRegisterQuestionMode) {
-                    false -> Text(
-                        text = question.description,
-                        fontSize = MaterialTheme.typography.h5.fontSize
-                    )
+                    false -> Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = question.description,
+                            fontSize = MaterialTheme.typography.h5.fontSize,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(20.dp)
+                        )
+                        IconButton(
+                            onClick = {
+                                navigateToPrevtQuestion.invoke()
+                            },
+                        ) {
+                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                        }
+                        IconButton(
+                            onClick = {
+                                navigateToNextQuestion.invoke()
+                            },
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Icon(Icons.Default.SkipNext, "go to next question")
+                        }
+                    }
                     true -> TextField(
                         value = inputQuestionDescription,
                         onValueChange = { inputQuestionDescription = it },
