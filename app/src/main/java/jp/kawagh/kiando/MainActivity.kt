@@ -85,10 +85,13 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                             ?: sampleQuestion
                     val nextQuestion =
                         allQuestions.find { question -> question.id > questionId } ?: sampleQuestion
+                    val prevQuestion =
+                        allQuestions.find { question -> question.id < questionId } ?: sampleQuestion
                     MainScreen(
                         question = question,
                         navigateToList = { navController.navigate("list") },
                         navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
+                        navigateToPrevtQuestion = { navigateToQuestion(prevQuestion) },
                     )
                 }
             }
