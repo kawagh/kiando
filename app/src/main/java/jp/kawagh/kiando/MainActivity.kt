@@ -3,9 +3,8 @@ package jp.kawagh.kiando
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -62,7 +62,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     ListScreen(
                         questions = allQuestions,
                         navigateToQuestion = navigateToQuestion,
-                        handleDeleteQuestions = { questionsViewModel.deleteAll() },
+                        navigateToDelete = { navController.navigate("delete") },
                         handleDeleteAQuestion = { question ->
                             questionsViewModel.deleteQuestion(
                                 question
@@ -92,6 +92,26 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         navigateToList = { navController.navigate("list") },
                         navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
                         navigateToPrevtQuestion = { navigateToQuestion(prevQuestion) },
+                    )
+                }
+                dialog("delete") {
+                    AlertDialog(
+                        onDismissRequest = { navController.navigate("list") },
+                        title = { Text(text = "delete all questions?") },
+                        text = { Text(text = "Once you delete questions, you cannot recover them.") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                questionsViewModel.deleteAll()
+                                navController.navigate("list")
+                            }) {
+                                Text(text = "DELETE")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { navController.navigate("list") }) {
+                                Text(text = "CANCEL")
+                            }
+                        }
                     )
                 }
             }

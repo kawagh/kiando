@@ -38,13 +38,10 @@ sealed class TabItem(val name: String) {
 fun ListScreen(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
-    handleDeleteQuestions: () -> Unit,
+    navigateToDelete: () -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
 ) {
-    var showDeleteDialog by remember {
-        mutableStateOf(false)
-    }
     var tabRowIndex by remember {
         mutableStateOf(0)
     }
@@ -58,33 +55,13 @@ fun ListScreen(
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 actions = {
-                    IconButton(onClick = { showDeleteDialog = true }) {
+                    IconButton(onClick = navigateToDelete) {
                         Icon(Icons.Filled.Delete, null)
                     }
                 }
             )
         },
         content = {
-            if (showDeleteDialog) {
-                AlertDialog(
-                    onDismissRequest = { /*TODO*/ },
-                    title = { Text(text = "delete all questions?") },
-                    text = { Text(text = "Once you delete questions, you cannot recover them.") },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showDeleteDialog = false
-                            handleDeleteQuestions.invoke()
-                        }) {
-                            Text(text = "DELETE")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDeleteDialog = false }) {
-                            Text(text = "CANCEL")
-                        }
-                    }
-                )
-            }
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
