@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
@@ -50,14 +51,26 @@ fun ListScreen(
         is TabItem.All -> questions
         is TabItem.Tagged -> questions.filter { it.tag_id != null }
     }
+    var dropDownExpanded by remember {
+        mutableStateOf(false)
+    }
+    val dropDownMenuItems = mapOf(
+        "Delete Questions" to navigateToDelete,
+        "Version: ${BuildConfig.VERSION_NAME}" to {}
+    )
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
+
                 actions = {
-                    IconButton(onClick = navigateToDelete) {
-                        Icon(Icons.Filled.Delete, null)
+                    IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
+                        Icon(Icons.Default.MoreVert, null)
                     }
+                    DropdownMenuOnTopBar(
+                        dropDownMenuItems,
+                        expanded = dropDownExpanded,
+                        setExpanded = { dropDownExpanded = it })
                 }
             )
         },
@@ -84,6 +97,25 @@ fun ListScreen(
         },
     )
 }
+
+@Composable
+fun DropdownMenuOnTopBar(
+    dropDownMenuItems: Map<String, () -> Unit>,
+    expanded: Boolean,
+    setExpanded: (Boolean) -> Unit
+) {
+    DropdownMenu(expanded = expanded, onDismissRequest = { setExpanded(false) }) {
+        dropDownMenuItems.forEach { (name, callback) ->
+            DropdownMenuItem(onClick = {
+                callback.invoke()
+                setExpanded(false)
+            }) {
+                Text(text = name)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun QuestionsList(
