@@ -10,6 +10,8 @@ You can download it in [GooglePlay](https://play.google.com/store/apps/details?i
 
 - register questions by user
 - edit board ignoring turn
+- encode/decode SFEN
+- favorite tagging
 
 ## library
 
