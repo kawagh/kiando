@@ -64,9 +64,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         handleDeleteAQuestion = { question ->
-                            questionsViewModel.deleteQuestion(
-                                question
-                            )
+                            navController.navigate("delete_each/${question.id}")
                         },
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
@@ -103,6 +101,31 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                             TextButton(onClick = {
                                 questionsViewModel.deleteAll()
                                 navController.navigate("list")
+                            }) {
+                                Text(text = "DELETE")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { navController.navigate("list") }) {
+                                Text(text = "CANCEL")
+                            }
+                        }
+                    )
+                }
+                dialog("delete_each/{questionId}",
+                    arguments = listOf(navArgument("questionId") {
+                        type = NavType.IntType
+                    }
+                    )) {
+                    val deleteId = it.arguments?.getInt("questionId") ?: -1
+                    AlertDialog(
+                        onDismissRequest = { navController.navigate("list") },
+                        title = { Text(text = "delete question?") },
+                        text = { Text(text = "Once you delete a question, you cannot recover it.") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                navController.navigate("list")
+                                questionsViewModel.deleteById(deleteId)
                             }) {
                                 Text(text = "DELETE")
                             }

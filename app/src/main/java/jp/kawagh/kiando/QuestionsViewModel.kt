@@ -18,9 +18,9 @@ class QuestionsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun deleteQuestion(question: Question) {
+    fun deleteById(questionId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().deleteById(question.id)
+            db.questionDao().deleteById(questionId)
         }
     }
 
