@@ -1,29 +1,24 @@
 package jp.kawagh.kiando.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import jp.kawagh.kiando.BOARD_SIZE
 import jp.kawagh.kiando.PieceKind
-import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 
 @Composable
 fun Komadai(
     piecesCount: Map<PieceKind, Int>,
     handleKomadaiClick: (PieceKind) -> Unit,
+    isEnemy: Boolean = false,
 ) {
     val pieceKindMap: Map<PieceKind, String> = mapOf(
         PieceKind.EMPTY to "",
@@ -42,19 +37,21 @@ fun Komadai(
             .width((40 * BOARD_SIZE).dp)
             .height(40.dp)
     ) {
-        LazyRow {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .rotate(if (isEnemy) 180f else 0f)
+        ) {
             items(piecesCount.keys.toList()) { pieceKind ->
-                Button(
-                    onClick = { handleKomadaiClick(pieceKind) },
-                    colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = BoardColor,
-                        contentColor = Color.Black,
-                    ),
-                    modifier = Modifier.width(70.dp)
-                ) {
-                    Text(text = pieceKindMap[pieceKind]!!)
-                    Text(text = "x", fontSize = 15.sp)
-                    Text(text = "${piecesCount[pieceKind]}")
+                Box() {
+                    Piece(
+                        text = pieceKindMap[pieceKind]!!,
+                        onClick = { handleKomadaiClick.invoke(pieceKind) },
+                        modifier = Modifier.size(40.dp)
+                    )
+                    if (piecesCount[pieceKind]!! > 1) {
+                        Text(text = "${piecesCount[pieceKind]!!}")
+                    }
                 }
             }
         }
@@ -65,5 +62,9 @@ fun Komadai(
 @Composable
 fun KomadaiPreview() {
     val pieceCount = mapOf(PieceKind.PAWN to 2, PieceKind.SILVER to 1)
-    Komadai(piecesCount = pieceCount, handleKomadaiClick = {})
+    Column {
+        Komadai(piecesCount = pieceCount, handleKomadaiClick = {}, isEnemy = true)
+        Spacer(modifier = Modifier.size(10.dp))
+        Komadai(piecesCount = pieceCount, handleKomadaiClick = {})
+    }
 }
