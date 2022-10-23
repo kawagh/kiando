@@ -5,8 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -26,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.components.Piece
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
@@ -459,47 +458,6 @@ private fun PromotionDialog(
                 }
             }
         )
-    }
-}
-
-@Composable
-private fun Komadai(
-    piecesCount: Map<PieceKind, Int>,
-    handleKomadaiClick: (PieceKind) -> Unit,
-) {
-    val pieceKindMap: Map<PieceKind, String> = mapOf(
-        PieceKind.EMPTY to "",
-        PieceKind.KING to "王",
-        PieceKind.ROOK to "飛",
-        PieceKind.BISHOP to "角",
-        PieceKind.GOLD to "金",
-        PieceKind.SILVER to "銀",
-        PieceKind.KNIGHT to "桂",
-        PieceKind.LANCE to "香",
-        PieceKind.PAWN to "歩",
-    )
-    Box(
-        modifier = Modifier
-            .background(BoardColorUnfocused)
-            .width((40 * BOARD_SIZE).dp)
-            .height(40.dp)
-    ) {
-        LazyRow {
-            items(piecesCount.keys.toList()) { pieceKind ->
-                Button(
-                    onClick = { handleKomadaiClick(pieceKind) },
-                    colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = BoardColor,
-                        contentColor = Color.Black,
-                    ),
-                    modifier = Modifier.width(70.dp)
-                ) {
-                    Text(text = pieceKindMap[pieceKind]!!)
-                    Text(text = "x", fontSize = 15.sp)
-                    Text(text = "${piecesCount[pieceKind]}")
-                }
-            }
-        }
     }
 }
 
