@@ -18,11 +18,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.ui.components.QuestionCard
 import jp.kawagh.kiando.ui.theme.BoardColor
+import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 
 @Preview
 @Composable
@@ -63,7 +65,7 @@ fun ListScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-
+                backgroundColor = BoardColor,
                 actions = {
                     IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
                         Icon(Icons.Default.MoreVert, null)
@@ -72,7 +74,7 @@ fun ListScreen(
                         dropDownMenuItems,
                         expanded = dropDownExpanded,
                         setExpanded = { dropDownExpanded = it })
-                }
+                },
             )
         },
         content = {
@@ -80,10 +82,14 @@ fun ListScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                TabRow(selectedTabIndex = tabRowIndex) {
+                TabRow(selectedTabIndex = tabRowIndex, backgroundColor = BoardColor) {
                     tabs.forEachIndexed { index, tab ->
                         Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
-                            Text(tab.name, fontSize = MaterialTheme.typography.h5.fontSize)
+                            Text(
+                                tab.name,
+                                fontSize = MaterialTheme.typography.h5.fontSize,
+                                color = Color.Black
+                            )
                         }
                     }
                 }

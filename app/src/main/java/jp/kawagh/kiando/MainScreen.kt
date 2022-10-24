@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -195,6 +197,7 @@ fun MainScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
+                backgroundColor = BoardColorUnfocused,
                 navigationIcon = {
                     IconButton(onClick = navigateToList) {
                         Icon(Icons.Filled.ArrowBack, "back to the list")
@@ -307,12 +310,14 @@ fun MainScreen(
                                         enabled = inputSFEN.isNotEmpty(),
                                     ) {
                                         Icon(
-                                            Icons.Filled.Sync, null,
-                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                            Icons.Filled.Sync, "load SFEN",
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
                                         )
                                     }
                                 }
-                            })
+                            },
+                            modifier = Modifier.semantics { contentDescription = "SFEN input form" }
+                        )
                     }
                 }
 
