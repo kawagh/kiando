@@ -18,3 +18,11 @@ You can download it in [GooglePlay](https://play.google.com/store/apps/details?i
 - JetpackCompose
 - NavigationCompose
 - Room
+
+## run tests
+
+```sh
+
+./gradlew test
+./gradlew connectedAndroidTest # `/gradlew cAT`
+```
