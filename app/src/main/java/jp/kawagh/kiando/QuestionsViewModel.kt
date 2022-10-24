@@ -1,6 +1,7 @@
 package jp.kawagh.kiando
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
@@ -17,9 +18,19 @@ class QuestionsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun deleteQuestion(question: Question) {
+    fun deleteById(questionId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().deleteById(question.id)
+            db.questionDao().deleteById(questionId)
+        }
+    }
+
+    fun toggleQuestionFavorite(question: Question) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (question.tag_id == null) {
+                db.questionDao().updateQuestion(question.copy(tag_id = 1))
+            } else {
+                db.questionDao().updateQuestion(question.copy(tag_id = null))
+            }
         }
     }
 }

@@ -5,27 +5,26 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.components.Piece
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
@@ -35,7 +34,7 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    MainScreen(sampleQuestion, {}, {})
+    MainScreen(sampleQuestion, {}, {}, {})
 }
 
 
@@ -43,6 +42,7 @@ private fun MainScreenPreview() {
 fun MainScreen(
     question: Question, navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
+    navigateToPrevtQuestion: () -> Unit,
 ) {
     val gameViewModel: GameViewModel = viewModel(
         factory = GameViewModelFactory(
@@ -82,24 +82,16 @@ fun MainScreen(
     var shouldShowPromotionDialog by remember {
         mutableStateOf(false)
     }
+    var shouldShowSFENInput by remember {
+        mutableStateOf(false)
+    }
     val scaffoldState = rememberScaffoldState()
     val snackbarCoroutineScope = rememberCoroutineScope()
     val legalMovePositions = remember {
         mutableStateListOf<Position>()
     }
-    val handleClearState: () -> Unit = {
-        positionStack.clear()
-        lastClickedPanelPos = NonPosition
-        panelClickedOnce = false
-        legalMovePositions.clear()
-    }
 
     fun registerMove(move: Move) {
-//        snackbarCoroutineScope.launch {
-//            scaffoldState.snackbarHostState.showSnackbar(
-//                "Your move is $move "
-//            )
-//        }
         moveToRegister = move
         gameViewModel.move(move)
         positionStack.clear()
@@ -210,6 +202,11 @@ fun MainScreen(
                 },
                 actions = {
                     IconButton(onClick = {
+                        shouldShowSFENInput = !shouldShowSFENInput
+                    }) {
+                        Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
+                    }
+                    IconButton(onClick = {
                         isRegisterQuestionMode = !isRegisterQuestionMode
                         // modeに入った時点の局面を保持する
                         if (isRegisterQuestionMode) {
@@ -268,6 +265,57 @@ fun MainScreen(
                         fontSize = MaterialTheme.typography.h5.fontSize
                     )
                 }
+                if (shouldShowSFENInput) {
+                    val clipboardManager = LocalClipboardManager.current
+                    Row {
+                        TextField(
+                            value = inputSFEN,
+                            label = { Text("SFEN") },
+                            placeholder = { Text("Input SFEN") },
+                            onValueChange = { inputSFEN = it },
+                            trailingIcon = {
+                                Row {
+                                    IconButton(
+                                        onClick = {
+                                            clipboardManager.setText(buildAnnotatedString {
+                                                append(
+                                                    inputSFEN
+                                                )
+                                            }
+                                            )
+                                            snackbarCoroutineScope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "copied $inputSFEN"
+                                                )
+                                            }
+                                        },
+                                        enabled = inputSFEN.isNotEmpty(),
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.ContentCopy, null,
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                        )
+
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            gameViewModel.loadSFEN(inputSFEN)
+                                            isRegisterQuestionMode = false
+                                            isRegisterQuestionMode = true // invoke recompose
+                                            inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                        },
+                                        enabled = inputSFEN.isNotEmpty(),
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Sync, null,
+                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                        )
+                                    }
+                                }
+                            })
+                    }
+                }
+
                 // enemy
                 Komadai(
                     enemyPiecesCount,
@@ -287,10 +335,34 @@ fun MainScreen(
                     handleKomadaiClick
                 )
                 when (isRegisterQuestionMode) {
-                    false -> Text(
-                        text = question.description,
-                        fontSize = MaterialTheme.typography.h5.fontSize
-                    )
+                    false -> Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = question.description,
+                            fontSize = MaterialTheme.typography.h5.fontSize,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(20.dp)
+                        )
+                        IconButton(
+                            onClick = {
+                                navigateToPrevtQuestion.invoke()
+                            },
+                        ) {
+                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                        }
+                        IconButton(
+                            onClick = {
+                                navigateToNextQuestion.invoke()
+                            },
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Icon(Icons.Default.SkipNext, "go to next question")
+                        }
+                    }
                     true -> TextField(
                         value = inputQuestionDescription,
                         onValueChange = { inputQuestionDescription = it },
@@ -386,47 +458,6 @@ private fun PromotionDialog(
                 }
             }
         )
-    }
-}
-
-@Composable
-private fun Komadai(
-    piecesCount: Map<PieceKind, Int>,
-    handleKomadaiClick: (PieceKind) -> Unit,
-) {
-    val pieceKindMap: Map<PieceKind, String> = mapOf(
-        PieceKind.EMPTY to "",
-        PieceKind.KING to "王",
-        PieceKind.ROOK to "飛",
-        PieceKind.BISHOP to "角",
-        PieceKind.GOLD to "金",
-        PieceKind.SILVER to "銀",
-        PieceKind.KNIGHT to "桂",
-        PieceKind.LANCE to "香",
-        PieceKind.PAWN to "歩",
-    )
-    Box(
-        modifier = Modifier
-            .background(BoardColorUnfocused)
-            .width((40 * BOARD_SIZE).dp)
-            .height(40.dp)
-    ) {
-        LazyRow {
-            items(piecesCount.keys.toList()) { pieceKind ->
-                Button(
-                    onClick = { handleKomadaiClick(pieceKind) },
-                    colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = BoardColor,
-                        contentColor = Color.Black,
-                    ),
-                    modifier = Modifier.width(70.dp)
-                ) {
-                    Text(text = pieceKindMap[pieceKind]!!)
-                    Text(text = "x", fontSize = 15.sp)
-                    Text(text = "${piecesCount[pieceKind]}")
-                }
-            }
-        }
     }
 }
 
