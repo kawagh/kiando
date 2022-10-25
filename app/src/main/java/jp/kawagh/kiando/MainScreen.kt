@@ -325,6 +325,7 @@ fun MainScreen(
                 Komadai(
                     enemyPiecesCount,
                     handleEnemyKomadaiClick,
+                    isEnemy = true,
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 Board(
