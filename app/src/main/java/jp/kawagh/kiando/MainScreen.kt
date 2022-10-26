@@ -44,7 +44,7 @@ private fun MainScreenPreview() {
 fun MainScreen(
     question: Question, navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
-    navigateToPrevtQuestion: () -> Unit,
+    navigateToPrevQuestion: () -> Unit,
 ) {
     val gameViewModel: GameViewModel = viewModel(
         factory = GameViewModelFactory(
@@ -355,7 +355,7 @@ fun MainScreen(
                         )
                         IconButton(
                             onClick = {
-                                navigateToPrevtQuestion.invoke()
+                                navigateToPrevQuestion.invoke()
                             },
                         ) {
                             Icon(Icons.Default.SkipPrevious, "back to prev question")

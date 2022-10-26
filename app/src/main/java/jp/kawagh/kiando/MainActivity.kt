@@ -89,7 +89,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         question = question,
                         navigateToList = { navController.navigate("list") },
                         navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
-                        navigateToPrevtQuestion = { navigateToQuestion(prevQuestion) },
+                        navigateToPrevQuestion = { navigateToQuestion(prevQuestion) },
                     )
                 }
                 dialog("delete") {
