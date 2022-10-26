@@ -39,6 +39,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
         val navigateToQuestion: (Question) -> Unit = { it ->
             navController.navigate("main/${it.id}")
         }
+        val navigateToList: () -> Unit = {
+            navController.navigate("list")
+        }
         val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
         val allQuestions = sampleQuestions + userAddedQuestions
 
@@ -88,13 +91,13 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         allQuestions.find { question -> question.id < questionId } ?: sampleQuestion
                     MainScreen(
                         question = question,
-                        navigateToList = { navController.navigate("list") },
+                        navigateToList = navigateToList,
                         navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
                         navigateToPrevQuestion = { navigateToQuestion(prevQuestion) },
                     )
                 }
                 composable("license") {
-                    LicenseScreen()
+                    LicenseScreen(onArrowBackPressed = navigateToList)
                 }
                 dialog("delete") {
                     AlertDialog(
