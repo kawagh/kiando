@@ -63,6 +63,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         questions = allQuestions,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
+                        navigateToLicense = { navController.navigate("license") },
                         handleDeleteAQuestion = { question ->
                             navController.navigate("delete_each/${question.id}")
                         },
@@ -91,6 +92,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
                         navigateToPrevQuestion = { navigateToQuestion(prevQuestion) },
                     )
+                }
+                composable("license") {
+                    LicenseScreen()
                 }
                 dialog("delete") {
                     AlertDialog(

@@ -20,6 +20,7 @@ class TakeScreenShotTest {
                 questions = sampleQuestions,
                 navigateToQuestion = {},
                 navigateToDelete = {},
+                navigateToLicense = {},
                 handleDeleteAQuestion = {},
                 handleFavoriteQuestion = {}
             )

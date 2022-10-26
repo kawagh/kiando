@@ -24,12 +24,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.ui.components.QuestionCard
 import jp.kawagh.kiando.ui.theme.BoardColor
-import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, {}, {}, {}, {})
+    ListScreen(sampleQuestions, {}, {}, {}, {}, {})
 
 }
 
@@ -43,6 +42,7 @@ fun ListScreen(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
     navigateToDelete: () -> Unit,
+    navigateToLicense: () -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
 ) {
@@ -59,6 +59,7 @@ fun ListScreen(
     }
     val dropDownMenuItems = mapOf(
         "Delete Questions" to navigateToDelete,
+        "License" to navigateToLicense,
         "Version: ${BuildConfig.VERSION_NAME}" to {}
     )
     Scaffold(
