@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id "com.cookpad.android.plugin.license-tools" version "1.2.8"
 }
 
 android {
