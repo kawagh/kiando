@@ -1,7 +1,6 @@
 package jp.kawagh.kiando
 
 import android.app.Application
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -88,9 +87,15 @@ fun MainScreen(
     var shouldShowSFENInput by remember {
         mutableStateOf(false)
     }
+    var shouldShowAnswerButton by remember {
+        mutableStateOf(true)
+    }
+    var showAnswerMode by remember {
+        mutableStateOf(false)
+    }
     val scaffoldState = rememberScaffoldState()
     val snackbarCoroutineScope = rememberCoroutineScope()
-    val legalMovePositions = remember {
+    val positionsToHighlight = remember {
         mutableStateListOf<Position>()
     }
 
@@ -98,10 +103,11 @@ fun MainScreen(
         moveToRegister = move
         gameViewModel.move(move)
         positionStack.clear()
-        legalMovePositions.clear()
+        positionsToHighlight.clear()
     }
 
     fun processMove(move: Move) {
+        showAnswerMode = false
         // judge
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
@@ -119,10 +125,11 @@ fun MainScreen(
         }
         gameViewModel.move(move)
         positionStack.clear()
-        legalMovePositions.clear()
+        positionsToHighlight.clear()
     }
 
     val handlePanelClick: (PanelState) -> Unit = {
+        shouldShowAnswerButton = false
         when (panelClickedOnce) {
             true -> {
                 panelClickedOnce = !panelClickedOnce
@@ -155,7 +162,7 @@ fun MainScreen(
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
                 lastClickedPanel = it
-                legalMovePositions.addAll(gameViewModel.listLegalMoves(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMoves(it))
             }
         }
     }
@@ -171,7 +178,7 @@ fun MainScreen(
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
@@ -184,15 +191,17 @@ fun MainScreen(
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
     }
 
-    val context = LocalContext.current
     val handleShowAnswerClick: () -> Unit = {
-        Toast.makeText(context, "[TODO] answer: ${question.answerMove}", Toast.LENGTH_SHORT).show()
+        showAnswerMode = true
+        shouldShowAnswerButton = false
+
+        positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
     }
 
     val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
@@ -337,9 +346,9 @@ fun MainScreen(
                 Board(
                     gameViewModel.boardState,
                     handlePanelClick,
-                    panelClickedOnce,
+                    shouldHighlight = panelClickedOnce || showAnswerMode,
                     lastClickedPanelPos,
-                    legalMovePositions
+                    positionsToHighlight = positionsToHighlight
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 Komadai(
@@ -376,12 +385,14 @@ fun MainScreen(
                                 Icon(Icons.Default.SkipNext, "go to next question")
                             }
                         }
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Button(onClick = handleShowAnswerClick) {
-                                Text(text = "show answer")
+                        if (shouldShowAnswerButton) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Button(onClick = handleShowAnswerClick) {
+                                    Text(text = "show answer")
+                                }
                             }
                         }
                     }
@@ -488,18 +499,18 @@ private fun PromotionDialog(
 private fun Board(
     boardState: SnapshotStateList<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) {
     Column {
         repeat(BOARD_SIZE) { rowIndex ->
             BoardRow(
                 boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
                 handlePanelClick,
-                panelClickedOnce,
+                shouldHighlight,
                 lastClickedPanelPos,
-                legalMovePositions
+                positionsToHighlight
             )
         }
     }
@@ -509,17 +520,17 @@ private fun Board(
 private fun BoardRow(
     boardRow: List<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) = Row {
     repeat(BOARD_SIZE) { colIndex ->
         Panel(
             boardRow[colIndex],
             handlePanelClick,
-            panelClickedOnce,
+            shouldHighlight,
             lastClickedPanelPos,
-            legalMovePositions
+            positionsToHighlight
         )
 
     }
@@ -529,9 +540,9 @@ private fun BoardRow(
 private fun Panel(
     panelState: PanelState,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) {
     val text = when (panelState.pieceKind) {
         PieceKind.EMPTY -> ""
@@ -544,13 +555,13 @@ private fun Panel(
         PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
         PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
     }
-    val backgroundColor = if (panelClickedOnce) {
+    val backgroundColor = if (shouldHighlight) {
         when (Position(panelState.row, panelState.column)) {
             lastClickedPanelPos -> BoardColor
-            in legalMovePositions -> BoardColor
+            in positionsToHighlight -> BoardColor
             else -> BoardColorUnfocused
         }
-    } else BoardColor
+    } else BoardColorUnfocused
 
 
     when (panelState.pieceKind) {
