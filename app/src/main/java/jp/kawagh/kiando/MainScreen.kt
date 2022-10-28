@@ -87,9 +87,15 @@ fun MainScreen(
     var shouldShowSFENInput by remember {
         mutableStateOf(false)
     }
+    var shouldShowAnswerButton by remember {
+        mutableStateOf(true)
+    }
+    var showAnswerMode by remember {
+        mutableStateOf(false)
+    }
     val scaffoldState = rememberScaffoldState()
     val snackbarCoroutineScope = rememberCoroutineScope()
-    val legalMovePositions = remember {
+    val positionsToHighlight = remember {
         mutableStateListOf<Position>()
     }
 
@@ -97,10 +103,11 @@ fun MainScreen(
         moveToRegister = move
         gameViewModel.move(move)
         positionStack.clear()
-        legalMovePositions.clear()
+        positionsToHighlight.clear()
     }
 
     fun processMove(move: Move) {
+        showAnswerMode = false
         // judge
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
@@ -118,10 +125,11 @@ fun MainScreen(
         }
         gameViewModel.move(move)
         positionStack.clear()
-        legalMovePositions.clear()
+        positionsToHighlight.clear()
     }
 
     val handlePanelClick: (PanelState) -> Unit = {
+        shouldShowAnswerButton = false
         when (panelClickedOnce) {
             true -> {
                 panelClickedOnce = !panelClickedOnce
@@ -154,7 +162,7 @@ fun MainScreen(
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
                 lastClickedPanel = it
-                legalMovePositions.addAll(gameViewModel.listLegalMoves(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMoves(it))
             }
         }
     }
@@ -170,7 +178,7 @@ fun MainScreen(
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
@@ -183,10 +191,17 @@ fun MainScreen(
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
+    }
+
+    val handleShowAnswerClick: () -> Unit = {
+        showAnswerMode = true
+        shouldShowAnswerButton = false
+
+        positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
     }
 
     val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
@@ -331,9 +346,9 @@ fun MainScreen(
                 Board(
                     gameViewModel.boardState,
                     handlePanelClick,
-                    panelClickedOnce,
+                    shouldHighlight = panelClickedOnce || showAnswerMode,
                     lastClickedPanelPos,
-                    legalMovePositions
+                    positionsToHighlight = positionsToHighlight
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 Komadai(
@@ -341,32 +356,44 @@ fun MainScreen(
                     handleKomadaiClick
                 )
                 when (isRegisterQuestionMode) {
-                    false -> Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = question.description,
-                            fontSize = MaterialTheme.typography.h5.fontSize,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(20.dp)
-                        )
-                        IconButton(
-                            onClick = {
-                                navigateToPrevQuestion.invoke()
-                            },
+                    false -> Column() {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                            Text(
+                                text = question.description,
+                                fontSize = MaterialTheme.typography.h5.fontSize,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(20.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    navigateToPrevQuestion.invoke()
+                                },
+                            ) {
+                                Icon(Icons.Default.SkipPrevious, "back to prev question")
+                            }
+                            IconButton(
+                                onClick = {
+                                    navigateToNextQuestion.invoke()
+                                },
+                                modifier = Modifier.padding(10.dp)
+                            ) {
+                                Icon(Icons.Default.SkipNext, "go to next question")
+                            }
                         }
-                        IconButton(
-                            onClick = {
-                                navigateToNextQuestion.invoke()
-                            },
-                            modifier = Modifier.padding(10.dp)
-                        ) {
-                            Icon(Icons.Default.SkipNext, "go to next question")
+                        if (shouldShowAnswerButton) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Button(onClick = handleShowAnswerClick) {
+                                    Text(text = "show answer")
+                                }
+                            }
                         }
                     }
                     true -> TextField(
@@ -472,18 +499,18 @@ private fun PromotionDialog(
 private fun Board(
     boardState: SnapshotStateList<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) {
     Column {
         repeat(BOARD_SIZE) { rowIndex ->
             BoardRow(
                 boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
                 handlePanelClick,
-                panelClickedOnce,
+                shouldHighlight,
                 lastClickedPanelPos,
-                legalMovePositions
+                positionsToHighlight
             )
         }
     }
@@ -493,17 +520,17 @@ private fun Board(
 private fun BoardRow(
     boardRow: List<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) = Row {
     repeat(BOARD_SIZE) { colIndex ->
         Panel(
             boardRow[colIndex],
             handlePanelClick,
-            panelClickedOnce,
+            shouldHighlight,
             lastClickedPanelPos,
-            legalMovePositions
+            positionsToHighlight
         )
 
     }
@@ -513,9 +540,9 @@ private fun BoardRow(
 private fun Panel(
     panelState: PanelState,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) {
     val text = when (panelState.pieceKind) {
         PieceKind.EMPTY -> ""
@@ -528,13 +555,13 @@ private fun Panel(
         PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
         PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
     }
-    val backgroundColor = if (panelClickedOnce) {
+    val backgroundColor = if (shouldHighlight) {
         when (Position(panelState.row, panelState.column)) {
             lastClickedPanelPos -> BoardColor
-            in legalMovePositions -> BoardColor
+            in positionsToHighlight -> BoardColor
             else -> BoardColorUnfocused
         }
-    } else BoardColor
+    } else BoardColorUnfocused
 
 
     when (panelState.pieceKind) {
