@@ -1,6 +1,7 @@
 package jp.kawagh.kiando
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -189,6 +190,11 @@ fun MainScreen(
         }
     }
 
+    val context = LocalContext.current
+    val handleShowAnswerClick: () -> Unit = {
+        Toast.makeText(context, "[TODO] answer: ${question.answerMove}", Toast.LENGTH_SHORT).show()
+    }
+
     val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
     val enemyPiecesCount: Map<PieceKind, Int> =
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
@@ -341,32 +347,42 @@ fun MainScreen(
                     handleKomadaiClick
                 )
                 when (isRegisterQuestionMode) {
-                    false -> Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = question.description,
-                            fontSize = MaterialTheme.typography.h5.fontSize,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(20.dp)
-                        )
-                        IconButton(
-                            onClick = {
-                                navigateToPrevQuestion.invoke()
-                            },
+                    false -> Column() {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                            Text(
+                                text = question.description,
+                                fontSize = MaterialTheme.typography.h5.fontSize,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(20.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    navigateToPrevQuestion.invoke()
+                                },
+                            ) {
+                                Icon(Icons.Default.SkipPrevious, "back to prev question")
+                            }
+                            IconButton(
+                                onClick = {
+                                    navigateToNextQuestion.invoke()
+                                },
+                                modifier = Modifier.padding(10.dp)
+                            ) {
+                                Icon(Icons.Default.SkipNext, "go to next question")
+                            }
                         }
-                        IconButton(
-                            onClick = {
-                                navigateToNextQuestion.invoke()
-                            },
-                            modifier = Modifier.padding(10.dp)
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.SkipNext, "go to next question")
+                            Button(onClick = handleShowAnswerClick) {
+                                Text(text = "show answer")
+                            }
                         }
                     }
                     true -> TextField(
