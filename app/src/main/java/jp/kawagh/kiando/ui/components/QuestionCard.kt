@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.Question
 import jp.kawagh.kiando.sampleQuestion
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,7 +23,9 @@ fun QuestionCard(
     handleFavoriteQuestion: () -> Unit,
 ) {
     val isFavorite = question.tag_id == 1
-    Card(onClick = onClick) {
+    Card(
+        onClick = onClick,
+    ) {
         Column() {
             Text(
                 text = question.description,
@@ -42,7 +45,7 @@ fun QuestionCard(
                         tint = if (isFavorite) {
                             Color.Yellow
                         } else {
-                            Color.Black
+                            LocalContentColor.current
                         }
                     )
                 }
@@ -54,5 +57,7 @@ fun QuestionCard(
 @Preview
 @Composable
 fun QuestionCardPreview() {
-    QuestionCard(sampleQuestion, {}, {}, {})
+    KiandoM3Theme() {
+        QuestionCard(sampleQuestion, {}, {}, {})
+    }
 }

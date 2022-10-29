@@ -39,7 +39,8 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
     primary = BoardColorUnfocused,
-    secondary = Teal200
+    secondary = Teal200,
+    surfaceVariant = CardColor // Card background
 )
 
 
