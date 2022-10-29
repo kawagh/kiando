@@ -19,7 +19,7 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import jp.kawagh.kiando.ui.theme.KiandoTheme
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +44,7 @@ fun SideEffectChangeSystemUi() {
 
 @Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
-    KiandoTheme {
+    KiandoM3Theme() {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
         val navigateToQuestion: (Question) -> Unit = { it ->

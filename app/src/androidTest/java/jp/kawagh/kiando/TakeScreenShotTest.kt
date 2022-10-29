@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
-import jp.kawagh.kiando.ui.theme.KiandoTheme
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import org.junit.Rule
 import org.junit.Test
 import java.io.FileOutputStream
@@ -17,7 +17,7 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic1() {
         composeTestRule.setContent {
-            KiandoTheme() {
+            KiandoM3Theme() {
                 ListScreen(
                     questions = sampleQuestions,
                     navigateToQuestion = {},
@@ -34,7 +34,7 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic2() {
         composeTestRule.setContent {
-            KiandoTheme() {
+            KiandoM3Theme() {
                 MainScreen(
                     question = sampleQuestion,
                     navigateToList = {},
@@ -47,7 +47,7 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic3() {
         composeTestRule.setContent {
-            KiandoTheme() {
+            KiandoM3Theme() {
                 MainScreen(
                     question = sampleQuestion,
                     navigateToList = {},
