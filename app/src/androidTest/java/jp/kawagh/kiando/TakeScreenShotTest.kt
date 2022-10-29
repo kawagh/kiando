@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
+import jp.kawagh.kiando.ui.theme.KiandoTheme
 import org.junit.Rule
 import org.junit.Test
 import java.io.FileOutputStream
@@ -16,14 +17,16 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic1() {
         composeTestRule.setContent {
-            ListScreen(
-                questions = sampleQuestions,
-                navigateToQuestion = {},
-                navigateToDelete = {},
-                navigateToLicense = {},
-                handleDeleteAQuestion = {},
-                handleFavoriteQuestion = {}
-            )
+            KiandoTheme() {
+                ListScreen(
+                    questions = sampleQuestions,
+                    navigateToQuestion = {},
+                    navigateToDelete = {},
+                    navigateToLicense = {},
+                    handleDeleteAQuestion = {},
+                    handleFavoriteQuestion = {}
+                )
+            }
         }
         takeScreenShot("feature_graphic1.png")
     }
@@ -31,10 +34,12 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic2() {
         composeTestRule.setContent {
-            MainScreen(
-                question = sampleQuestion,
-                navigateToList = {},
-                navigateToNextQuestion = {}) { }
+            KiandoTheme() {
+                MainScreen(
+                    question = sampleQuestion,
+                    navigateToList = {},
+                    navigateToNextQuestion = {}) { }
+            }
         }
         takeScreenShot("feature_graphic2.png")
     }
@@ -42,10 +47,12 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic3() {
         composeTestRule.setContent {
-            MainScreen(
-                question = sampleQuestion,
-                navigateToList = {},
-                navigateToNextQuestion = {}) { }
+            KiandoTheme() {
+                MainScreen(
+                    question = sampleQuestion,
+                    navigateToList = {},
+                    navigateToNextQuestion = {}) { }
+            }
         }
         val loadedSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/9/9/4K"
         composeTestRule.onNode(hasContentDescription("toggle decode SFEN input form"))
