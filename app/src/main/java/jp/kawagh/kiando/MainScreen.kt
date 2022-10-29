@@ -212,7 +212,7 @@ fun MainScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-                backgroundColor = BoardColorUnfocused,
+                backgroundColor = BoardColor,
                 navigationIcon = {
                     IconButton(onClick = navigateToList) {
                         Icon(Icons.Filled.ArrowBack, "back to the list")
