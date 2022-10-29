@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ private fun MainScreenPreview() {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     question: Question, navigateToList: () -> Unit,
@@ -51,6 +53,7 @@ fun MainScreen(
             LocalContext.current.applicationContext as Application, question
         )
     )
+    val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
         mutableStateOf(false)
     }
@@ -93,7 +96,6 @@ fun MainScreen(
     var showAnswerMode by remember {
         mutableStateOf(false)
     }
-    val scaffoldState = rememberScaffoldState()
     val snackbarCoroutineScope = rememberCoroutineScope()
     val positionsToHighlight = remember {
         mutableStateListOf<Position>()
@@ -111,10 +113,9 @@ fun MainScreen(
         // judge
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
-                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Good Move👍",
-                    actionLabel = "Next",
-                )
+                val snackbarResult =
+                    snackbarHostState.showSnackbar(message = "Good Move👍", actionLabel = "Next")
+
                 when (snackbarResult) {
                     SnackbarResult.ActionPerformed -> {
                         navigateToNextQuestion.invoke()
@@ -208,11 +209,11 @@ fun MainScreen(
     val enemyPiecesCount: Map<PieceKind, Int> =
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
-    Scaffold(scaffoldState = scaffoldState,
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-                backgroundColor = BoardColor,
                 navigationIcon = {
                     IconButton(onClick = navigateToList) {
                         Icon(Icons.Filled.ArrowBack, "back to the list")
@@ -243,169 +244,6 @@ fun MainScreen(
                 }
             )
         },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                PromotionDialog(
-                    shouldShowPromotionDialog = shouldShowPromotionDialog,
-                    onConfirmClick = {
-                        shouldShowPromotionDialog = false
-                        // processMove
-                        val move = Move(
-                            positionStack.first(),
-                            positionStack.last(),
-                            true,
-                        )
-
-                        when (isRegisterQuestionMode) {
-                            false -> processMove(move)
-                            true -> registerMove(move)
-                        }
-                    },
-                    onDismissClick = {
-                        shouldShowPromotionDialog = false
-                        val move = Move(
-                            positionStack.first(),
-                            positionStack.last(),
-                            false,
-                        )
-                        when (isRegisterQuestionMode) {
-                            false -> processMove(move)
-                            true -> registerMove(move)
-                        }
-                    })
-                if (isRegisterQuestionMode) {
-                    Text(
-                        text = "Do move to register",
-                        fontSize = MaterialTheme.typography.h5.fontSize
-                    )
-                }
-                if (shouldShowSFENInput) {
-                    val clipboardManager = LocalClipboardManager.current
-                    Row {
-                        TextField(
-                            value = inputSFEN,
-                            label = { Text("SFEN") },
-                            placeholder = { Text("Input SFEN") },
-                            onValueChange = { inputSFEN = it },
-                            trailingIcon = {
-                                Row {
-                                    IconButton(
-                                        onClick = {
-                                            clipboardManager.setText(buildAnnotatedString {
-                                                append(
-                                                    inputSFEN
-                                                )
-                                            }
-                                            )
-                                            snackbarCoroutineScope.launch {
-                                                scaffoldState.snackbarHostState.showSnackbar(
-                                                    "copied $inputSFEN"
-                                                )
-                                            }
-                                        },
-                                        enabled = inputSFEN.isNotEmpty(),
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.ContentCopy, null,
-                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
-                                        )
-
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            gameViewModel.loadSFEN(inputSFEN)
-                                            isRegisterQuestionMode = false
-                                            isRegisterQuestionMode = true // invoke recompose
-                                            inputKomadaiSFEN = "" // TODO parse komadai from sfen
-                                        },
-                                        enabled = inputSFEN.isNotEmpty(),
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.Sync, "load SFEN",
-                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
-                                        )
-                                    }
-                                }
-                            },
-                            modifier = Modifier.semantics { contentDescription = "SFEN input form" }
-                        )
-                    }
-                }
-
-                // enemy
-                Komadai(
-                    enemyPiecesCount,
-                    handleEnemyKomadaiClick,
-                    isEnemy = true,
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Board(
-                    gameViewModel.boardState,
-                    handlePanelClick,
-                    shouldHighlight = panelClickedOnce || showAnswerMode,
-                    lastClickedPanelPos,
-                    positionsToHighlight = positionsToHighlight
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Komadai(
-                    piecesCount,
-                    handleKomadaiClick
-                )
-                when (isRegisterQuestionMode) {
-                    false -> Column() {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = question.description,
-                                fontSize = MaterialTheme.typography.h5.fontSize,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(20.dp)
-                            )
-                            IconButton(
-                                onClick = {
-                                    navigateToPrevQuestion.invoke()
-                                },
-                            ) {
-                                Icon(Icons.Default.SkipPrevious, "back to prev question")
-                            }
-                            IconButton(
-                                onClick = {
-                                    navigateToNextQuestion.invoke()
-                                },
-                                modifier = Modifier.padding(10.dp)
-                            ) {
-                                Icon(Icons.Default.SkipNext, "go to next question")
-                            }
-                        }
-                        if (shouldShowAnswerButton) {
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Button(onClick = handleShowAnswerClick) {
-                                    Text(text = "show answer")
-                                }
-                            }
-                        }
-                    }
-                    true -> TextField(
-                        value = inputQuestionDescription,
-                        onValueChange = { inputQuestionDescription = it },
-                        label = {
-                            Text(text = "Input question description")
-                        },
-                    )
-                }
-            }
-        },
         floatingActionButton = {
             if (isRegisterQuestionMode) {
                 val newQuestion = Question(
@@ -419,14 +257,14 @@ fun MainScreen(
                     when (validateQuestion(newQuestion)) {
                         QuestionValidationResults.EmptyDescription -> {
                             snackbarCoroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
+                                snackbarHostState.showSnackbar(
                                     "🆖 empty description"
                                 )
                             }
                         }
                         QuestionValidationResults.NeedMove -> {
                             snackbarCoroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
+                                snackbarHostState.showSnackbar(
                                     "🆖 need move"
                                 )
                             }
@@ -435,7 +273,7 @@ fun MainScreen(
                         QuestionValidationResults.Valid -> {
                             gameViewModel.saveQuestion(newQuestion)
                             snackbarCoroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
+                                snackbarHostState.showSnackbar(
                                     "🆗 saved"
                                 )
                             }
@@ -449,7 +287,169 @@ fun MainScreen(
                 }
             }
         }
-    )
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PromotionDialog(
+                shouldShowPromotionDialog = shouldShowPromotionDialog,
+                onConfirmClick = {
+                    shouldShowPromotionDialog = false
+                    // processMove
+                    val move = Move(
+                        positionStack.first(),
+                        positionStack.last(),
+                        true,
+                    )
+
+                    when (isRegisterQuestionMode) {
+                        false -> processMove(move)
+                        true -> registerMove(move)
+                    }
+                },
+                onDismissClick = {
+                    shouldShowPromotionDialog = false
+                    val move = Move(
+                        positionStack.first(),
+                        positionStack.last(),
+                        false,
+                    )
+                    when (isRegisterQuestionMode) {
+                        false -> processMove(move)
+                        true -> registerMove(move)
+                    }
+                })
+            if (isRegisterQuestionMode) {
+                Text(
+                    text = "Do move to register",
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize
+                )
+            }
+            if (shouldShowSFENInput) {
+                val clipboardManager = LocalClipboardManager.current
+                Row {
+                    TextField(
+                        value = inputSFEN,
+                        label = { Text("SFEN") },
+                        placeholder = { Text("Input SFEN") },
+                        onValueChange = { inputSFEN = it },
+                        trailingIcon = {
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        clipboardManager.setText(buildAnnotatedString {
+                                            append(
+                                                inputSFEN
+                                            )
+                                        }
+                                        )
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar("copied $inputSFEN")
+                                        }
+                                    },
+                                    enabled = inputSFEN.isNotEmpty(),
+                                ) {
+                                    Icon(
+                                        Icons.Filled.ContentCopy, null,
+                                        tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                    )
+
+                                }
+                                IconButton(
+                                    onClick = {
+                                        gameViewModel.loadSFEN(inputSFEN)
+                                        isRegisterQuestionMode = false
+                                        isRegisterQuestionMode = true // invoke recompose
+                                        inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                    },
+                                    enabled = inputSFEN.isNotEmpty(),
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Sync, "load SFEN",
+                                        tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier.semantics { contentDescription = "SFEN input form" }
+                    )
+                }
+            }
+
+            // enemy
+            Komadai(
+                enemyPiecesCount,
+                handleEnemyKomadaiClick,
+                isEnemy = true,
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Board(
+                gameViewModel.boardState,
+                handlePanelClick,
+                shouldHighlight = panelClickedOnce || showAnswerMode,
+                lastClickedPanelPos,
+                positionsToHighlight = positionsToHighlight
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Komadai(
+                piecesCount,
+                handleKomadaiClick
+            )
+            when (isRegisterQuestionMode) {
+                false -> Column() {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = question.description,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(20.dp)
+                        )
+                        IconButton(
+                            onClick = {
+                                navigateToPrevQuestion.invoke()
+                            },
+                        ) {
+                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                        }
+                        IconButton(
+                            onClick = {
+                                navigateToNextQuestion.invoke()
+                            },
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Icon(Icons.Default.SkipNext, "go to next question")
+                        }
+                    }
+                    if (shouldShowAnswerButton) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Button(onClick = handleShowAnswerClick) {
+                                Text(text = "show answer")
+                            }
+                        }
+                    }
+                }
+                true -> TextField(
+                    value = inputQuestionDescription,
+                    onValueChange = { inputQuestionDescription = it },
+                    label = {
+                        Text(text = "Input question description")
+                    },
+                )
+            }
+        }
+    }
 }
 
 sealed class QuestionValidationResults {
@@ -566,15 +566,12 @@ private fun Panel(
 
     when (panelState.pieceKind) {
         PieceKind.EMPTY -> {
-            Button(
-                onClick = { handlePanelClick(panelState) },
+            Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .border(BorderStroke(0.1.dp, Color.Black)),
-                colors = ButtonDefaults.textButtonColors(
-                    backgroundColor = backgroundColor,
-                    contentColor = Color.Black,
-                )
+                    .background(backgroundColor)
+                    .clickable { handlePanelClick.invoke(panelState) }
+                    .border(BorderStroke(0.1.dp, Color.Black))
             ) {
                 Text(
                     text = text, fontSize = 17.sp,
