@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -17,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,17 +41,19 @@ private fun MainScreenPreview() {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     question: Question, navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
-    navigateToPrevtQuestion: () -> Unit,
+    navigateToPrevQuestion: () -> Unit,
 ) {
     val gameViewModel: GameViewModel = viewModel(
         factory = GameViewModelFactory(
             LocalContext.current.applicationContext as Application, question
         )
     )
+    val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
         mutableStateOf(false)
     }
@@ -85,9 +90,14 @@ fun MainScreen(
     var shouldShowSFENInput by remember {
         mutableStateOf(false)
     }
-    val scaffoldState = rememberScaffoldState()
+    var shouldShowAnswerButton by remember {
+        mutableStateOf(true)
+    }
+    var showAnswerMode by remember {
+        mutableStateOf(false)
+    }
     val snackbarCoroutineScope = rememberCoroutineScope()
-    val legalMovePositions = remember {
+    val positionsToHighlight = remember {
         mutableStateListOf<Position>()
     }
 
@@ -95,17 +105,17 @@ fun MainScreen(
         moveToRegister = move
         gameViewModel.move(move)
         positionStack.clear()
-        legalMovePositions.clear()
+        positionsToHighlight.clear()
     }
 
     fun processMove(move: Move) {
+        showAnswerMode = false
         // judge
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
-                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Good Move👍",
-                    actionLabel = "Next",
-                )
+                val snackbarResult =
+                    snackbarHostState.showSnackbar(message = "Good Move👍", actionLabel = "Next")
+
                 when (snackbarResult) {
                     SnackbarResult.ActionPerformed -> {
                         navigateToNextQuestion.invoke()
@@ -116,10 +126,11 @@ fun MainScreen(
         }
         gameViewModel.move(move)
         positionStack.clear()
-        legalMovePositions.clear()
+        positionsToHighlight.clear()
     }
 
     val handlePanelClick: (PanelState) -> Unit = {
+        shouldShowAnswerButton = false
         when (panelClickedOnce) {
             true -> {
                 panelClickedOnce = !panelClickedOnce
@@ -152,7 +163,7 @@ fun MainScreen(
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
                 lastClickedPanel = it
-                legalMovePositions.addAll(gameViewModel.listLegalMoves(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMoves(it))
             }
         }
     }
@@ -168,7 +179,7 @@ fun MainScreen(
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
@@ -181,17 +192,25 @@ fun MainScreen(
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                legalMovePositions.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
                 lastClickedPanelPos = Position(-1, -1) // 駒台を表す
             }
         }
+    }
+
+    val handleShowAnswerClick: () -> Unit = {
+        showAnswerMode = true
+        shouldShowAnswerButton = false
+
+        positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
     }
 
     val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
     val enemyPiecesCount: Map<PieceKind, Int> =
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
-    Scaffold(scaffoldState = scaffoldState,
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
@@ -225,154 +244,6 @@ fun MainScreen(
                 }
             )
         },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                PromotionDialog(
-                    shouldShowPromotionDialog = shouldShowPromotionDialog,
-                    onConfirmClick = {
-                        shouldShowPromotionDialog = false
-                        // processMove
-                        val move = Move(
-                            positionStack.first(),
-                            positionStack.last(),
-                            true,
-                        )
-
-                        when (isRegisterQuestionMode) {
-                            false -> processMove(move)
-                            true -> registerMove(move)
-                        }
-                    },
-                    onDismissClick = {
-                        shouldShowPromotionDialog = false
-                        val move = Move(
-                            positionStack.first(),
-                            positionStack.last(),
-                            false,
-                        )
-                        when (isRegisterQuestionMode) {
-                            false -> processMove(move)
-                            true -> registerMove(move)
-                        }
-                    })
-                if (isRegisterQuestionMode) {
-                    Text(
-                        text = "Do move to register",
-                        fontSize = MaterialTheme.typography.h5.fontSize
-                    )
-                }
-                if (shouldShowSFENInput) {
-                    val clipboardManager = LocalClipboardManager.current
-                    Row {
-                        TextField(
-                            value = inputSFEN,
-                            label = { Text("SFEN") },
-                            placeholder = { Text("Input SFEN") },
-                            onValueChange = { inputSFEN = it },
-                            trailingIcon = {
-                                Row {
-                                    IconButton(
-                                        onClick = {
-                                            clipboardManager.setText(buildAnnotatedString {
-                                                append(
-                                                    inputSFEN
-                                                )
-                                            }
-                                            )
-                                            snackbarCoroutineScope.launch {
-                                                scaffoldState.snackbarHostState.showSnackbar(
-                                                    "copied $inputSFEN"
-                                                )
-                                            }
-                                        },
-                                        enabled = inputSFEN.isNotEmpty(),
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.ContentCopy, null,
-                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
-                                        )
-
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            gameViewModel.loadSFEN(inputSFEN)
-                                            isRegisterQuestionMode = false
-                                            isRegisterQuestionMode = true // invoke recompose
-                                            inputKomadaiSFEN = "" // TODO parse komadai from sfen
-                                        },
-                                        enabled = inputSFEN.isNotEmpty(),
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.Sync, null,
-                                            tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
-                                        )
-                                    }
-                                }
-                            })
-                    }
-                }
-
-                // enemy
-                Komadai(
-                    enemyPiecesCount,
-                    handleEnemyKomadaiClick,
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Board(
-                    gameViewModel.boardState,
-                    handlePanelClick,
-                    panelClickedOnce,
-                    lastClickedPanelPos,
-                    legalMovePositions
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-                Komadai(
-                    piecesCount,
-                    handleKomadaiClick
-                )
-                when (isRegisterQuestionMode) {
-                    false -> Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = question.description,
-                            fontSize = MaterialTheme.typography.h5.fontSize,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(20.dp)
-                        )
-                        IconButton(
-                            onClick = {
-                                navigateToPrevtQuestion.invoke()
-                            },
-                        ) {
-                            Icon(Icons.Default.SkipPrevious, "back to prev question")
-                        }
-                        IconButton(
-                            onClick = {
-                                navigateToNextQuestion.invoke()
-                            },
-                            modifier = Modifier.padding(10.dp)
-                        ) {
-                            Icon(Icons.Default.SkipNext, "go to next question")
-                        }
-                    }
-                    true -> TextField(
-                        value = inputQuestionDescription,
-                        onValueChange = { inputQuestionDescription = it },
-                        label = {
-                            Text(text = "Input question description")
-                        },
-                    )
-                }
-            }
-        },
         floatingActionButton = {
             if (isRegisterQuestionMode) {
                 val newQuestion = Question(
@@ -386,14 +257,14 @@ fun MainScreen(
                     when (validateQuestion(newQuestion)) {
                         QuestionValidationResults.EmptyDescription -> {
                             snackbarCoroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
+                                snackbarHostState.showSnackbar(
                                     "🆖 empty description"
                                 )
                             }
                         }
                         QuestionValidationResults.NeedMove -> {
                             snackbarCoroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
+                                snackbarHostState.showSnackbar(
                                     "🆖 need move"
                                 )
                             }
@@ -402,7 +273,7 @@ fun MainScreen(
                         QuestionValidationResults.Valid -> {
                             gameViewModel.saveQuestion(newQuestion)
                             snackbarCoroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
+                                snackbarHostState.showSnackbar(
                                     "🆗 saved"
                                 )
                             }
@@ -416,7 +287,169 @@ fun MainScreen(
                 }
             }
         }
-    )
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PromotionDialog(
+                shouldShowPromotionDialog = shouldShowPromotionDialog,
+                onConfirmClick = {
+                    shouldShowPromotionDialog = false
+                    // processMove
+                    val move = Move(
+                        positionStack.first(),
+                        positionStack.last(),
+                        true,
+                    )
+
+                    when (isRegisterQuestionMode) {
+                        false -> processMove(move)
+                        true -> registerMove(move)
+                    }
+                },
+                onDismissClick = {
+                    shouldShowPromotionDialog = false
+                    val move = Move(
+                        positionStack.first(),
+                        positionStack.last(),
+                        false,
+                    )
+                    when (isRegisterQuestionMode) {
+                        false -> processMove(move)
+                        true -> registerMove(move)
+                    }
+                })
+            if (isRegisterQuestionMode) {
+                Text(
+                    text = "Do move to register",
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize
+                )
+            }
+            if (shouldShowSFENInput) {
+                val clipboardManager = LocalClipboardManager.current
+                Row {
+                    TextField(
+                        value = inputSFEN,
+                        label = { Text("SFEN") },
+                        placeholder = { Text("Input SFEN") },
+                        onValueChange = { inputSFEN = it },
+                        trailingIcon = {
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        clipboardManager.setText(buildAnnotatedString {
+                                            append(
+                                                inputSFEN
+                                            )
+                                        }
+                                        )
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar("copied $inputSFEN")
+                                        }
+                                    },
+                                    enabled = inputSFEN.isNotEmpty(),
+                                ) {
+                                    Icon(
+                                        Icons.Filled.ContentCopy, null,
+                                        tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
+                                    )
+
+                                }
+                                IconButton(
+                                    onClick = {
+                                        gameViewModel.loadSFEN(inputSFEN)
+                                        isRegisterQuestionMode = false
+                                        isRegisterQuestionMode = true // invoke recompose
+                                        inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                    },
+                                    enabled = inputSFEN.isNotEmpty(),
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Sync, "load SFEN",
+                                        tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier.semantics { contentDescription = "SFEN input form" }
+                    )
+                }
+            }
+
+            // enemy
+            Komadai(
+                enemyPiecesCount,
+                handleEnemyKomadaiClick,
+                isEnemy = true,
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Board(
+                gameViewModel.boardState,
+                handlePanelClick,
+                shouldHighlight = panelClickedOnce || showAnswerMode,
+                lastClickedPanelPos,
+                positionsToHighlight = positionsToHighlight
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Komadai(
+                piecesCount,
+                handleKomadaiClick
+            )
+            when (isRegisterQuestionMode) {
+                false -> Column() {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = question.description,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(20.dp)
+                        )
+                        IconButton(
+                            onClick = {
+                                navigateToPrevQuestion.invoke()
+                            },
+                        ) {
+                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                        }
+                        IconButton(
+                            onClick = {
+                                navigateToNextQuestion.invoke()
+                            },
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Icon(Icons.Default.SkipNext, "go to next question")
+                        }
+                    }
+                    if (shouldShowAnswerButton) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Button(onClick = handleShowAnswerClick) {
+                                Text(text = "show answer")
+                            }
+                        }
+                    }
+                }
+                true -> TextField(
+                    value = inputQuestionDescription,
+                    onValueChange = { inputQuestionDescription = it },
+                    label = {
+                        Text(text = "Input question description")
+                    },
+                )
+            }
+        }
+    }
 }
 
 sealed class QuestionValidationResults {
@@ -466,18 +499,18 @@ private fun PromotionDialog(
 private fun Board(
     boardState: SnapshotStateList<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) {
     Column {
         repeat(BOARD_SIZE) { rowIndex ->
             BoardRow(
                 boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
                 handlePanelClick,
-                panelClickedOnce,
+                shouldHighlight,
                 lastClickedPanelPos,
-                legalMovePositions
+                positionsToHighlight
             )
         }
     }
@@ -487,17 +520,17 @@ private fun Board(
 private fun BoardRow(
     boardRow: List<PanelState>,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) = Row {
     repeat(BOARD_SIZE) { colIndex ->
         Panel(
             boardRow[colIndex],
             handlePanelClick,
-            panelClickedOnce,
+            shouldHighlight,
             lastClickedPanelPos,
-            legalMovePositions
+            positionsToHighlight
         )
 
     }
@@ -507,9 +540,9 @@ private fun BoardRow(
 private fun Panel(
     panelState: PanelState,
     handlePanelClick: (PanelState) -> Unit,
-    panelClickedOnce: Boolean,
+    shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
-    legalMovePositions: List<Position>,
+    positionsToHighlight: List<Position>,
 ) {
     val text = when (panelState.pieceKind) {
         PieceKind.EMPTY -> ""
@@ -522,26 +555,23 @@ private fun Panel(
         PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
         PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
     }
-    val backgroundColor = if (panelClickedOnce) {
+    val backgroundColor = if (shouldHighlight) {
         when (Position(panelState.row, panelState.column)) {
             lastClickedPanelPos -> BoardColor
-            in legalMovePositions -> BoardColor
+            in positionsToHighlight -> BoardColor
             else -> BoardColorUnfocused
         }
-    } else BoardColor
+    } else BoardColorUnfocused
 
 
     when (panelState.pieceKind) {
         PieceKind.EMPTY -> {
-            Button(
-                onClick = { handlePanelClick(panelState) },
+            Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .border(BorderStroke(0.1.dp, Color.Black)),
-                colors = ButtonDefaults.textButtonColors(
-                    backgroundColor = backgroundColor,
-                    contentColor = Color.Black,
-                )
+                    .background(backgroundColor)
+                    .clickable { handlePanelClick.invoke(panelState) }
+                    .border(BorderStroke(0.1.dp, Color.Black))
             ) {
                 Text(
                     text = text, fontSize = 17.sp,

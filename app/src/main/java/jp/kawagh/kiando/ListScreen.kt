@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +27,7 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, {}, {}, {}, {})
+    ListScreen(sampleQuestions, {}, {}, {}, {}, {})
 
 }
 
@@ -36,11 +36,13 @@ sealed class TabItem(val name: String) {
     object Tagged : TabItem("Tagged")
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
     navigateToDelete: () -> Unit,
+    navigateToLicense: () -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
 ) {
@@ -57,13 +59,12 @@ fun ListScreen(
     }
     val dropDownMenuItems = mapOf(
         "Delete Questions" to navigateToDelete,
+        "License" to navigateToLicense,
         "Version: ${BuildConfig.VERSION_NAME}" to {}
     )
-    Scaffold(
+    androidx.compose.material3.Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
-
+            androidx.compose.material3.TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
                 actions = {
                     IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
                         Icon(Icons.Default.MoreVert, null)
@@ -75,28 +76,33 @@ fun ListScreen(
                 }
             )
         },
-        content = {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                TabRow(selectedTabIndex = tabRowIndex) {
-                    tabs.forEachIndexed { index, tab ->
-                        Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
-                            Text(tab.name, fontSize = MaterialTheme.typography.h5.fontSize)
-                        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+//            TabRow(selectedTabIndex = tabRowIndex, backgroundColor = BoardColor) {
+            TabRow(selectedTabIndex = tabRowIndex) {
+                tabs.forEachIndexed { index, tab ->
+                    Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
+                        Text(
+                            tab.name,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                        )
                     }
                 }
-                Text(text = "Problem Set", fontSize = MaterialTheme.typography.h4.fontSize)
-                QuestionsList(
-                    questions = questionsToDisplay,
-                    navigateToQuestion = navigateToQuestion,
-                    handleDeleteAQuestion = handleDeleteAQuestion,
-                    handleFavoriteQuestion = handleFavoriteQuestion,
-                )
             }
-        },
-    )
+            Text(text = "Problem Set", fontSize = MaterialTheme.typography.headlineSmall.fontSize)
+            QuestionsList(
+                questions = questionsToDisplay,
+                navigateToQuestion = navigateToQuestion,
+                handleDeleteAQuestion = handleDeleteAQuestion,
+                handleFavoriteQuestion = handleFavoriteQuestion,
+            )
+        }
+    }
 }
 
 @Composable
@@ -107,12 +113,12 @@ fun DropdownMenuOnTopBar(
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = { setExpanded(false) }) {
         dropDownMenuItems.forEach { (name, callback) ->
-            DropdownMenuItem(onClick = {
+            DropdownMenuItem(text = {
+                Text(text = name)
+            }, onClick = {
                 callback.invoke()
                 setExpanded(false)
-            }) {
-                Text(text = name)
-            }
+            })
         }
     }
 }
@@ -177,7 +183,7 @@ fun QuestionRow(
                 Icon(Icons.Default.Delete, "delete")
             }
         }
-        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
+        Text(text = question.description, fontSize = MaterialTheme.typography.titleLarge.fontSize)
     }
 }
 
@@ -192,6 +198,6 @@ fun StableQuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQues
         horizontalArrangement = Arrangement.Center,
     )
     {
-        Text(text = question.description, fontSize = MaterialTheme.typography.h5.fontSize)
+        Text(text = question.description, fontSize = MaterialTheme.typography.titleLarge.fontSize)
     }
 }

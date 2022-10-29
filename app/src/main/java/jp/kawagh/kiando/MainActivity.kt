@@ -19,37 +19,44 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import jp.kawagh.kiando.ui.theme.KiandoTheme
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
             App()
         }
     }
 }
 
 @Composable
+fun SideEffectChangeSystemUi() {
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = MaterialTheme.colors.isLight
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = Color.Transparent,
+            darkIcons = useDarkIcons
+        )
+    }
+}
+
+@Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
-    KiandoTheme {
+    KiandoM3Theme() {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
         val navigateToQuestion: (Question) -> Unit = { it ->
             navController.navigate("main/${it.id}")
         }
+        val navigateToList: () -> Unit = {
+            navController.navigate("list")
+        }
         val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
         val allQuestions = sampleQuestions + userAddedQuestions
 
-        val systemUiController = rememberSystemUiController()
-        val useDarkIcons = MaterialTheme.colors.isLight
-        SideEffect {
-            systemUiController.setSystemBarsColor(
-                color = Color.Transparent,
-                darkIcons = useDarkIcons
-            )
-        }
+        SideEffectChangeSystemUi()
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
@@ -63,6 +70,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         questions = allQuestions,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
+                        navigateToLicense = { navController.navigate("license") },
                         handleDeleteAQuestion = { question ->
                             navController.navigate("delete_each/${question.id}")
                         },
@@ -87,10 +95,13 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         allQuestions.find { question -> question.id < questionId } ?: sampleQuestion
                     MainScreen(
                         question = question,
-                        navigateToList = { navController.navigate("list") },
+                        navigateToList = navigateToList,
                         navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
-                        navigateToPrevtQuestion = { navigateToQuestion(prevQuestion) },
+                        navigateToPrevQuestion = { navigateToQuestion(prevQuestion) },
                     )
+                }
+                composable("license") {
+                    LicenseScreen(onArrowBackPressed = navigateToList)
                 }
                 dialog("delete") {
                     AlertDialog(

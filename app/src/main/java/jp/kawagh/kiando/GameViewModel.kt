@@ -15,7 +15,7 @@ const val BOARD_SIZE = 9
 
 class GameViewModelFactory(private val application: Application, private val question: Question) :
     ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return GameViewModel(application, question) as T
