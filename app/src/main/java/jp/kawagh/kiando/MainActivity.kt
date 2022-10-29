@@ -25,9 +25,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
             App()
         }
+    }
+}
+
+@Composable
+fun SideEffectChangeSystemUi() {
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = MaterialTheme.colors.isLight
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = Color.Transparent,
+            darkIcons = useDarkIcons
+        )
     }
 }
 
@@ -45,14 +56,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
         val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
         val allQuestions = sampleQuestions + userAddedQuestions
 
-        val systemUiController = rememberSystemUiController()
-        val useDarkIcons = MaterialTheme.colors.isLight
-        SideEffect {
-            systemUiController.setSystemBarsColor(
-                color = Color.Transparent,
-                darkIcons = useDarkIcons
-            )
-        }
+        SideEffectChangeSystemUi()
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
