@@ -47,8 +47,8 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     KiandoM3Theme() {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
-        val navigateToQuestion: (Question) -> Unit = { it ->
-            navController.navigate("main/${it.id}")
+        val navigateToQuestion: (Question, fromTabIndex: Int) -> Unit = { question, fromTabIndex ->
+            navController.navigate("main/${question.id}/${fromTabIndex}")
         }
         val navigateToList: () -> Unit = {
             navController.navigate("list")
@@ -80,24 +80,56 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     )
                 }
                 composable(
-                    "main/{questionId}",
-                    arguments = listOf(navArgument("questionId") {
-                        type = NavType.IntType
-                    })
+                    "main/{questionId}/{fromTabIndex}",
+                    arguments = listOf(
+                        navArgument("questionId") {
+                            type = NavType.IntType
+                        },
+                        navArgument("fromTabIndex") { type = NavType.IntType },
+                    )
                 ) {
                     val questionId = it.arguments?.getInt("questionId") ?: -1
+                    val fromTabIndex = it.arguments?.getInt("fromTabIndex") ?: 0
                     val question =
                         allQuestions.find { question -> question.id == questionId }
                             ?: sampleQuestion
+
+                    val TAGGED_INDEX = 1 // TabItem.Tagged
                     val nextQuestion =
-                        allQuestions.find { question -> question.id > questionId } ?: sampleQuestion
+                        if (fromTabIndex == TAGGED_INDEX) {
+                            allQuestions.filter { q -> q.tag_id == TAGGED_INDEX }.find { q ->
+                                q.id > questionId
+                            }
+                                ?: sampleQuestion
+                        } else {
+                            allQuestions.find { q -> q.id > questionId }
+                                ?: sampleQuestion
+                        }
                     val prevQuestion =
-                        allQuestions.findLast { question -> question.id < questionId } ?: sampleQuestion
+                        if (fromTabIndex == TAGGED_INDEX) {
+                            allQuestions.filter { q -> q.tag_id == TAGGED_INDEX }.findLast { q ->
+                                q.id < questionId
+                            }
+                                ?: sampleQuestion
+                        } else {
+                            allQuestions.findLast { q -> q.id < questionId }
+                                ?: sampleQuestion
+                        }
                     MainScreen(
                         question = question,
                         navigateToList = navigateToList,
-                        navigateToNextQuestion = { navigateToQuestion(nextQuestion) },
-                        navigateToPrevQuestion = { navigateToQuestion(prevQuestion) },
+                        navigateToNextQuestion = {
+                            navigateToQuestion(
+                                nextQuestion,
+                                fromTabIndex
+                            )
+                        },
+                        navigateToPrevQuestion = {
+                            navigateToQuestion(
+                                prevQuestion,
+                                fromTabIndex
+                            )
+                        },
                     )
                 }
                 composable("license") {

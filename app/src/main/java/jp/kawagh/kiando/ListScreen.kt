@@ -27,7 +27,7 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, {}, {}, {}, {}, {})
+    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {})
 
 }
 
@@ -40,7 +40,7 @@ sealed class TabItem(val name: String) {
 @Composable
 fun ListScreen(
     questions: List<Question>,
-    navigateToQuestion: (Question) -> Unit,
+    navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -48,6 +48,9 @@ fun ListScreen(
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
+    }
+    val navigateToQuestionWithTabIndex: (Question) -> Unit = {
+        navigateToQuestion(it, tabRowIndex)
     }
     val tabs = listOf(TabItem.All, TabItem.Tagged)
     val questionsToDisplay = when (tabs[tabRowIndex]) {
@@ -96,7 +99,7 @@ fun ListScreen(
             Text(text = "Problem Set", fontSize = MaterialTheme.typography.headlineSmall.fontSize)
             QuestionsList(
                 questions = questionsToDisplay,
-                navigateToQuestion = navigateToQuestion,
+                navigateToQuestion = navigateToQuestionWithTabIndex,
                 handleDeleteAQuestion = handleDeleteAQuestion,
                 handleFavoriteQuestion = handleFavoriteQuestion,
             )
