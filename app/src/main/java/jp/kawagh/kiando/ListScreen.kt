@@ -138,6 +138,7 @@ fun QuestionsList(
                 onClick = { navigateToQuestion(question) },
                 handleDeleteAQuestion = { handleDeleteAQuestion(question) },
                 handleFavoriteQuestion = { handleFavoriteQuestion(question) },
+                showIcons = question.id >= 0
             )
             Spacer(Modifier.size(5.dp))
         }

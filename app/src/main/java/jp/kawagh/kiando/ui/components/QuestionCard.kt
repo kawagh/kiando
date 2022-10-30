@@ -22,36 +22,40 @@ fun QuestionCard(
     onClick: () -> Unit,
     handleDeleteAQuestion: () -> Unit,
     handleFavoriteQuestion: () -> Unit,
+    showIcons: Boolean = true
 ) {
     val isFavorite = question.tag_id == 1
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
-        containerColor = CardColor
+            containerColor = CardColor
         ),
+        modifier = Modifier.padding(start = 4.dp, end = 4.dp)
     ) {
-        Column() {
+        Column(modifier = Modifier.height(80.dp)) {
             Text(
                 text = question.description,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 modifier = Modifier.padding(4.dp)
             )
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = handleDeleteAQuestion) {
-                    Icon(Icons.Default.Delete, contentDescription = "delete question")
-                }
-                IconButton(onClick = {
-                    handleFavoriteQuestion.invoke()
-                }) {
-                    Icon(
-                        Icons.Filled.Star,
-                        contentDescription = "toggle favorite",
-                        tint = if (isFavorite) {
-                            Color.Yellow
-                        } else {
-                            LocalContentColor.current
-                        }
-                    )
+                if (showIcons) {
+                    IconButton(onClick = handleDeleteAQuestion) {
+                        Icon(Icons.Default.Delete, contentDescription = "delete question")
+                    }
+                    IconButton(onClick = {
+                        handleFavoriteQuestion.invoke()
+                    }) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = "toggle favorite",
+                            tint = if (isFavorite) {
+                                Color.Yellow
+                            } else {
+                                LocalContentColor.current
+                            }
+                        )
+                    }
                 }
             }
         }
