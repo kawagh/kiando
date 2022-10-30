@@ -62,9 +62,9 @@ fun ListScreen(
         "License" to navigateToLicense,
         "Version: ${BuildConfig.VERSION_NAME}" to {}
     )
-    androidx.compose.material3.Scaffold(
+    Scaffold(
         topBar = {
-            androidx.compose.material3.TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
+            TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
                 actions = {
                     IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
                         Icon(Icons.Default.MoreVert, null)
@@ -83,7 +83,6 @@ fun ListScreen(
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-//            TabRow(selectedTabIndex = tabRowIndex, backgroundColor = BoardColor) {
             TabRow(selectedTabIndex = tabRowIndex) {
                 tabs.forEachIndexed { index, tab ->
                     Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
