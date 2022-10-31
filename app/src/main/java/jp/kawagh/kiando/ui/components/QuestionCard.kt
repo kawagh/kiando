@@ -8,10 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.Question
-import jp.kawagh.kiando.sampleQuestion
+import jp.kawagh.kiando.sampleQuestionWithLongDescription
 import jp.kawagh.kiando.ui.theme.CardColor
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
@@ -36,7 +37,9 @@ fun QuestionCard(
             Text(
                 text = question.description,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(4.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 if (showIcons) {
@@ -66,6 +69,6 @@ fun QuestionCard(
 @Composable
 fun QuestionCardPreview() {
     KiandoM3Theme() {
-        QuestionCard(sampleQuestion, {}, {}, {})
+        QuestionCard(sampleQuestionWithLongDescription, {}, {}, {})
     }
 }
