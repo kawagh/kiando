@@ -1,4 +1,4 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.di
 
 import dagger.Binds
 import dagger.Module

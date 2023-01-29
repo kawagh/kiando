@@ -1,4 +1,4 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.di
 
 import android.content.Context
 import androidx.room.Room
