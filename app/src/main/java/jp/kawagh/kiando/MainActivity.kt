@@ -3,8 +3,13 @@ package jp.kawagh.kiando
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -33,7 +38,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SideEffectChangeSystemUi() {
     val systemUiController = rememberSystemUiController()
-    val useDarkIcons = MaterialTheme.colors.isLight
+    val useDarkIcons = !isSystemInDarkTheme()
     SideEffect {
         systemUiController.setSystemBarsColor(
             color = Color.Transparent,
@@ -54,12 +59,12 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
             navController.navigate("list")
         }
         val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
-        val allQuestions = sampleQuestions + userAddedQuestions
+        val allQuestions: List<Question> = sampleQuestions + userAddedQuestions
 
         SideEffectChangeSystemUi()
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colors.background
+            color = MaterialTheme.colorScheme.background
         ) {
             NavHost(navController = navController, startDestination = "list") {
                 composable("entry") {

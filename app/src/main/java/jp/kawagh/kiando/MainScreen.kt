@@ -120,6 +120,7 @@ fun MainScreen(
                     SnackbarResult.ActionPerformed -> {
                         navigateToNextQuestion.invoke()
                     }
+
                     SnackbarResult.Dismissed -> {}
                 }
             }
@@ -149,6 +150,7 @@ fun MainScreen(
                             // judge promote here
                             shouldShowPromotionDialog = true
                         }
+
                         false -> {
                             when (isRegisterQuestionMode) {
                                 false -> processMove(move)
@@ -158,6 +160,7 @@ fun MainScreen(
                     }
                 }
             }
+
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(it.row, it.column))
@@ -176,6 +179,7 @@ fun MainScreen(
             true -> {
                 panelClickedOnce = !panelClickedOnce
             }
+
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
@@ -189,6 +193,7 @@ fun MainScreen(
             true -> {
                 panelClickedOnce = !panelClickedOnce
             }
+
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
@@ -262,6 +267,7 @@ fun MainScreen(
                                 )
                             }
                         }
+
                         QuestionValidationResults.NeedMove -> {
                             snackbarCoroutineScope.launch {
                                 snackbarHostState.showSnackbar(
@@ -270,6 +276,7 @@ fun MainScreen(
                             }
 
                         }
+
                         QuestionValidationResults.Valid -> {
                             gameViewModel.saveQuestion(newQuestion)
                             snackbarCoroutineScope.launch {
@@ -440,6 +447,7 @@ fun MainScreen(
                         }
                     }
                 }
+
                 true -> TextField(
                     value = inputQuestionDescription,
                     onValueChange = { inputQuestionDescription = it },
@@ -582,6 +590,7 @@ private fun Panel(
                 )
             }
         }
+
         else -> {
             Piece(
                 text = text,
