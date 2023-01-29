@@ -1,23 +1,25 @@
 package jp.kawagh.kiando
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.kawagh.kiando.data.AppDatabase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.kawagh.kiando.data.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class QuestionsViewModel(application: Application) : AndroidViewModel(application) {
-    private val db: AppDatabase = AppDatabase.getInstance(application)
+@HiltViewModel
+class QuestionsViewModel @Inject constructor(private val repository: Repository) :
+    ViewModel() {
     var uiState: QuestionsUiState by mutableStateOf(QuestionsUiState())
 
     init {
         viewModelScope.launch() {
-            db.questionDao().getAll().collectLatest {
+            repository.questions.collectLatest {
                 uiState = uiState.copy(questions = it)
             }
         }
@@ -25,22 +27,22 @@ class QuestionsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().deleteAll()
+            repository.deleteAll()
         }
     }
 
     fun deleteById(questionId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().deleteById(questionId)
+            repository.deleteById(questionId)
         }
     }
 
     fun toggleQuestionFavorite(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
             if (question.tag_id == null) {
-                db.questionDao().updateQuestion(question.copy(tag_id = 1))
+                repository.updateQuestion(question.copy(tag_id = 1))
             } else {
-                db.questionDao().updateQuestion(question.copy(tag_id = null))
+                repository.updateQuestion(question.copy(tag_id = null))
             }
         }
     }
