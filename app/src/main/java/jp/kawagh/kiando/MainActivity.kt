@@ -12,8 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,6 +47,7 @@ fun SideEffectChangeSystemUi() {
 
 @Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
+    val uiState = questionsViewModel.uiState
     KiandoM3Theme() {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
@@ -58,7 +57,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
         val navigateToList: () -> Unit = {
             navController.navigate("list")
         }
-        val userAddedQuestions by questionsViewModel.questions.observeAsState(initial = listOf())
+        val userAddedQuestions = uiState.questions
         val allQuestions: List<Question> = sampleQuestions + userAddedQuestions
 
         SideEffectChangeSystemUi()

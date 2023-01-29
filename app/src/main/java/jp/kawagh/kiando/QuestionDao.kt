@@ -1,12 +1,12 @@
 package jp.kawagh.kiando
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QuestionDao {
     @Query("SELECT * FROM questions")
-    fun getAll(): LiveData<List<Question>>
+    fun getAll(): Flow<List<Question>>
 
     @Query("SELECT * FROM questions WHERE id = :questionId")
     fun findById(questionId: Int): Question
