@@ -13,7 +13,7 @@ class ImplRepository @Inject constructor(
     }
 
     override fun deleteById(questionId: Int) {
-        return questionDao.deleteById(questionId)
+        questionDao.deleteById(questionId)
     }
 
     override fun deleteAll() {
