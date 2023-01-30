@@ -221,6 +221,9 @@ fun MainScreen(
                         Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
                     }
                     IconButton(onClick = {
+                        if (!isRegisterQuestionMode) {
+                            moveToRegister = NonMove
+                        }
                         isRegisterQuestionMode = !isRegisterQuestionMode
                         // modeに入った時点の局面を保持する
                         if (isRegisterQuestionMode) {
@@ -394,7 +397,13 @@ fun MainScreen(
             when (isRegisterQuestionMode) {
                 true -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Do move to register",
+                        text = if (moveToRegister == NonMove) {
+                            "Do move to register"
+                        } else {
+                            val pieceKind =
+                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE + moveToRegister.to.column].pieceKind
+                            "登録手: ${moveToRegister.toReadable(pieceKind)}"
+                        },
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
                     )
                     TextField(
