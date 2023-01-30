@@ -1,17 +1,27 @@
 package jp.kawagh.kiando
 
-import android.app.Application
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.kawagh.kiando.data.AppDatabase
+import jp.kawagh.kiando.data.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class QuestionsViewModel(application: Application) : AndroidViewModel(application) {
-    private val db: AppDatabase = AppDatabase.getInstance(application)
+@HiltViewModel
+class QuestionsViewModel @Inject constructor(
+    private val repository: Repository,
+    @ApplicationContext context: Context
+) :
+    ViewModel() {
+    private val db = AppDatabase.getInstance(context)
     var uiState: QuestionsUiState by mutableStateOf(QuestionsUiState())
 
     init {

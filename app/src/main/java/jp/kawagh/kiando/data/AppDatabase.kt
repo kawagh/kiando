@@ -1,4 +1,4 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.data
 
 import android.content.Context
 import androidx.room.Database
@@ -7,6 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import jp.kawagh.kiando.Converters
+import jp.kawagh.kiando.Question
 
 @Database(entities = [Question::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)

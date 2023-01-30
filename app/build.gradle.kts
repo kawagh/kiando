@@ -5,6 +5,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.cookpad.android.plugin.license-tools") version "1.2.8"
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -80,4 +82,13 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:$compose_version")
     // change system-ui style
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.25.0")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
+}
+
+// Hilt: Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

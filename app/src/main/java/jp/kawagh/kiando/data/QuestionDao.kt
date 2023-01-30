@@ -1,6 +1,7 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.data
 
 import androidx.room.*
+import jp.kawagh.kiando.Question
 import kotlinx.coroutines.flow.Flow
 
 @Dao
