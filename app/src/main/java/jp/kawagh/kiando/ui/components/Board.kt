@@ -3,27 +3,24 @@ package jp.kawagh.kiando.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import jp.kawagh.kiando.BOARD_SIZE
 import jp.kawagh.kiando.PanelState
 import jp.kawagh.kiando.PieceKind
 import jp.kawagh.kiando.Position
+import jp.kawagh.kiando.sampleQuestions
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
 @Composable
 fun Board(
@@ -46,6 +43,20 @@ fun Board(
     }
 }
 
+@Preview
+@Composable
+fun BoardPreview() {
+    KiandoM3Theme {
+        Board(
+            boardState = sampleQuestions.first().boardState.toMutableStateList(),
+            handlePanelClick = {},
+            shouldHighlight = false,
+            lastClickedPanelPos = Position(0, 0),
+            positionsToHighlight = emptyList()
+        )
+    }
+}
+
 @Composable
 private fun BoardRow(
     boardRow: List<PanelState>,
@@ -62,7 +73,6 @@ private fun BoardRow(
             lastClickedPanelPos,
             positionsToHighlight
         )
-
     }
 }
 
@@ -92,38 +102,14 @@ private fun Panel(
             else -> BoardColorUnfocused
         }
     } else BoardColorUnfocused
-
-
-    when (panelState.pieceKind) {
-        PieceKind.EMPTY -> {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(backgroundColor)
-                    .clickable { handlePanelClick.invoke(panelState) }
-                    .border(BorderStroke(0.1.dp, Color.Black))
-            ) {
-                Text(
-                    text = text, fontSize = 17.sp,
-                    color = if (panelState.isPromoted) Color.Red else Color.Black,
-                    modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
-
-        else -> {
-            Piece(
-                text = text,
-                onClick = { handlePanelClick(panelState) },
-                isEnemy = panelState.isEnemy,
-                isPromoted = panelState.isPromoted,
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(backgroundColor)
-                    .border(BorderStroke(0.1.dp, Color.Black))
-            )
-        }
-    }
+    Piece(
+        text = text,
+        onClick = { handlePanelClick(panelState) },
+        isEnemy = panelState.isEnemy,
+        isPromoted = panelState.isPromoted,
+        modifier = Modifier
+            .size(40.dp)
+            .background(backgroundColor)
+            .border(BorderStroke(0.4.dp, Color.Black))
+    )
 }
