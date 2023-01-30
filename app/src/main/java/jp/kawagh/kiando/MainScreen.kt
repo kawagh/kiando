@@ -289,7 +289,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             PromotionDialog(
@@ -320,12 +320,27 @@ fun MainScreen(
                         true -> registerMove(move)
                     }
                 })
-            if (isRegisterQuestionMode) {
-                Text(
-                    text = "Do move to register",
-                    fontSize = MaterialTheme.typography.titleLarge.fontSize
-                )
-            }
+
+            // enemy
+            Komadai(
+                enemyPiecesCount,
+                handleEnemyKomadaiClick,
+                isEnemy = true,
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Board(
+                gameViewModel.boardState,
+                handlePanelClick,
+                shouldHighlight = panelClickedOnce || showAnswerMode,
+                lastClickedPanelPos,
+                positionsToHighlight = positionsToHighlight
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Komadai(
+                piecesCount,
+                handleKomadaiClick
+            )
+
             if (shouldShowSFENInput) {
                 val clipboardManager = LocalClipboardManager.current
                 Row {
@@ -376,27 +391,21 @@ fun MainScreen(
                     )
                 }
             }
-
-            // enemy
-            Komadai(
-                enemyPiecesCount,
-                handleEnemyKomadaiClick,
-                isEnemy = true,
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Board(
-                gameViewModel.boardState,
-                handlePanelClick,
-                shouldHighlight = panelClickedOnce || showAnswerMode,
-                lastClickedPanelPos,
-                positionsToHighlight = positionsToHighlight
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Komadai(
-                piecesCount,
-                handleKomadaiClick
-            )
             when (isRegisterQuestionMode) {
+                true -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Do move to register",
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize
+                    )
+                    TextField(
+                        value = inputQuestionDescription,
+                        onValueChange = { inputQuestionDescription = it },
+                        label = {
+                            Text(text = "Input question description")
+                        },
+                    )
+                }
+
                 false -> Column() {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -438,13 +447,6 @@ fun MainScreen(
                     }
                 }
 
-                true -> TextField(
-                    value = inputQuestionDescription,
-                    onValueChange = { inputQuestionDescription = it },
-                    label = {
-                        Text(text = "Input question description")
-                    },
-                )
             }
         }
     }
