@@ -1,5 +1,7 @@
 package jp.kawagh.kiando.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -16,22 +18,22 @@ import jp.kawagh.kiando.sampleQuestionWithLongDescription
 import jp.kawagh.kiando.ui.theme.CardColor
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuestionCard(
     question: Question,
     onClick: () -> Unit,
     handleDeleteAQuestion: () -> Unit,
+    handleRenameAQuestion: () -> Unit,
     handleFavoriteQuestion: () -> Unit,
     showIcons: Boolean = true
 ) {
     val isFavorite = question.tag_id == 1
     Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = CardColor
-        ),
-        modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+        colors = CardDefaults.cardColors(containerColor = CardColor),
+        modifier = Modifier
+            .padding(start = 4.dp, end = 4.dp)
+            .combinedClickable(onLongClick = handleRenameAQuestion, onClick = onClick)
     ) {
         Column(modifier = Modifier.height(80.dp)) {
             Text(
@@ -69,6 +71,6 @@ fun QuestionCard(
 @Composable
 fun QuestionCardPreview() {
     KiandoM3Theme() {
-        QuestionCard(sampleQuestionWithLongDescription, {}, {}, {})
+        QuestionCard(sampleQuestionWithLongDescription, {}, {}, {}, {})
     }
 }
