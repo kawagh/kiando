@@ -6,12 +6,19 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,6 +54,7 @@ fun SideEffectChangeSystemUi() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     val uiState = questionsViewModel.uiState
@@ -79,6 +87,11 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         navigateToLicense = { navController.navigate("license") },
                         handleDeleteAQuestion = { question ->
                             navController.navigate("delete_each/${question.id}")
+                        },
+                        handleRenameAQuestion = { question ->
+                            if (question.id >= 0) {
+                                navController.navigate("rename/${question.id}")
+                            }
                         },
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
@@ -182,6 +195,36 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         dismissButton = {
                             TextButton(onClick = { navController.navigate("list") }) {
                                 Text(text = "CANCEL")
+                            }
+                        }
+                    )
+                }
+                dialog(
+                    "rename/{questionId}",
+                    arguments = listOf(navArgument("questionId") {
+                        type = NavType.IntType
+                    })
+                ) {
+                    var renameTextInput by remember {
+                        mutableStateOf("")
+                    }
+                    val renameId = it.arguments?.getInt("questionId") ?: -1
+                    AlertDialog(onDismissRequest = { navController.navigate("list") },
+                        title = { Text(text = "rename question") },
+                        text = {
+                            TextField(
+                                value = renameTextInput,
+                                onValueChange = { renameTextInput = it })
+                        },
+                        confirmButton = {
+                            Button(onClick = {
+                                questionsViewModel.renameById(
+                                    questionId = renameId,
+                                    newTitle = renameTextInput
+                                )
+                                navController.navigate("list")
+                            }) {
+                                Text(text = "OK")
                             }
                         }
                     )

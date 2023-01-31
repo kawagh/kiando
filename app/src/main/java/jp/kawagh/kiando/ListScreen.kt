@@ -27,7 +27,7 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {})
+    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {})
 
 }
 
@@ -43,6 +43,7 @@ fun ListScreen(
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    handleRenameAQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
 ) {
@@ -101,6 +102,7 @@ fun ListScreen(
                 questions = questionsToDisplay,
                 navigateToQuestion = navigateToQuestionWithTabIndex,
                 handleDeleteAQuestion = handleDeleteAQuestion,
+                handleRenameAQuestion = handleRenameAQuestion,
                 handleFavoriteQuestion = handleFavoriteQuestion,
             )
         }
@@ -131,6 +133,7 @@ fun QuestionsList(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
+    handleRenameAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
@@ -140,6 +143,7 @@ fun QuestionsList(
                 onClick = { navigateToQuestion(question) },
                 handleDeleteAQuestion = { handleDeleteAQuestion(question) },
                 handleFavoriteQuestion = { handleFavoriteQuestion(question) },
+                handleRenameAQuestion = { handleRenameAQuestion(question) },
                 showIcons = question.id >= 0
             )
             Spacer(Modifier.size(5.dp))
