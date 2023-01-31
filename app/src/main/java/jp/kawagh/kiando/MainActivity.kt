@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -90,8 +89,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                             navController.navigate("delete_each/${question.id}")
                         },
                         handleRenameAQuestion = { question ->
-                            navController.navigate("rename/${question.id}")
-
+                            if (question.id >= 0) {
+                                navController.navigate("rename/${question.id}")
+                            }
                         },
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
@@ -208,6 +208,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
+                    val renameId = it.arguments?.getInt("questionId") ?: -1
                     AlertDialog(onDismissRequest = { navController.navigate("list") },
                         title = { Text(text = "rename question") },
                         text = {
@@ -216,7 +217,13 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                                 onValueChange = { renameTextInput = it })
                         },
                         confirmButton = {
-                            Button(onClick = { /*TODO*/ }) {
+                            Button(onClick = {
+                                questionsViewModel.renameById(
+                                    questionId = renameId,
+                                    newTitle = renameTextInput
+                                )
+                                navController.navigate("list")
+                            }) {
                                 Text(text = "OK")
                             }
                         }

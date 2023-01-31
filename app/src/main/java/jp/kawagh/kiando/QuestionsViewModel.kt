@@ -53,6 +53,16 @@ class QuestionsViewModel @Inject constructor(
             }
         }
     }
+
+    fun renameById(questionId: Int, newTitle: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val question = db.questionDao().findById(questionId)
+            db.questionDao().updateQuestion(
+                question.copy(description = newTitle)
+            )
+        }
+
+    }
 }
 
 data class QuestionsUiState(
