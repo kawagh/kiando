@@ -24,7 +24,8 @@ class TakeScreenShotTest {
                     navigateToDelete = {},
                     navigateToLicense = {},
                     handleDeleteAQuestion = {},
-                    handleFavoriteQuestion = {}
+                    handleFavoriteQuestion = {},
+                    handleRenameAQuestion = {}
                 )
             }
         }
