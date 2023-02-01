@@ -58,7 +58,7 @@ fun SideEffectChangeSystemUi() {
 @Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     val uiState = questionsViewModel.uiState
-    KiandoM3Theme() {
+    KiandoM3Theme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
         val navigateToQuestion: (Question, fromTabIndex: Int) -> Unit = { question, fromTabIndex ->
