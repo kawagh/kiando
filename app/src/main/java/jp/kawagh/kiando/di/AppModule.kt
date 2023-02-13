@@ -8,7 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jp.kawagh.kiando.data.AppDatabase
-import jp.kawagh.kiando.data.MIGRATION_2_3
+import jp.kawagh.kiando.data.MIGRATION2to3
+import jp.kawagh.kiando.data.MIGRATION3to4
 import jp.kawagh.kiando.data.QuestionDao
 import javax.inject.Singleton
 
@@ -24,7 +25,7 @@ object AppModule {
     @Singleton
     fun provideDataBase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(context, AppDatabase::class.java, "database")
-            .addMigrations(MIGRATION_2_3)
+            .addMigrations(MIGRATION2to3, MIGRATION3to4)
             .build()
     }
 }
