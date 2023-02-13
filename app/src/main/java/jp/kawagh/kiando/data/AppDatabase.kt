@@ -1,6 +1,7 @@
 package jp.kawagh.kiando.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -9,8 +10,14 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import jp.kawagh.kiando.Converters
 import jp.kawagh.kiando.Question
+import jp.kawagh.kiando.models.QuestionTagCrossRef
+import jp.kawagh.kiando.models.Tag
 
-@Database(entities = [Question::class], version = 4)
+@Database(
+    entities = [Question::class, Tag::class, QuestionTagCrossRef::class],
+    autoMigrations = [AutoMigration(4, 5)],
+    version = 5
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
