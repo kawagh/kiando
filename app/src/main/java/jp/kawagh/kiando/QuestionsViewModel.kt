@@ -1,16 +1,36 @@
 package jp.kawagh.kiando
 
-import android.app.Application
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.kawagh.kiando.data.AppDatabase
+import jp.kawagh.kiando.data.Repository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class QuestionsViewModel(application: Application) : AndroidViewModel(application) {
-    private val db: AppDatabase = AppDatabase.getInstance(application)
-    internal val questions: LiveData<List<Question>> = db.questionDao().getAll()
+@HiltViewModel
+class QuestionsViewModel @Inject constructor(
+    private val repository: Repository,
+    @ApplicationContext context: Context
+) :
+    ViewModel() {
+    private val db = AppDatabase.getInstance(context)
+    var uiState: QuestionsUiState by mutableStateOf(QuestionsUiState())
+
+    init {
+        viewModelScope.launch() {
+            db.questionDao().getAll().collectLatest {
+                uiState = uiState.copy(questions = it)
+            }
+        }
+    }
 
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -33,4 +53,18 @@ class QuestionsViewModel(application: Application) : AndroidViewModel(applicatio
             }
         }
     }
+
+    fun renameById(questionId: Int, newTitle: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val question = db.questionDao().findById(questionId)
+            db.questionDao().updateQuestion(
+                question.copy(description = newTitle)
+            )
+        }
+
+    }
 }
+
+data class QuestionsUiState(
+    val questions: List<Question> = emptyList()
+)

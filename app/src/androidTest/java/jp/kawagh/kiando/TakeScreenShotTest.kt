@@ -20,11 +20,12 @@ class TakeScreenShotTest {
             KiandoM3Theme() {
                 ListScreen(
                     questions = sampleQuestions,
-                    navigateToQuestion = {},
+                    navigateToQuestion = { _, _ -> {} },
                     navigateToDelete = {},
                     navigateToLicense = {},
                     handleDeleteAQuestion = {},
-                    handleFavoriteQuestion = {}
+                    handleFavoriteQuestion = {},
+                    handleRenameAQuestion = {}
                 )
             }
         }

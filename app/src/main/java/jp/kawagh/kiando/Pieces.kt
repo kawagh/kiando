@@ -23,6 +23,24 @@ data class Move(
     val isPromote: Boolean = false
 )
 
+fun Move.toReadable(pieceKind: PieceKind): String {
+    val pieceText = when (pieceKind) {
+        PieceKind.EMPTY -> ""
+        PieceKind.KING -> "王"
+        PieceKind.ROOK -> "飛"
+        PieceKind.BISHOP -> "角"
+        PieceKind.GOLD -> "金"
+        PieceKind.SILVER -> "銀"
+        PieceKind.KNIGHT -> "桂"
+        PieceKind.LANCE -> "香"
+        PieceKind.PAWN -> "歩"
+    }
+    val kanji = "一二三四五六七八九"
+    return "${9 - this.to.column}" + "${kanji[this.to.row]}" + pieceText + if (this.isPromote) {
+        "成"
+    } else ""
+}
+
 val NonPosition = Position(-1, -1)
 val NonMove = Move(NonPosition, NonPosition)
 

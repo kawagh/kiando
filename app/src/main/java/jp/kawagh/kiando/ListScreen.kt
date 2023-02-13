@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
@@ -23,11 +24,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.ui.components.QuestionCard
 import jp.kawagh.kiando.ui.theme.BoardColor
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, {}, {}, {}, {}, {})
+    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {})
 
 }
 
@@ -40,19 +42,33 @@ sealed class TabItem(val name: String) {
 @Composable
 fun ListScreen(
     questions: List<Question>,
-    navigateToQuestion: (Question) -> Unit,
+    navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    handleRenameAQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
     }
+    val navigateToQuestionWithTabIndex: (Question) -> Unit = {
+        navigateToQuestion(it, tabRowIndex)
+    }
     val tabs = listOf(TabItem.All, TabItem.Tagged)
+
+    var hideDefaultQuestions by remember {
+        mutableStateOf(false)
+    }
     val questionsToDisplay = when (tabs[tabRowIndex]) {
         is TabItem.All -> questions
         is TabItem.Tagged -> questions.filter { it.tag_id != null }
+    }.filter {
+        if (hideDefaultQuestions) {
+            it.id >= 0
+        } else {
+            true
+        }
     }
     var dropDownExpanded by remember {
         mutableStateOf(false)
@@ -62,45 +78,79 @@ fun ListScreen(
         "License" to navigateToLicense,
         "Version: ${BuildConfig.VERSION_NAME}" to {}
     )
-    androidx.compose.material3.Scaffold(
-        topBar = {
-            androidx.compose.material3.TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
-                actions = {
-                    IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
-                        Icon(Icons.Default.MoreVert, null)
-                    }
-                    DropdownMenuOnTopBar(
-                        dropDownMenuItems,
-                        expanded = dropDownExpanded,
-                        setExpanded = { dropDownExpanded = it })
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("hide default questions", style = MaterialTheme.typography.titleLarge)
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Switch(
+                        checked = hideDefaultQuestions,
+                        onCheckedChange = { hideDefaultQuestions = !hideDefaultQuestions })
                 }
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-//            TabRow(selectedTabIndex = tabRowIndex, backgroundColor = BoardColor) {
-            TabRow(selectedTabIndex = tabRowIndex) {
-                tabs.forEachIndexed { index, tab ->
-                    Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
-                        Text(
-                            tab.name,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        )
-                    }
-                }
+                Divider(Modifier.padding(8.dp))
+                Text(
+                    "Version: ${BuildConfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(8.dp)
+                )
             }
-            Text(text = "Problem Set", fontSize = MaterialTheme.typography.headlineSmall.fontSize)
-            QuestionsList(
-                questions = questionsToDisplay,
-                navigateToQuestion = navigateToQuestion,
-                handleDeleteAQuestion = handleDeleteAQuestion,
-                handleFavoriteQuestion = handleFavoriteQuestion,
-            )
+        }) {
+        Scaffold(
+            topBar = {
+                TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, null)
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
+                            Icon(Icons.Default.MoreVert, null)
+                        }
+                        DropdownMenuOnTopBar(
+                            dropDownMenuItems,
+                            expanded = dropDownExpanded,
+                            setExpanded = { dropDownExpanded = it })
+                    }
+                )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                TabRow(selectedTabIndex = tabRowIndex) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
+                            Text(
+                                tab.name,
+                                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = "Problem Set",
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                )
+                QuestionsList(
+                    questions = questionsToDisplay,
+                    navigateToQuestion = navigateToQuestionWithTabIndex,
+                    handleDeleteAQuestion = handleDeleteAQuestion,
+                    handleRenameAQuestion = handleRenameAQuestion,
+                    handleFavoriteQuestion = handleFavoriteQuestion,
+                )
+            }
         }
     }
 }
@@ -129,6 +179,7 @@ fun QuestionsList(
     questions: List<Question>,
     navigateToQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
+    handleRenameAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
@@ -138,6 +189,8 @@ fun QuestionsList(
                 onClick = { navigateToQuestion(question) },
                 handleDeleteAQuestion = { handleDeleteAQuestion(question) },
                 handleFavoriteQuestion = { handleFavoriteQuestion(question) },
+                handleRenameAQuestion = { handleRenameAQuestion(question) },
+                showIcons = question.id >= 0
             )
             Spacer(Modifier.size(5.dp))
         }

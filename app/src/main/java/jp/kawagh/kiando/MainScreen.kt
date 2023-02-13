@@ -1,19 +1,13 @@
 package jp.kawagh.kiando
 
 import android.app.Application
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -21,16 +15,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
-import jp.kawagh.kiando.ui.components.Piece
 import jp.kawagh.kiando.ui.theme.BoardColor
-import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import kotlinx.coroutines.launch
 
 
@@ -120,6 +110,7 @@ fun MainScreen(
                     SnackbarResult.ActionPerformed -> {
                         navigateToNextQuestion.invoke()
                     }
+
                     SnackbarResult.Dismissed -> {}
                 }
             }
@@ -149,6 +140,7 @@ fun MainScreen(
                             // judge promote here
                             shouldShowPromotionDialog = true
                         }
+
                         false -> {
                             when (isRegisterQuestionMode) {
                                 false -> processMove(move)
@@ -158,6 +150,7 @@ fun MainScreen(
                     }
                 }
             }
+
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(it.row, it.column))
@@ -176,6 +169,7 @@ fun MainScreen(
             true -> {
                 panelClickedOnce = !panelClickedOnce
             }
+
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
@@ -189,6 +183,7 @@ fun MainScreen(
             true -> {
                 panelClickedOnce = !panelClickedOnce
             }
+
             false -> {
                 panelClickedOnce = !panelClickedOnce
                 positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
@@ -226,6 +221,9 @@ fun MainScreen(
                         Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
                     }
                     IconButton(onClick = {
+                        if (!isRegisterQuestionMode) {
+                            moveToRegister = NonMove
+                        }
                         isRegisterQuestionMode = !isRegisterQuestionMode
                         // modeに入った時点の局面を保持する
                         if (isRegisterQuestionMode) {
@@ -262,6 +260,7 @@ fun MainScreen(
                                 )
                             }
                         }
+
                         QuestionValidationResults.NeedMove -> {
                             snackbarCoroutineScope.launch {
                                 snackbarHostState.showSnackbar(
@@ -270,6 +269,7 @@ fun MainScreen(
                             }
 
                         }
+
                         QuestionValidationResults.Valid -> {
                             gameViewModel.saveQuestion(newQuestion)
                             snackbarCoroutineScope.launch {
@@ -292,7 +292,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             PromotionDialog(
@@ -323,12 +323,27 @@ fun MainScreen(
                         true -> registerMove(move)
                     }
                 })
-            if (isRegisterQuestionMode) {
-                Text(
-                    text = "Do move to register",
-                    fontSize = MaterialTheme.typography.titleLarge.fontSize
-                )
-            }
+
+            // enemy
+            Komadai(
+                enemyPiecesCount,
+                handleEnemyKomadaiClick,
+                isEnemy = true,
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Board(
+                gameViewModel.boardState,
+                handlePanelClick,
+                shouldHighlight = panelClickedOnce || showAnswerMode,
+                lastClickedPanelPos,
+                positionsToHighlight = positionsToHighlight
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Komadai(
+                piecesCount,
+                handleKomadaiClick
+            )
+
             if (shouldShowSFENInput) {
                 val clipboardManager = LocalClipboardManager.current
                 Row {
@@ -379,27 +394,27 @@ fun MainScreen(
                     )
                 }
             }
-
-            // enemy
-            Komadai(
-                enemyPiecesCount,
-                handleEnemyKomadaiClick,
-                isEnemy = true,
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Board(
-                gameViewModel.boardState,
-                handlePanelClick,
-                shouldHighlight = panelClickedOnce || showAnswerMode,
-                lastClickedPanelPos,
-                positionsToHighlight = positionsToHighlight
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Komadai(
-                piecesCount,
-                handleKomadaiClick
-            )
             when (isRegisterQuestionMode) {
+                true -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = if (moveToRegister == NonMove) {
+                            "Do move to register"
+                        } else {
+                            val pieceKind =
+                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE + moveToRegister.to.column].pieceKind
+                            "登録手: ${moveToRegister.toReadable(pieceKind)}"
+                        },
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize
+                    )
+                    TextField(
+                        value = inputQuestionDescription,
+                        onValueChange = { inputQuestionDescription = it },
+                        label = {
+                            Text(text = "Input question description")
+                        },
+                    )
+                }
+
                 false -> Column() {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -440,13 +455,7 @@ fun MainScreen(
                         }
                     }
                 }
-                true -> TextField(
-                    value = inputQuestionDescription,
-                    onValueChange = { inputQuestionDescription = it },
-                    label = {
-                        Text(text = "Input question description")
-                    },
-                )
+
             }
         }
     }
@@ -494,105 +503,3 @@ private fun PromotionDialog(
     }
 }
 
-
-@Composable
-private fun Board(
-    boardState: SnapshotStateList<PanelState>,
-    handlePanelClick: (PanelState) -> Unit,
-    shouldHighlight: Boolean,
-    lastClickedPanelPos: Position,
-    positionsToHighlight: List<Position>,
-) {
-    Column {
-        repeat(BOARD_SIZE) { rowIndex ->
-            BoardRow(
-                boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
-                handlePanelClick,
-                shouldHighlight,
-                lastClickedPanelPos,
-                positionsToHighlight
-            )
-        }
-    }
-}
-
-@Composable
-private fun BoardRow(
-    boardRow: List<PanelState>,
-    handlePanelClick: (PanelState) -> Unit,
-    shouldHighlight: Boolean,
-    lastClickedPanelPos: Position,
-    positionsToHighlight: List<Position>,
-) = Row {
-    repeat(BOARD_SIZE) { colIndex ->
-        Panel(
-            boardRow[colIndex],
-            handlePanelClick,
-            shouldHighlight,
-            lastClickedPanelPos,
-            positionsToHighlight
-        )
-
-    }
-}
-
-@Composable
-private fun Panel(
-    panelState: PanelState,
-    handlePanelClick: (PanelState) -> Unit,
-    shouldHighlight: Boolean,
-    lastClickedPanelPos: Position,
-    positionsToHighlight: List<Position>,
-) {
-    val text = when (panelState.pieceKind) {
-        PieceKind.EMPTY -> ""
-        PieceKind.KING -> "王"
-        PieceKind.ROOK -> if (panelState.isPromoted) "龍" else "飛"
-        PieceKind.BISHOP -> if (panelState.isPromoted) "馬" else "角"
-        PieceKind.GOLD -> "金"
-        PieceKind.SILVER -> if (panelState.isPromoted) "全" else "銀"
-        PieceKind.KNIGHT -> if (panelState.isPromoted) "圭" else "桂"
-        PieceKind.LANCE -> if (panelState.isPromoted) "杏" else "香"
-        PieceKind.PAWN -> if (panelState.isPromoted) "と" else "歩"
-    }
-    val backgroundColor = if (shouldHighlight) {
-        when (Position(panelState.row, panelState.column)) {
-            lastClickedPanelPos -> BoardColor
-            in positionsToHighlight -> BoardColor
-            else -> BoardColorUnfocused
-        }
-    } else BoardColorUnfocused
-
-
-    when (panelState.pieceKind) {
-        PieceKind.EMPTY -> {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(backgroundColor)
-                    .clickable { handlePanelClick.invoke(panelState) }
-                    .border(BorderStroke(0.1.dp, Color.Black))
-            ) {
-                Text(
-                    text = text, fontSize = 17.sp,
-                    color = if (panelState.isPromoted) Color.Red else Color.Black,
-                    modifier = if (panelState.isEnemy) Modifier.rotate(180f) else Modifier,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
-        else -> {
-            Piece(
-                text = text,
-                onClick = { handlePanelClick(panelState) },
-                isEnemy = panelState.isEnemy,
-                isPromoted = panelState.isPromoted,
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(backgroundColor)
-                    .border(BorderStroke(0.1.dp, Color.Black))
-            )
-        }
-    }
-}
