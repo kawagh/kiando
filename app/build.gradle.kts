@@ -9,14 +9,23 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+fun convertVersionNameToCode(versionName: String): Int {
+    val majorVersion = versionName.split('.')[0].toInt()
+    val minorVersion = versionName.split('.')[1].toInt()
+    val revision = versionName.split('.')[2].toInt()
+    return 10000 * majorVersion + 100 * minorVersion + revision
+}
+
+val appVersion = "1.0.6"
+
 android {
     compileSdk = 33
     defaultConfig {
         applicationId = "jp.kawagh.kiando"
         minSdk = 21
         targetSdk = 33
-        versionCode = 10005
-        versionName = "1.0.5"
+        versionName = appVersion
+        versionCode = convertVersionNameToCode(appVersion)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
