@@ -31,13 +31,21 @@ import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupTimber()
         setContent {
             App()
+        }
+    }
+
+    private fun setupTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
         }
     }
 }
@@ -96,8 +104,12 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         },
                         handleInsertSampleQuestions = {
                             questionsViewModel.addSampleQuestions()
-                        }
-                    )
+                        },
+                        handleLoadQuestionFromResource = {
+                            questionsViewModel.loadQuestionsFromAsset()
+                        },
+
+                        )
                 }
                 composable(
                     "main/{questionId}/{fromTabIndex}",

@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {}, {})
+    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {})
 
 }
 
@@ -50,6 +50,7 @@ fun ListScreen(
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
     handleInsertSampleQuestions: () -> Unit,
+    handleLoadQuestionFromResource: () -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
@@ -110,6 +111,14 @@ fun ListScreen(
                     selected = false,
                     onClick = handleInsertSampleQuestions
                 )
+                if (BuildConfig.DEBUG) {
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Add, null) },
+                        label = { Text("load questions from resource") },
+                        selected = false,
+                        onClick = handleLoadQuestionFromResource
+                    )
+                }
             }
         }) {
         Scaffold(
