@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,9 @@ fun SideEffectChangeSystemUi() {
 @Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     val uiState = questionsViewModel.uiState
+    LaunchedEffect(Unit) {
+        questionsViewModel.addSampleQuestions()
+    }
     KiandoM3Theme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
@@ -67,8 +71,6 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
         val navigateToList: () -> Unit = {
             navController.navigate("list")
         }
-        val userAddedQuestions = uiState.questions
-        val allQuestions: List<Question> = sampleQuestions + userAddedQuestions
 
         SideEffectChangeSystemUi()
         Surface(
@@ -81,7 +83,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 }
                 composable("list") {
                     ListScreen(
-                        questions = allQuestions,
+                        questions = uiState.questions,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
@@ -95,6 +97,9 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         },
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
+                        },
+                        handleInsertSampleQuestions = {
+                            questionsViewModel.addSampleQuestions()
                         }
                     )
                 }
@@ -110,28 +115,29 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     val questionId = it.arguments?.getInt("questionId") ?: -1
                     val fromTabIndex = it.arguments?.getInt("fromTabIndex") ?: 0
                     val question =
-                        allQuestions.find { question -> question.id == questionId }
+                        uiState.questions.find { question -> question.id == questionId }
                             ?: sampleQuestion
 
                     val TAGGED_INDEX = 1 // TabItem.Tagged
                     val nextQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            allQuestions.filter { q -> q.tag_id == TAGGED_INDEX }.find { q ->
+                            uiState.questions.filter { q -> q.tag_id == TAGGED_INDEX }.find { q ->
                                 q.id > questionId
                             }
                                 ?: sampleQuestion
                         } else {
-                            allQuestions.find { q -> q.id > questionId }
+                            uiState.questions.find { q -> q.id > questionId }
                                 ?: sampleQuestion
                         }
                     val prevQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            allQuestions.filter { q -> q.tag_id == TAGGED_INDEX }.findLast { q ->
-                                q.id < questionId
-                            }
+                            uiState.questions.filter { q -> q.tag_id == TAGGED_INDEX }
+                                .findLast { q ->
+                                    q.id < questionId
+                                }
                                 ?: sampleQuestion
                         } else {
-                            allQuestions.findLast { q -> q.id < questionId }
+                            uiState.questions.findLast { q -> q.id < questionId }
                                 ?: sampleQuestion
                         }
                     MainScreen(

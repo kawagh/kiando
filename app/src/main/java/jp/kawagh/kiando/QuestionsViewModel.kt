@@ -63,6 +63,16 @@ class QuestionsViewModel @Inject constructor(
         }
 
     }
+
+    fun addSampleQuestions() {
+        if (uiState.questions.isEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                sampleQuestions.map { it.copy(id = 0) }.forEach {
+                    db.questionDao().insert(it)
+                }
+            }
+        }
+    }
 }
 
 data class QuestionsUiState(

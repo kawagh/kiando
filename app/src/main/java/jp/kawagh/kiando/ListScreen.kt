@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {})
+    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {}, {})
 
 }
 
@@ -48,6 +49,7 @@ fun ListScreen(
     handleRenameAQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
+    handleInsertSampleQuestions: () -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
@@ -100,6 +102,13 @@ fun ListScreen(
                     "Version: ${BuildConfig.VERSION_NAME}",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(8.dp)
+                )
+                Divider(Modifier.padding(8.dp))
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Add, null) },
+                    label = { Text("insert sample questions") },
+                    selected = false,
+                    onClick = handleInsertSampleQuestions
                 )
             }
         }) {
