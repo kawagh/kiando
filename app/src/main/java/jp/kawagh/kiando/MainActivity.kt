@@ -31,13 +31,21 @@ import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupTimber()
         setContent {
             App()
+        }
+    }
+
+    private fun setupTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
         }
     }
 }
@@ -67,8 +75,6 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
         val navigateToList: () -> Unit = {
             navController.navigate("list")
         }
-        val userAddedQuestions = uiState.questions
-        val allQuestions: List<Question> = sampleQuestions + userAddedQuestions
 
         SideEffectChangeSystemUi()
         Surface(
@@ -81,7 +87,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 }
                 composable("list") {
                     ListScreen(
-                        questions = allQuestions,
+                        questions = uiState.questions,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
@@ -95,8 +101,15 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         },
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
-                        }
-                    )
+                        },
+                        handleInsertSampleQuestions = {
+                            questionsViewModel.addSampleQuestions()
+                        },
+                        handleLoadQuestionFromResource = {
+                            questionsViewModel.loadQuestionsFromAsset()
+                        },
+
+                        )
                 }
                 composable(
                     "main/{questionId}/{fromTabIndex}",
@@ -110,28 +123,29 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     val questionId = it.arguments?.getInt("questionId") ?: -1
                     val fromTabIndex = it.arguments?.getInt("fromTabIndex") ?: 0
                     val question =
-                        allQuestions.find { question -> question.id == questionId }
+                        uiState.questions.find { question -> question.id == questionId }
                             ?: sampleQuestion
 
                     val TAGGED_INDEX = 1 // TabItem.Tagged
                     val nextQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            allQuestions.filter { q -> q.tag_id == TAGGED_INDEX }.find { q ->
+                            uiState.questions.filter { q -> q.tag_id == TAGGED_INDEX }.find { q ->
                                 q.id > questionId
                             }
                                 ?: sampleQuestion
                         } else {
-                            allQuestions.find { q -> q.id > questionId }
+                            uiState.questions.find { q -> q.id > questionId }
                                 ?: sampleQuestion
                         }
                     val prevQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            allQuestions.filter { q -> q.tag_id == TAGGED_INDEX }.findLast { q ->
-                                q.id < questionId
-                            }
+                            uiState.questions.filter { q -> q.tag_id == TAGGED_INDEX }
+                                .findLast { q ->
+                                    q.id < questionId
+                                }
                                 ?: sampleQuestion
                         } else {
-                            allQuestions.findLast { q -> q.id < questionId }
+                            uiState.questions.findLast { q -> q.id < questionId }
                                 ?: sampleQuestion
                         }
                     MainScreen(
