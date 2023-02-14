@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,9 +58,6 @@ fun SideEffectChangeSystemUi() {
 @Composable
 fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
     val uiState = questionsViewModel.uiState
-    LaunchedEffect(Unit) {
-        questionsViewModel.addSampleQuestions()
-    }
     KiandoM3Theme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()

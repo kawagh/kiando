@@ -106,7 +106,7 @@ fun ListScreen(
                 Divider(Modifier.padding(8.dp))
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Add, null) },
-                    label = { Text("insert sample questions") },
+                    label = { Text("add sample questions") },
                     selected = false,
                     onClick = handleInsertSampleQuestions
                 )
@@ -140,7 +140,9 @@ fun ListScreen(
             ) {
                 TabRow(selectedTabIndex = tabRowIndex) {
                     tabs.forEachIndexed { index, tab ->
-                        Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
+                        Tab(
+                            selected = tabRowIndex == index,
+                            onClick = { tabRowIndex = index }) {
                             Text(
                                 tab.name,
                                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -152,13 +154,25 @@ fun ListScreen(
                     text = "Problem Set",
                     fontSize = MaterialTheme.typography.headlineSmall.fontSize
                 )
-                QuestionsList(
-                    questions = questionsToDisplay,
-                    navigateToQuestion = navigateToQuestionWithTabIndex,
-                    handleDeleteAQuestion = handleDeleteAQuestion,
-                    handleRenameAQuestion = handleRenameAQuestion,
-                    handleFavoriteQuestion = handleFavoriteQuestion,
-                )
+                if (questions.isEmpty()) {
+                    Box(Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text("no questions", style = MaterialTheme.typography.headlineSmall)
+                            Button(onClick = handleInsertSampleQuestions) { Text("add sample questions") }
+                        }
+                    }
+                } else {
+                    QuestionsList(
+                        questions = questionsToDisplay,
+                        navigateToQuestion = navigateToQuestionWithTabIndex,
+                        handleDeleteAQuestion = handleDeleteAQuestion,
+                        handleRenameAQuestion = handleRenameAQuestion,
+                        handleFavoriteQuestion = handleFavoriteQuestion,
+                    )
+                }
             }
         }
     }
