@@ -101,6 +101,11 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
+    //kotlin-grass
+    implementation("io.github.blackmo18:kotlin-grass-core-jvm:1.0.0")
+    implementation("io.github.blackmo18:kotlin-grass-parser-jvm:0.8.0")
 }
 
 // Hilt: Allow references to generated code
