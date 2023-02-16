@@ -103,7 +103,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                             questionsViewModel.toggleQuestionFavorite(question)
                         },
                         handleInsertSampleQuestions = {
-                            questionsViewModel.addSampleQuestions()
+                            questionsViewModel.addSampleQuestionsAndTags()
                         },
                         handleLoadQuestionFromResource = {
                             questionsViewModel.loadQuestionsFromAsset()

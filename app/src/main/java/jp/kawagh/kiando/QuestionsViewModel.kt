@@ -11,6 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.kawagh.kiando.data.AppDatabase
 import jp.kawagh.kiando.data.Repository
+import jp.kawagh.kiando.models.QuestionTagCrossRef
+import jp.kawagh.kiando.models.Tag
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -65,11 +67,18 @@ class QuestionsViewModel @Inject constructor(
 
     }
 
-    fun addSampleQuestions() {
+    /**
+     * Records with negative id are predefined.
+     */
+    fun addSampleQuestionsAndTags() {
         if (uiState.questions.isEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                sampleQuestions.map { it.copy(id = 0) }.forEach {
-                    db.questionDao().insert(it)
+                db.tagDao().insert(Tag(id = -1, title = "sample"))
+                sampleQuestions.reversed().forEachIndexed { index, question ->
+                    val questionId = -(index + 1)
+                    db.questionDao().insert(question.copy(id = questionId))
+                    db.questionTagCrossRefDao()
+                        .insert(QuestionTagCrossRef(questionId = questionId, tagId = -1))
                 }
             }
         }
