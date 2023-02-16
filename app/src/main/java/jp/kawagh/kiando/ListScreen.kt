@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -22,14 +23,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import jp.kawagh.kiando.ui.components.QuestionCard
+import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
 
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions, { _, _ -> {} }, {}, {}, {}, {}, {})
+    ListScreen(sampleQuestions.map { QuestionWithTags(it, emptyList()) },
+        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {})
 
 }
 
@@ -41,13 +43,15 @@ sealed class TabItem(val name: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    questions: List<Question>,
+    questions: List<QuestionWithTags>,
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     handleRenameAQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
+    handleInsertSampleQuestions: () -> Unit,
+    handleLoadQuestionFromResource: () -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
@@ -62,10 +66,10 @@ fun ListScreen(
     }
     val questionsToDisplay = when (tabs[tabRowIndex]) {
         is TabItem.All -> questions
-        is TabItem.Tagged -> questions.filter { it.tag_id != null }
+        is TabItem.Tagged -> questions.filter { it.question.tag_id != null }
     }.filter {
         if (hideDefaultQuestions) {
-            it.id >= 0
+            it.question.id >= 0
         } else {
             true
         }
@@ -101,6 +105,21 @@ fun ListScreen(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(8.dp)
                 )
+                Divider(Modifier.padding(8.dp))
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Add, null) },
+                    label = { Text("add sample questions") },
+                    selected = false,
+                    onClick = handleInsertSampleQuestions
+                )
+                if (BuildConfig.DEBUG) {
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Add, null) },
+                        label = { Text("load questions from resource") },
+                        selected = false,
+                        onClick = handleLoadQuestionFromResource
+                    )
+                }
             }
         }) {
         Scaffold(
@@ -131,7 +150,9 @@ fun ListScreen(
             ) {
                 TabRow(selectedTabIndex = tabRowIndex) {
                     tabs.forEachIndexed { index, tab ->
-                        Tab(selected = tabRowIndex == index, onClick = { tabRowIndex = index }) {
+                        Tab(
+                            selected = tabRowIndex == index,
+                            onClick = { tabRowIndex = index }) {
                             Text(
                                 tab.name,
                                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -143,13 +164,25 @@ fun ListScreen(
                     text = "Problem Set",
                     fontSize = MaterialTheme.typography.headlineSmall.fontSize
                 )
-                QuestionsList(
-                    questions = questionsToDisplay,
-                    navigateToQuestion = navigateToQuestionWithTabIndex,
-                    handleDeleteAQuestion = handleDeleteAQuestion,
-                    handleRenameAQuestion = handleRenameAQuestion,
-                    handleFavoriteQuestion = handleFavoriteQuestion,
-                )
+                if (questions.isEmpty()) {
+                    Box(Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text("no questions", style = MaterialTheme.typography.headlineSmall)
+                            Button(onClick = handleInsertSampleQuestions) { Text("add sample questions") }
+                        }
+                    }
+                } else {
+                    QuestionsList(
+                        questionsWithTags = questionsToDisplay,
+                        navigateToQuestion = navigateToQuestionWithTabIndex,
+                        handleDeleteAQuestion = handleDeleteAQuestion,
+                        handleRenameAQuestion = handleRenameAQuestion,
+                        handleFavoriteQuestion = handleFavoriteQuestion,
+                    )
+                }
             }
         }
     }
@@ -176,21 +209,20 @@ fun DropdownMenuOnTopBar(
 
 @Composable
 fun QuestionsList(
-    questions: List<Question>,
+    questionsWithTags: List<QuestionWithTags>,
     navigateToQuestion: (Question) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleRenameAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
-        items(questions) { question ->
-            QuestionCard(
-                question = question,
-                onClick = { navigateToQuestion(question) },
-                handleDeleteAQuestion = { handleDeleteAQuestion(question) },
-                handleFavoriteQuestion = { handleFavoriteQuestion(question) },
-                handleRenameAQuestion = { handleRenameAQuestion(question) },
-                showIcons = question.id >= 0
+        items(questionsWithTags) { questionWithTags ->
+            QuestionWithTagsCard(
+                questionWithTags = questionWithTags,
+                onClick = { navigateToQuestion(questionWithTags.question) },
+                handleDeleteAQuestion = { handleDeleteAQuestion(questionWithTags.question) },
+                handleFavoriteQuestion = { handleFavoriteQuestion(questionWithTags.question) },
+                handleRenameAQuestion = { handleRenameAQuestion(questionWithTags.question) },
             )
             Spacer(Modifier.size(5.dp))
         }

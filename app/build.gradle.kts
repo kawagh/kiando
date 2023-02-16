@@ -16,7 +16,7 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.6"
+val appVersion = "1.0.7"
 
 android {
     compileSdk = 33
@@ -30,6 +30,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                argument("room.schemaLocation", "$projectDir/schemas")
+            }
         }
     }
 
@@ -96,6 +101,10 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
+
+    implementation("com.jakewharton.timber:timber:5.0.1")
 }
 
 // Hilt: Allow references to generated code

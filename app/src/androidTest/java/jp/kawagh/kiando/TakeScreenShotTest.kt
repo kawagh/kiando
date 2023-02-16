@@ -25,7 +25,9 @@ class TakeScreenShotTest {
                     navigateToLicense = {},
                     handleDeleteAQuestion = {},
                     handleFavoriteQuestion = {},
-                    handleRenameAQuestion = {}
+                    handleRenameAQuestion = {},
+                    handleLoadQuestionFromResource = {},
+                    handleInsertSampleQuestions = {},
                 )
             }
         }

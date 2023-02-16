@@ -63,6 +63,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
                 when (boardState[fromIndex].isEnemy) {
                     true ->
                         !boardState[fromIndex].isPromoted && (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+
                     false ->
                         !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
                 }
@@ -85,6 +86,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
                     komadaiState.remove(pieceKind)
 
                 }
+
                 -2 -> {
                     enemyKomadaiState.remove(pieceKind)
                     boardState[toIndex] =
@@ -165,6 +167,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
             PieceKind.EMPTY -> {
                 return listOf()
             }
+
             PieceKind.PAWN ->
                 when (panelState.isPromoted) {
                     true -> goldMoves(panelState)
@@ -178,12 +181,14 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
                         }
                     }
                 }
+
             PieceKind.KING -> (-1..1).map { dx ->
                 (-1..1).map { dy ->
                     Position(originalRow + dx, originalColumn + dy)
                 }
             }.flatten()
                 .filterMovable(panelState)
+
             PieceKind.ROOK -> {
                 val nextPositions = mutableListOf<Position>()
                 for (dir in 0 until 4) {
@@ -213,6 +218,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
                 }
                 return nextPositions.toList()
             }
+
             PieceKind.BISHOP -> {
                 val nextPositions = mutableListOf<Position>()
                 for (dir in 0 until 4) {
@@ -247,6 +253,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
 
                 return nextPositions.toList()
             }
+
             PieceKind.GOLD -> goldMoves(panelState)
             PieceKind.SILVER -> when (panelState.isPromoted) {
                 false -> {
@@ -260,8 +267,10 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
                     )
                         .filterMovable(panelState)
                 }
+
                 true -> goldMoves(panelState)
             }
+
             PieceKind.KNIGHT -> when (panelState.isPromoted) {
                 true -> goldMoves(panelState)
                 false -> {
@@ -272,6 +281,7 @@ class GameViewModel(application: Application, question: Question) : AndroidViewM
                     ).filterMovable(panelState)
                 }
             }
+
             PieceKind.LANCE ->
                 when (panelState.isPromoted) {
                     true -> goldMoves(panelState)

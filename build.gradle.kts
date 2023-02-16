@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 buildscript {
     extra.apply {
         set("compose_version", "1.3.1")
@@ -12,4 +14,21 @@ plugins {
 
 tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
+}
+
+tasks.register("loadBackup") {
+    val backupDir = System.getenv("APPS_BACKUP_DIR")
+    val backupZipFilePath = backupDir + rootProject.name.lowercase() + "_sample" + "_database.zip"
+    val rawDirPath = "app/src/main/res/raw"
+    ZipFile(backupZipFilePath).use { zip ->
+        zip.entries().asSequence().forEach { entry ->
+            if (entry.name != "room_master_table.csv") {
+                zip.getInputStream(entry).use { input ->
+                    File(rawDirPath, entry.name).outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+        }
+    }
 }
