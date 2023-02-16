@@ -29,8 +29,9 @@ class QuestionsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch() {
-            db.questionDao().getAll().collectLatest {
-                uiState = uiState.copy(questions = it)
+            db.questionDao().getQuestionsWithTags().collectLatest {
+                uiState = uiState.copy(questionsWithTags = it)
+
             }
         }
     }
@@ -71,7 +72,7 @@ class QuestionsViewModel @Inject constructor(
      * Records with negative id are predefined.
      */
     fun addSampleQuestionsAndTags() {
-        if (uiState.questions.isEmpty()) {
+        if (uiState.questionsWithTags.isEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 db.tagDao().insert(Tag(id = -1, title = "sample"))
                 sampleQuestions.reversed().forEachIndexed { index, question ->
@@ -104,5 +105,5 @@ class QuestionsViewModel @Inject constructor(
 }
 
 data class QuestionsUiState(
-    val questions: List<Question> = emptyList()
+    val questionsWithTags: List<QuestionWithTags> = emptyList()
 )

@@ -16,7 +16,7 @@ import jp.kawagh.kiando.models.Tag
 @Database(
     entities = [Question::class, Tag::class, QuestionTagCrossRef::class],
     autoMigrations = [AutoMigration(4, 5)],
-    version = 5
+    version = 7
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -32,7 +32,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context, AppDatabase::class.java,
                     "database"
                 )
-                    .addMigrations(MIGRATION2to3, MIGRATION3to4)
+                    .addMigrations(MIGRATION2to3, MIGRATION3to4, MIGRATION6to7)
+                    .fallbackToDestructiveMigrationFrom(5)
                     .build()
             }
             return INSTANCE as AppDatabase
@@ -49,5 +50,12 @@ val MIGRATION2to3 = object : Migration(2, 3) {
 }
 val MIGRATION3to4 = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
+    }
+}
+val MIGRATION6to7 = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """ DROP TABLE question_movie_cross_ref """.trimIndent()
+        )
     }
 }

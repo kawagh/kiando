@@ -87,7 +87,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 }
                 composable("list") {
                     ListScreen(
-                        questions = uiState.questions,
+                        questions = uiState.questionsWithTags,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
@@ -123,29 +123,30 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                     val questionId = it.arguments?.getInt("questionId") ?: -1
                     val fromTabIndex = it.arguments?.getInt("fromTabIndex") ?: 0
                     val question =
-                        uiState.questions.find { question -> question.id == questionId }
+                        uiState.questionsWithTags.find { question -> question.question.id == questionId }?.question
                             ?: sampleQuestion
 
                     val TAGGED_INDEX = 1 // TabItem.Tagged
                     val nextQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            uiState.questions.filter { q -> q.tag_id == TAGGED_INDEX }.find { q ->
-                                q.id > questionId
-                            }
+                            uiState.questionsWithTags.filter { q -> q.question.tag_id == TAGGED_INDEX }
+                                .find { q ->
+                                    q.question.id > questionId
+                                }?.question
                                 ?: sampleQuestion
                         } else {
-                            uiState.questions.find { q -> q.id > questionId }
+                            uiState.questionsWithTags.find { q -> q.question.id > questionId }?.question
                                 ?: sampleQuestion
                         }
                     val prevQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            uiState.questions.filter { q -> q.tag_id == TAGGED_INDEX }
+                            uiState.questionsWithTags.filter { q -> q.question.tag_id == TAGGED_INDEX }
                                 .findLast { q ->
-                                    q.id < questionId
-                                }
+                                    q.question.id < questionId
+                                }?.question
                                 ?: sampleQuestion
                         } else {
-                            uiState.questions.findLast { q -> q.id < questionId }
+                            uiState.questionsWithTags.findLast { q -> q.question.id < questionId }?.question
                                 ?: sampleQuestion
                         }
                     MainScreen(
