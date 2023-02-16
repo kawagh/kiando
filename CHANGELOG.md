@@ -3,7 +3,7 @@
 ## unreleased
 - [experimental] tag
 
-## unreleased [2023-02-16]
+## v1.0.7 [2023-02-16]
 - add option to delete sample questions
 - add option to add sample questions
 
