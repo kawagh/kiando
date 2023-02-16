@@ -21,6 +21,8 @@ import jp.kawagh.kiando.models.Tag
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
+    abstract fun tagDao(): TagDao
+    abstract fun questionTagCrossRefDao(): QuestionTagCrossRefDao
 
     companion object {
         private var INSTANCE: AppDatabase? = null
