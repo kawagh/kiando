@@ -30,16 +30,20 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
+import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var viewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupTimber()
         setContent {
-            App()
+            App(gameViewModelAssistedFactory = viewModelAssistedFactory)
         }
     }
 
@@ -64,7 +68,10 @@ fun SideEffectChangeSystemUi() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
+fun App(
+    questionsViewModel: QuestionsViewModel = viewModel(),
+    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory
+) {
     val uiState = questionsViewModel.uiState
     KiandoM3Theme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
@@ -87,7 +94,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                 }
                 composable("list") {
                     ListScreen(
-                        questions = uiState.questionsWithTags,
+                        questionsUiState = uiState,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
@@ -108,8 +115,14 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                         handleLoadQuestionFromResource = {
                             questionsViewModel.loadQuestionsFromAsset()
                         },
-
-                        )
+                        handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
+                        handleAddCrossRef = { question: Question, tag: Tag ->
+                            questionsViewModel.addCrossRef(
+                                question,
+                                tag
+                            )
+                        }
+                    )
                 }
                 composable(
                     "main/{questionId}/{fromTabIndex}",
@@ -164,6 +177,7 @@ fun App(questionsViewModel: QuestionsViewModel = viewModel()) {
                                 fromTabIndex
                             )
                         },
+                        gameViewModelAssistedFactory = gameViewModelAssistedFactory,
                     )
                 }
                 composable("license") {

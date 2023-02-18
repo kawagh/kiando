@@ -1,6 +1,5 @@
 package jp.kawagh.kiando
 
-import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,25 +9,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
-
-
-@Preview
-@Composable
-private fun MainScreenPreview() {
-    MainScreen(sampleQuestion, {}, {}, {})
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,12 +26,10 @@ fun MainScreen(
     question: Question, navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
+    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory,
 ) {
-    val gameViewModel: GameViewModel = viewModel(
-        factory = GameViewModelFactory(
-            LocalContext.current.applicationContext as Application, question
-        )
-    )
+    val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
+
     val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
         mutableStateOf(false)
