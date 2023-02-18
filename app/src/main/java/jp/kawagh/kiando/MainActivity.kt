@@ -162,7 +162,9 @@ fun App(
                             uiState.questionsWithTags.findLast { q -> q.question.id < questionId }?.question
                                 ?: sampleQuestion
                         }
+                    val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
                     MainScreen(
+                        gameViewModel = gameViewModel,
                         question = question,
                         navigateToList = navigateToList,
                         navigateToNextQuestion = {
@@ -177,7 +179,6 @@ fun App(
                                 fromTabIndex
                             )
                         },
-                        gameViewModelAssistedFactory = gameViewModelAssistedFactory,
                     )
                 }
                 composable("license") {

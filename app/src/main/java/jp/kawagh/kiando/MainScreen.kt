@@ -23,12 +23,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    gameViewModel: GameViewModel,
     question: Question, navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
-    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory,
 ) {
-    val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
 
     val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
