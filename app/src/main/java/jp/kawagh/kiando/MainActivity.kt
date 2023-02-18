@@ -115,7 +115,13 @@ fun App(
                         handleLoadQuestionFromResource = {
                             questionsViewModel.loadQuestionsFromAsset()
                         },
-                        handleAddTag = { tag: Tag -> questionsViewModel.add(tag) }
+                        handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
+                        handleAddCrossRef = { question: Question, tag: Tag ->
+                            questionsViewModel.addCrossRef(
+                                question,
+                                tag
+                            )
+                        }
                     )
                 }
                 composable(

@@ -4,8 +4,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,12 +26,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.theme.BoardColor
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 @Preview
@@ -37,7 +44,7 @@ fun PreviewListScreen() {
         QuestionsUiState(
             sampleQuestions.map { QuestionWithTags(it, emptyList()) }
         ),
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {})
+        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} })
 
 }
 
@@ -64,15 +71,13 @@ fun ListScreen(
     handleInsertSampleQuestions: () -> Unit,
     handleLoadQuestionFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
+    handleAddCrossRef: (Question, Tag) -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
     }
     var bottomBarIndex by remember {
         mutableStateOf(0)
-    }
-    var tagNameInput by remember {
-        mutableStateOf("")
     }
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, tabRowIndex)
@@ -102,6 +107,41 @@ fun ListScreen(
     )
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+
+    /**
+     * states for tags
+     */
+    var tagNameInput by remember {
+        mutableStateOf("")
+    }
+    var tagDropDownExpanded by remember {
+        mutableStateOf(false)
+    }
+    val tagOptions = questionsUiState.tags
+    var selectedTag by remember {
+        mutableStateOf(
+            if (questionsUiState.tags.isEmpty()) {
+                null
+            } else {
+                Tag(-1, "sample")
+            }
+        )
+    }
+    var questionsDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+    val questionOptions = questionsUiState.questionsWithTags.map { it.question }
+    var selectedQuestion by remember {
+        mutableStateOf(
+            if (questionsUiState.questionsWithTags.isEmpty()) {
+                null
+            } else {
+                sampleQuestion
+            }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -230,25 +270,139 @@ fun ListScreen(
                 }
 
                 BottomBarItems.Tags -> {
-                    Column(Modifier.padding(paddingValues)) {
-                        OutlinedTextField(
-                            value = tagNameInput,
-                            onValueChange = { tagNameInput = it },
-                            label = { Text("tag") },
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    if (tagNameInput.isNotEmpty()) {
-                                        handleAddTag(Tag(title = tagNameInput))
+                    LazyColumn(
+                        Modifier
+                            .padding(paddingValues)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        item {
+                            OutlinedTextField(
+                                value = tagNameInput,
+                                onValueChange = { tagNameInput = it },
+                                label = { Text("tag") },
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        if (tagNameInput.isNotEmpty()) {
+                                            handleAddTag(Tag(title = tagNameInput))
+                                        }
+                                    }) {
+                                        Icon(Icons.Default.Add, null)
                                     }
-                                }) {
-                                    Icon(Icons.Default.Add, null)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+
+                        }
+
+                        item { Text("tags") }
+
+                        item {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(questionsUiState.tags) {
+                                    AssistChip(
+                                        onClick = {}, label = { Text(it.title) },
+                                        interactionSource = NoRippleInteractionSource()
+                                    )
                                 }
                             }
-                        )
-                        LazyColumn {
-                            item { Text("tags") }
-                            items(questionsUiState.tags) {
-                                Text(text = it.title)
+
+                        }
+
+                        item {
+                            Divider()
+                        }
+
+                        item {
+                            ExposedDropdownMenuBox(
+                                expanded = questionsDropdownExpanded,
+                                onExpandedChange = {
+                                    questionsDropdownExpanded = !questionsDropdownExpanded
+                                }) {
+                                OutlinedTextField(
+                                    value = selectedQuestion?.description ?: "問題を選択してください",
+                                    onValueChange = {},
+                                    label = { Text("問題") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = questionsDropdownExpanded
+                                        )
+                                    },
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = questionsDropdownExpanded,
+                                    onDismissRequest = { questionsDropdownExpanded = false }) {
+                                    questionOptions.forEach {
+                                        DropdownMenuItem(
+                                            text = { Text(it.description) },
+                                            onClick = {
+                                                selectedQuestion = it
+                                                questionsDropdownExpanded = false
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                        )
+                                    }
+                                }
+
+                            }
+                        }
+
+                        item {
+                            ExposedDropdownMenuBox(
+                                expanded = tagDropDownExpanded,
+                                onExpandedChange = {
+                                    tagDropDownExpanded = !tagDropDownExpanded
+                                }) {
+                                OutlinedTextField(
+                                    value = selectedTag?.title ?: "タグを選択してください",
+                                    onValueChange = {},
+                                    label = { Text("タグ") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = tagDropDownExpanded
+                                        )
+                                    },
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .menuAnchor()
+                                        .fillMaxWidth()
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = tagDropDownExpanded,
+                                    onDismissRequest = { tagDropDownExpanded = false }) {
+                                    tagOptions.forEach {
+                                        DropdownMenuItem(
+                                            text = { Text(it.title) },
+                                            onClick = {
+                                                selectedTag = it
+                                                tagDropDownExpanded = false
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Button(onClick = {
+                                    selectedQuestion?.let { question ->
+                                        selectedTag?.let { tag ->
+                                            handleAddCrossRef(question, tag)
+                                        }
+                                    }
+                                })
+                                {
+                                    Text("問題にタグを追加")
+                                }
                             }
                         }
                     }
@@ -355,4 +509,10 @@ fun StableQuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQues
     {
         Text(text = question.description, fontSize = MaterialTheme.typography.titleLarge.fontSize)
     }
+}
+
+class NoRippleInteractionSource : MutableInteractionSource {
+    override val interactions: Flow<Interaction> = emptyFlow()
+    override suspend fun emit(interaction: Interaction) {}
+    override fun tryEmit(interaction: Interaction) = true
 }

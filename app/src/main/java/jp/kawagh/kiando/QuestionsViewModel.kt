@@ -94,7 +94,12 @@ class QuestionsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             db.tagDao().insert(tag)
         }
+    }
 
+    fun addCrossRef(question: Question, tag: Tag) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.questionTagCrossRefDao().insert(QuestionTagCrossRef(question.id, tag.id))
+        }
     }
 
     fun loadQuestionsFromAsset() {
