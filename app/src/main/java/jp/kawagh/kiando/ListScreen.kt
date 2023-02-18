@@ -98,7 +98,6 @@ fun ListScreen(
     val dropDownMenuItems = mapOf(
         "Delete Questions" to navigateToDelete,
         "License" to navigateToLicense,
-        "Version: ${BuildConfig.VERSION_NAME}" to {}
     )
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -142,6 +141,18 @@ fun ListScreen(
         drawerContent = {
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "カスタム将棋次の一手",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+                Divider(Modifier.padding(8.dp))
+                Text(
+                    "Version: ${BuildConfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(8.dp)
+                )
+                Divider(Modifier.padding(8.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(8.dp)
@@ -152,12 +163,6 @@ fun ListScreen(
                         checked = hideDefaultQuestions,
                         onCheckedChange = { hideDefaultQuestions = !hideDefaultQuestions })
                 }
-                Divider(Modifier.padding(8.dp))
-                Text(
-                    "Version: ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(8.dp)
-                )
                 Divider(Modifier.padding(8.dp))
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Add, null) },
