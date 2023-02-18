@@ -13,16 +13,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
@@ -30,8 +33,11 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun PreviewListScreen() {
-    ListScreen(sampleQuestions.map { QuestionWithTags(it, emptyList()) },
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {})
+    ListScreen(
+        QuestionsUiState(
+            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
+        ),
+        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {})
 
 }
 
@@ -40,10 +46,15 @@ sealed class TabItem(val name: String) {
     object Tagged : TabItem("Tagged")
 }
 
+enum class BottomBarItems(val title: String, val icon: ImageVector) {
+    Questions(title = "questions", icon = Icons.Default.QuestionMark),
+    Tags(title = "tags", icon = Icons.Default.Tag),
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    questions: List<QuestionWithTags>,
+    questionsUiState: QuestionsUiState,
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
@@ -52,9 +63,16 @@ fun ListScreen(
     handleFavoriteQuestion: (Question) -> Unit,
     handleInsertSampleQuestions: () -> Unit,
     handleLoadQuestionFromResource: () -> Unit,
+    handleAddTag: (Tag) -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
+    }
+    var bottomBarIndex by remember {
+        mutableStateOf(0)
+    }
+    var tagNameInput by remember {
+        mutableStateOf("")
     }
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, tabRowIndex)
@@ -65,8 +83,8 @@ fun ListScreen(
         mutableStateOf(false)
     }
     val questionsToDisplay = when (tabs[tabRowIndex]) {
-        is TabItem.All -> questions
-        is TabItem.Tagged -> questions.filter { it.question.tag_id != null }
+        is TabItem.All -> questionsUiState.questionsWithTags
+        is TabItem.Tagged -> questionsUiState.questionsWithTags.filter { it.question.tag_id != null }
     }.filter {
         if (hideDefaultQuestions) {
             it.question.id >= 0
@@ -124,7 +142,14 @@ fun ListScreen(
         }) {
         Scaffold(
             topBar = {
-                TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) },
+                TopAppBar(title = {
+                    Text(
+                        when (BottomBarItems.values()[bottomBarIndex]) {
+                            BottomBarItems.Questions -> "問題一覧"
+                            BottomBarItems.Tags -> "タグ一覧"
+                        }
+                    )
+                },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, null)
@@ -141,47 +166,92 @@ fun ListScreen(
                     }
                 )
             },
+            bottomBar = {
+                NavigationBar {
+                    BottomBarItems.values().forEachIndexed { index, bottomBarItem ->
+                        NavigationBarItem(
+                            selected = bottomBarIndex == index,
+                            onClick = { bottomBarIndex = index },
+                            label = { Text(bottomBarItem.title) },
+                            icon = { Icon(bottomBarItem.icon, null) })
+
+                    }
+                }
+            }
         ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                TabRow(selectedTabIndex = tabRowIndex) {
-                    tabs.forEachIndexed { index, tab ->
-                        Tab(
-                            selected = tabRowIndex == index,
-                            onClick = { tabRowIndex = index }) {
-                            Text(
-                                tab.name,
-                                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+            when (BottomBarItems.values()[bottomBarIndex]) {
+                BottomBarItems.Questions -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        TabRow(selectedTabIndex = tabRowIndex) {
+                            tabs.forEachIndexed { index, tab ->
+                                Tab(
+                                    selected = tabRowIndex == index,
+                                    onClick = { tabRowIndex = index }) {
+                                    Text(
+                                        tab.name,
+                                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                                    )
+                                }
+                            }
+                        }
+                        Text(
+                            text = "Problem Set",
+                            fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                        )
+                        if (questionsUiState.questionsWithTags.isEmpty()) {
+                            Box(Modifier.fillMaxSize()) {
+                                Column(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Text(
+                                        "no questions",
+                                        style = MaterialTheme.typography.headlineSmall
+                                    )
+                                    Button(onClick = handleInsertSampleQuestions) { Text("add sample questions") }
+                                }
+                            }
+                        } else {
+                            QuestionsList(
+                                questionsWithTags = questionsToDisplay,
+                                navigateToQuestion = navigateToQuestionWithTabIndex,
+                                handleDeleteAQuestion = handleDeleteAQuestion,
+                                handleRenameAQuestion = handleRenameAQuestion,
+                                handleFavoriteQuestion = handleFavoriteQuestion,
                             )
                         }
                     }
+
                 }
-                Text(
-                    text = "Problem Set",
-                    fontSize = MaterialTheme.typography.headlineSmall.fontSize
-                )
-                if (questions.isEmpty()) {
-                    Box(Modifier.fillMaxSize()) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text("no questions", style = MaterialTheme.typography.headlineSmall)
-                            Button(onClick = handleInsertSampleQuestions) { Text("add sample questions") }
+
+                BottomBarItems.Tags -> {
+                    Column(Modifier.padding(paddingValues)) {
+                        OutlinedTextField(
+                            value = tagNameInput,
+                            onValueChange = { tagNameInput = it },
+                            label = { Text("tag") },
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    if (tagNameInput.isNotEmpty()) {
+                                        handleAddTag(Tag(title = tagNameInput))
+                                    }
+                                }) {
+                                    Icon(Icons.Default.Add, null)
+                                }
+                            }
+                        )
+                        LazyColumn {
+                            item { Text("tags") }
+                            items(questionsUiState.tags) {
+                                Text(text = it.title)
+                            }
                         }
                     }
-                } else {
-                    QuestionsList(
-                        questionsWithTags = questionsToDisplay,
-                        navigateToQuestion = navigateToQuestionWithTabIndex,
-                        handleDeleteAQuestion = handleDeleteAQuestion,
-                        handleRenameAQuestion = handleRenameAQuestion,
-                        handleFavoriteQuestion = handleFavoriteQuestion,
-                    )
                 }
             }
         }

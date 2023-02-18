@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
+import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import timber.log.Timber
 import javax.inject.Inject
@@ -93,7 +94,7 @@ fun App(
                 }
                 composable("list") {
                     ListScreen(
-                        questions = uiState.questionsWithTags,
+                        questionsUiState = uiState,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
@@ -114,8 +115,8 @@ fun App(
                         handleLoadQuestionFromResource = {
                             questionsViewModel.loadQuestionsFromAsset()
                         },
-
-                        )
+                        handleAddTag = { tag: Tag -> questionsViewModel.add(tag) }
+                    )
                 }
                 composable(
                     "main/{questionId}/{fromTabIndex}",

@@ -31,6 +31,11 @@ class QuestionsViewModel @Inject constructor(
         viewModelScope.launch() {
             db.questionDao().getQuestionsWithTags().collectLatest {
                 uiState = uiState.copy(questionsWithTags = it)
+            }
+        }
+        viewModelScope.launch {
+            db.tagDao().getAll().collect {
+                uiState = uiState.copy(tags = it)
 
             }
         }
@@ -85,6 +90,13 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
+    fun add(tag: Tag) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.tagDao().insert(tag)
+        }
+
+    }
+
     fun loadQuestionsFromAsset() {
         val csvQuestionStream = context.resources.openRawResource(R.raw.questions)
         val csvReader = csvReader { this.delimiter = ';' }
@@ -105,5 +117,6 @@ class QuestionsViewModel @Inject constructor(
 }
 
 data class QuestionsUiState(
-    val questionsWithTags: List<QuestionWithTags> = emptyList()
+    val questionsWithTags: List<QuestionWithTags> = emptyList(),
+    val tags: List<Tag> = emptyList()
 )
