@@ -1,7 +1,7 @@
 # CHANGELOG
 
-## unreleased
-- [experimental] tag
+## unreleased [2023-02-18]
+- add tag to question
 
 ## v1.0.7 [2023-02-16]
 - add option to delete sample questions
