@@ -45,7 +45,7 @@ fun PreviewListScreen() {
 
 sealed class TabItem(val name: String) {
     object All : TabItem("All")
-    object Tagged : TabItem("Tagged")
+    object Favorite : TabItem("Favorite")
 }
 
 enum class BottomBarItems(val title: String, val icon: ImageVector) {
@@ -77,14 +77,14 @@ fun ListScreen(
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, tabRowIndex)
     }
-    val tabs = listOf(TabItem.All, TabItem.Tagged)
+    val tabs = listOf(TabItem.All, TabItem.Favorite)
 
     var hideDefaultQuestions by remember {
         mutableStateOf(false)
     }
     val questionsToDisplay = when (tabs[tabRowIndex]) {
         is TabItem.All -> questionsUiState.questionsWithTags
-        is TabItem.Tagged -> questionsUiState.questionsWithTags.filter { it.question.tag_id != null }
+        is TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.tag_id != null }
     }.filter {
         if (hideDefaultQuestions) {
             it.question.id >= 0
@@ -98,7 +98,6 @@ fun ListScreen(
     val dropDownMenuItems = mapOf(
         "Delete Questions" to navigateToDelete,
         "License" to navigateToLicense,
-        "Version: ${BuildConfig.VERSION_NAME}" to {}
     )
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -142,6 +141,18 @@ fun ListScreen(
         drawerContent = {
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "カスタム将棋次の一手",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+                Divider(Modifier.padding(8.dp))
+                Text(
+                    "Version: ${BuildConfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(8.dp)
+                )
+                Divider(Modifier.padding(8.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(8.dp)
@@ -152,12 +163,6 @@ fun ListScreen(
                         checked = hideDefaultQuestions,
                         onCheckedChange = { hideDefaultQuestions = !hideDefaultQuestions })
                 }
-                Divider(Modifier.padding(8.dp))
-                Text(
-                    "Version: ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(8.dp)
-                )
                 Divider(Modifier.padding(8.dp))
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Add, null) },
@@ -234,10 +239,7 @@ fun ListScreen(
                                 }
                             }
                         }
-                        Text(
-                            text = "Problem Set",
-                            fontSize = MaterialTheme.typography.headlineSmall.fontSize
-                        )
+                        Spacer(modifier = Modifier.padding(top = 12.dp))
                         if (questionsUiState.questionsWithTags.isEmpty()) {
                             Box(Modifier.fillMaxSize()) {
                                 Column(

@@ -1,17 +1,13 @@
 package jp.kawagh.kiando.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -25,6 +21,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,9 +34,6 @@ import jp.kawagh.kiando.ui.theme.CardColor
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
 
-/**
- * In future, replace QuestionCard
- */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuestionWithTagsCard(
@@ -70,17 +64,11 @@ fun QuestionWithTagsCard(
             Row {
                 Row() {
                     LazyRow(
-                        horizontalArrangement = Arrangement.Start,
-                        modifier = Modifier.padding(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.Start),
+                        modifier = Modifier.padding(start = 4.dp)
                     ) {
                         items(tags) {
-                            Text(
-                                it.title,
-                                modifier = Modifier.border(
-                                    border = BorderStroke(1.dp, Color.Black),
-                                )
-                            )
-                            Spacer(modifier = Modifier.size(8.dp))
+                            TagChip(tag = it)
                         }
                     }
                 }
