@@ -55,7 +55,7 @@ val MIGRATION3to4 = object : Migration(3, 4) {
 val MIGRATION6to7 = object : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
-            """ DROP TABLE question_movie_cross_ref """.trimIndent()
+            """ DROP TABLE IF EXISTS question_movie_cross_ref """.trimIndent()
         )
     }
 }
