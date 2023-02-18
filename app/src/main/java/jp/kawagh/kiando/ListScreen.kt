@@ -45,7 +45,7 @@ fun PreviewListScreen() {
 
 sealed class TabItem(val name: String) {
     object All : TabItem("All")
-    object Tagged : TabItem("Tagged")
+    object Favorite : TabItem("Favorite")
 }
 
 enum class BottomBarItems(val title: String, val icon: ImageVector) {
@@ -77,14 +77,14 @@ fun ListScreen(
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, tabRowIndex)
     }
-    val tabs = listOf(TabItem.All, TabItem.Tagged)
+    val tabs = listOf(TabItem.All, TabItem.Favorite)
 
     var hideDefaultQuestions by remember {
         mutableStateOf(false)
     }
     val questionsToDisplay = when (tabs[tabRowIndex]) {
         is TabItem.All -> questionsUiState.questionsWithTags
-        is TabItem.Tagged -> questionsUiState.questionsWithTags.filter { it.question.tag_id != null }
+        is TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.tag_id != null }
     }.filter {
         if (hideDefaultQuestions) {
             it.question.id >= 0
@@ -239,10 +239,7 @@ fun ListScreen(
                                 }
                             }
                         }
-                        Text(
-                            text = "Problem Set",
-                            fontSize = MaterialTheme.typography.headlineSmall.fontSize
-                        )
+                        Spacer(modifier = Modifier.padding(top = 12.dp))
                         if (questionsUiState.questionsWithTags.isEmpty()) {
                             Box(Modifier.fillMaxSize()) {
                                 Column(
