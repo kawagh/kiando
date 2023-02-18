@@ -11,13 +11,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tag
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -95,10 +98,13 @@ fun ListScreen(
     var dropDownExpanded by remember {
         mutableStateOf(false)
     }
-    val dropDownMenuItems = mapOf(
-        "Delete Questions" to navigateToDelete,
-        "License" to navigateToLicense,
-    )
+
+    val dropDownMenuItems = emptyMap<String, () -> Unit>()
+//    issues/92 questionFilter
+//    val dropDownMenuItems = mapOf(
+//        "Delete Questions" to navigateToDelete,
+//        "License" to navigateToLicense,
+//    )
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -170,9 +176,21 @@ fun ListScreen(
                     selected = false,
                     onClick = handleInsertSampleQuestions
                 )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Android, null) },
+                    label = { Text("License") },
+                    selected = false,
+                    onClick = navigateToLicense
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Warning, null) },
+                    label = { Text("Delete All Questions") },
+                    selected = false,
+                    onClick = navigateToDelete
+                )
                 if (BuildConfig.DEBUG) {
                     NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Add, null) },
+                        icon = { Icon(Icons.Default.LogoDev, null) },
                         label = { Text("load questions from resource") },
                         selected = false,
                         onClick = handleLoadQuestionFromResource
@@ -196,13 +214,15 @@ fun ListScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
-                            Icon(Icons.Default.MoreVert, null)
+                        if (dropDownMenuItems.isNotEmpty()) {
+                            IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
+                                Icon(Icons.Default.MoreVert, null)
+                            }
+                            DropdownMenuOnTopBar(
+                                dropDownMenuItems,
+                                expanded = dropDownExpanded,
+                                setExpanded = { dropDownExpanded = it })
                         }
-                        DropdownMenuOnTopBar(
-                            dropDownMenuItems,
-                            expanded = dropDownExpanded,
-                            setExpanded = { dropDownExpanded = it })
                     }
                 )
             },
