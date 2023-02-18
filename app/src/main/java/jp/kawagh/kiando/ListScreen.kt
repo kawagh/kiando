@@ -4,9 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,15 +23,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
+import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.BoardColor
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 @Preview
@@ -300,10 +295,7 @@ fun ListScreen(
                         item {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(questionsUiState.tags) {
-                                    AssistChip(
-                                        onClick = {}, label = { Text(it.title) },
-                                        interactionSource = NoRippleInteractionSource()
-                                    )
+                                    TagChip(tag = it)
                                 }
                             }
 
@@ -509,10 +501,4 @@ fun StableQuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQues
     {
         Text(text = question.description, fontSize = MaterialTheme.typography.titleLarge.fontSize)
     }
-}
-
-class NoRippleInteractionSource : MutableInteractionSource {
-    override val interactions: Flow<Interaction> = emptyFlow()
-    override suspend fun emit(interaction: Interaction) {}
-    override fun tryEmit(interaction: Interaction) = true
 }
