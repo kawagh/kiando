@@ -21,10 +21,10 @@ import javax.inject.Inject
 @HiltViewModel
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
+    private val db: AppDatabase,
     @ApplicationContext private val context: Context,
 ) :
     ViewModel() {
-    private val db = AppDatabase.getInstance(context)
     var uiState: QuestionsUiState by mutableStateOf(QuestionsUiState())
 
     init {

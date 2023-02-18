@@ -1,33 +1,31 @@
 package jp.kawagh.kiando
 
-import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import jp.kawagh.kiando.data.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.IllegalArgumentException
 
 const val BOARD_SIZE = 9
 
-class GameViewModelFactory(private val application: Application, private val question: Question) :
-    ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return GameViewModel(application, question) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel Class")
+class GameViewModel @AssistedInject constructor(
+    private val db: AppDatabase,
+    @Assisted private val question: Question
+) :
+    ViewModel() {
+
+    @AssistedFactory
+    interface GameViewModelAssistedFactory {
+        fun create(
+            question: Question
+        ): GameViewModel
     }
 
-}
-
-class GameViewModel(application: Application, question: Question) : AndroidViewModel(application) {
-    private val db: AppDatabase = AppDatabase.getInstance(application)
 
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()

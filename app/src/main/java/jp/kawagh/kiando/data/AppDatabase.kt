@@ -1,9 +1,7 @@
 package jp.kawagh.kiando.data
 
-import android.content.Context
 import androidx.room.AutoMigration
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
@@ -23,22 +21,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
     abstract fun tagDao(): TagDao
     abstract fun questionTagCrossRefDao(): QuestionTagCrossRefDao
-
-    companion object {
-        private var INSTANCE: AppDatabase? = null
-        fun getInstance(context: Context): AppDatabase {
-            if (INSTANCE == null) {
-                INSTANCE = Room.databaseBuilder(
-                    context, AppDatabase::class.java,
-                    "database"
-                )
-                    .addMigrations(MIGRATION2to3, MIGRATION3to4, MIGRATION6to7)
-                    .fallbackToDestructiveMigrationFrom(5)
-                    .build()
-            }
-            return INSTANCE as AppDatabase
-        }
-    }
 }
 
 val MIGRATION2to3 = object : Migration(2, 3) {
