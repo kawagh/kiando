@@ -2,8 +2,11 @@ package jp.kawagh.kiando.data
 
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
+import androidx.room.RenameColumn
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import jp.kawagh.kiando.Converters
@@ -13,11 +16,27 @@ import jp.kawagh.kiando.models.Tag
 
 @Database(
     entities = [Question::class, Tag::class, QuestionTagCrossRef::class],
-    autoMigrations = [AutoMigration(4, 5)],
-    version = 7
+    autoMigrations = [
+        AutoMigration(4, 5),
+        AutoMigration(7, 8, spec = AppDatabase.AutoMigration7to8::class),
+    ],
+    version = 8
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
+    @DeleteColumn(tableName = "questions", columnName = "tag_id")
+    @RenameColumn(
+        tableName = "questions",
+        fromColumnName = "answerMove",
+        toColumnName = "answer_move"
+    )
+    @RenameColumn(
+        tableName = "questions",
+        fromColumnName = "komadaiSfen",
+        toColumnName = "komadai_sfen"
+    )
+    class AutoMigration7to8 : AutoMigrationSpec
+
     abstract fun questionDao(): QuestionDao
     abstract fun tagDao(): TagDao
     abstract fun questionTagCrossRefDao(): QuestionTagCrossRefDao

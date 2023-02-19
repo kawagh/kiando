@@ -87,7 +87,7 @@ fun ListScreen(
     }
     val questionsToDisplay = when (tabs[tabRowIndex]) {
         is TabItem.All -> questionsUiState.questionsWithTags
-        is TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.tag_id != null }
+        is TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
         if (hideDefaultQuestions) {
             it.question.id >= 0
@@ -495,7 +495,7 @@ fun QuestionRow(
                 onClick = { handleFavoriteQuestion.invoke() },
             ) {
                 Icon(
-                    if (question.tag_id == 1) Icons.Default.Star else Icons.Default.Remove,
+                    if (question.isFavorite) Icons.Default.Star else Icons.Default.Remove,
                     "toggle favorite",
                 )
             }

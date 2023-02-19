@@ -37,6 +37,9 @@ android {
             }
         }
     }
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 
     buildTypes {
         release {
@@ -92,6 +95,7 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-testing:$room_version")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
     implementation("androidx.compose.material:material-icons-extended:$compose_version")

@@ -142,7 +142,7 @@ fun App(
                     val TAGGED_INDEX = 1 // TabItem.Tagged
                     val nextQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            uiState.questionsWithTags.filter { q -> q.question.tag_id == TAGGED_INDEX }
+                            uiState.questionsWithTags.filter { q -> q.question.isFavorite }
                                 .find { q ->
                                     q.question.id > questionId
                                 }?.question
@@ -153,7 +153,7 @@ fun App(
                         }
                     val prevQuestion =
                         if (fromTabIndex == TAGGED_INDEX) {
-                            uiState.questionsWithTags.filter { q -> q.question.tag_id == TAGGED_INDEX }
+                            uiState.questionsWithTags.filter { q -> q.question.isFavorite }
                                 .findLast { q ->
                                     q.question.id < questionId
                                 }?.question

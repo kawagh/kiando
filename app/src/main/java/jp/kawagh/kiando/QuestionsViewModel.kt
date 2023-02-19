@@ -55,11 +55,7 @@ class QuestionsViewModel @Inject constructor(
 
     fun toggleQuestionFavorite(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (question.tag_id == null) {
-                db.questionDao().updateQuestion(question.copy(tag_id = 1))
-            } else {
-                db.questionDao().updateQuestion(question.copy(tag_id = null))
-            }
+            db.questionDao().updateQuestion(question.copy(isFavorite = !question.isFavorite))
         }
     }
 
