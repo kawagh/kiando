@@ -13,9 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
@@ -26,7 +26,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.models.Tag
@@ -84,6 +86,9 @@ fun ListScreen(
     var hideDefaultQuestions by remember {
         mutableStateOf(false)
     }
+    var selectedFilterTag: Tag? by remember {
+        mutableStateOf(null)
+    }
     val questionsToDisplay = when (TabItem.values()[tabRowIndex]) {
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
@@ -93,17 +98,21 @@ fun ListScreen(
         } else {
             true
         }
+    }.filter {
+        if (selectedFilterTag != null) {
+            it.tags.contains(selectedFilterTag)
+        } else {
+            true
+        }
     }
     var dropDownExpanded by remember {
         mutableStateOf(false)
     }
 
-    val dropDownMenuItems = emptyMap<String, () -> Unit>()
-//    issues/92 questionFilter
-//    val dropDownMenuItems = mapOf(
-//        "Delete Questions" to navigateToDelete,
-//        "License" to navigateToLicense,
-//    )
+    val dropDownMenuItems: Map<String, () -> Unit> =
+        mapOf(stringResource(R.string.no_filter_name) to { selectedFilterTag = null }) +
+                questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -214,12 +223,16 @@ fun ListScreen(
                     },
                     actions = {
                         if (dropDownMenuItems.isNotEmpty()) {
-                            IconButton(onClick = { dropDownExpanded = !dropDownExpanded }) {
-                                Icon(Icons.Default.MoreVert, null)
+                            IconToggleButton(
+                                checked = selectedFilterTag is Tag,
+                                onCheckedChange = { dropDownExpanded = !dropDownExpanded }) {
+                                Icon(Icons.Default.FilterAlt, null)
                             }
                             DropdownMenuOnTopBar(
                                 dropDownMenuItems,
                                 expanded = dropDownExpanded,
+                                selectedName = selectedFilterTag?.title
+                                    ?: stringResource(id = R.string.no_filter_name),
                                 setExpanded = { dropDownExpanded = it })
                         }
                     }
@@ -429,12 +442,20 @@ fun ListScreen(
 fun DropdownMenuOnTopBar(
     dropDownMenuItems: Map<String, () -> Unit>,
     expanded: Boolean,
+    selectedName: String,
     setExpanded: (Boolean) -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = { setExpanded(false) }) {
         dropDownMenuItems.forEach { (name, callback) ->
             DropdownMenuItem(text = {
-                Text(text = name)
+                Text(
+                    text = name,
+                    modifier = Modifier.background(
+                        if (name == selectedName) Color.LightGray else {
+                            Color.Transparent
+                        }
+                    )
+                )
             }, onClick = {
                 callback.invoke()
                 setExpanded(false)
