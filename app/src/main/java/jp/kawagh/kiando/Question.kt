@@ -1,5 +1,6 @@
 package jp.kawagh.kiando
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Junction
@@ -43,10 +44,13 @@ class Converters {
 data class Question(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val description: String,
+    @ColumnInfo(name = "answer_move")
     val answerMove: Move,
     val sfen: String,
+    @ColumnInfo(name = "komadai_sfen")
     val komadaiSfen: String,
-    val tag_id: Int? = null
+    @ColumnInfo("is_favorite", defaultValue = "0")
+    val isFavorite: Boolean = false
 ) {
     val boardState
         get() = SFENConverter().convertFrom(sfen)

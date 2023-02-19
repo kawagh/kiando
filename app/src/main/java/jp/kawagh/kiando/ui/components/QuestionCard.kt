@@ -28,7 +28,6 @@ fun QuestionCard(
     handleFavoriteQuestion: () -> Unit,
     showIcons: Boolean = true
 ) {
-    val isFavorite = question.tag_id == 1
     Card(
         colors = CardDefaults.cardColors(containerColor = CardColor),
         modifier = Modifier
@@ -54,7 +53,7 @@ fun QuestionCard(
                         Icon(
                             Icons.Filled.Star,
                             contentDescription = "toggle favorite",
-                            tint = if (isFavorite) {
+                            tint = if (question.isFavorite) {
                                 Color.Yellow
                             } else {
                                 LocalContentColor.current
