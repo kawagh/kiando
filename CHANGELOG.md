@@ -1,7 +1,14 @@
 # CHANGELOG
 
 ## unreleased [2023-02-18]
-- add tag to question
+- move operations to drawer
+
+## v1.0.9 [2023-02-18]
+- fixed bug `cannot move on enemy panel` in v1.0.8
+
+## v1.0.8 [2023-02-18]
+- add tag in app
+- attach tag to question in app
 
 ## v1.0.7 [2023-02-16]
 - add option to delete sample questions
