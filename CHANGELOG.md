@@ -1,6 +1,7 @@
 # CHANGELOG
 
-## unreleased [2023-02-18]
+## v1.0.10 [2023-02-19]
+- filter questions by tag
 - move operations to drawer
 
 ## v1.0.9 [2023-02-18]
