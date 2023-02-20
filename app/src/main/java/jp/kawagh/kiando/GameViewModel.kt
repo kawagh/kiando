@@ -7,14 +7,14 @@ import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import jp.kawagh.kiando.data.AppDatabase
+import jp.kawagh.kiando.data.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 const val BOARD_SIZE = 9
 
 class GameViewModel @AssistedInject constructor(
-    private val db: AppDatabase,
+    private val repository: Repository,
     @Assisted private val question: Question
 ) :
     ViewModel() {
@@ -33,7 +33,7 @@ class GameViewModel @AssistedInject constructor(
 
     fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().insert(question)
+            repository.add(question)
         }
     }
 
