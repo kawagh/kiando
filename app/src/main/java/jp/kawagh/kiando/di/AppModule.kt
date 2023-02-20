@@ -12,6 +12,8 @@ import jp.kawagh.kiando.data.MIGRATION2to3
 import jp.kawagh.kiando.data.MIGRATION3to4
 import jp.kawagh.kiando.data.MIGRATION6to7
 import jp.kawagh.kiando.data.QuestionDao
+import jp.kawagh.kiando.data.QuestionTagCrossRefDao
+import jp.kawagh.kiando.data.TagDao
 import javax.inject.Singleton
 
 @Module
@@ -21,6 +23,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideQuestionDao(database: AppDatabase): QuestionDao = database.questionDao()
+
+    @Provides
+    @Singleton
+    fun provideTagDao(database: AppDatabase): TagDao = database.tagDao()
+
+    @Provides
+    @Singleton
+    fun provideQuestionTagCrossRefDao(database: AppDatabase): QuestionTagCrossRefDao =
+        database.questionTagCrossRefDao()
 
     @Provides
     @Singleton

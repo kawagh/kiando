@@ -9,19 +9,16 @@ import androidx.lifecycle.viewModelScope
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import jp.kawagh.kiando.data.AppDatabase
 import jp.kawagh.kiando.data.Repository
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.Tag
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
-    private val db: AppDatabase,
     @ApplicationContext private val context: Context,
 ) :
     ViewModel() {
@@ -29,40 +26,39 @@ class QuestionsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch() {
-            db.questionDao().getQuestionsWithTags().collectLatest {
+            repository.questionsWithTags.collect {
                 uiState = uiState.copy(questionsWithTags = it)
             }
         }
         viewModelScope.launch {
-            db.tagDao().getAll().collect {
+            repository.tags.collect {
                 uiState = uiState.copy(tags = it)
-
             }
         }
     }
 
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().deleteAll()
+            repository.deleteAllQuestions()
         }
     }
 
     fun deleteById(questionId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().deleteById(questionId)
+            repository.deleteById(questionId)
         }
     }
 
     fun toggleQuestionFavorite(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionDao().updateQuestion(question.copy(isFavorite = !question.isFavorite))
+            repository.updateQuestion(question.copy(isFavorite = !question.isFavorite))
         }
     }
 
     fun renameById(questionId: Int, newTitle: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val question = db.questionDao().findById(questionId)
-            db.questionDao().updateQuestion(
+            val question = repository.findById(questionId)
+            repository.updateQuestion(
                 question.copy(description = newTitle)
             )
         }
@@ -75,12 +71,11 @@ class QuestionsViewModel @Inject constructor(
     fun addSampleQuestionsAndTags() {
         if (uiState.questionsWithTags.isEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                db.tagDao().insert(Tag(id = -1, title = "sample"))
+                repository.add(Tag(id = -1, title = "sample"))
                 sampleQuestions.reversed().forEachIndexed { index, question ->
                     val questionId = -(index + 1)
-                    db.questionDao().insert(question.copy(id = questionId))
-                    db.questionTagCrossRefDao()
-                        .insert(QuestionTagCrossRef(questionId = questionId, tagId = -1))
+                    repository.add(question.copy(id = questionId))
+                    repository.add(QuestionTagCrossRef(questionId = questionId, tagId = -1))
                 }
             }
         }
@@ -88,13 +83,13 @@ class QuestionsViewModel @Inject constructor(
 
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.tagDao().insert(tag)
+            repository.add(tag)
         }
     }
 
     fun addCrossRef(question: Question, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.questionTagCrossRefDao().insert(QuestionTagCrossRef(question.id, tag.id))
+            repository.add(QuestionTagCrossRef(question.id, tag.id))
         }
     }
 
@@ -111,7 +106,7 @@ class QuestionsViewModel @Inject constructor(
             val komadaiSfen: String = it.getValue("komadaiSfen")
             val parsedQuestion = Question(id, description, answerMove, sfen, komadaiSfen)
             viewModelScope.launch(Dispatchers.IO) {
-                db.questionDao().insert(parsedQuestion)
+                repository.add(parsedQuestion)
             }
         }
     }
