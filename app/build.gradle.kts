@@ -16,7 +16,7 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.9"
+val appVersion = "1.0.10"
 
 android {
     compileSdk = 33
@@ -36,6 +36,9 @@ android {
                 argument("room.schemaLocation", "$projectDir/schemas")
             }
         }
+    }
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
 
     buildTypes {
@@ -92,6 +95,7 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-testing:$room_version")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
     implementation("androidx.compose.material:material-icons-extended:$compose_version")

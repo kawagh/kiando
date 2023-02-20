@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">kiando</string>
+    <string name="no_filter_name">条件なし</string>
 </resources>
