@@ -7,6 +7,7 @@ plugins {
     id("com.cookpad.android.plugin.license-tools") version "1.2.8"
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
@@ -117,4 +118,9 @@ dependencies {
 // Hilt: Allow references to generated code
 kapt {
     correctErrorTypes = true
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config = files("$rootDir/config/detekt/detekt.yml")
 }
