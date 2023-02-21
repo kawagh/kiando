@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## unreleased [2023-02-21]
+- autofocus to renameDialog
+
 ## v1.0.10 [2023-02-19]
 - filter questions by tag
 - move operations to drawer
