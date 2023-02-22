@@ -35,6 +35,7 @@ import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.BoardColor
+import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
 
 @Preview
@@ -328,8 +329,22 @@ fun ListScreen(
 
                         item {
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                items(questionsUiState.tags) {
-                                    TagChip(tag = it)
+                                if (selectedQuestion == null) {
+                                    items(questionsUiState.tags) {
+                                        TagChip(tag = it)
+                                    }
+                                } else {
+                                    val tagsAttachedSelectedQuestions =
+                                        questionsUiState.questionsWithTags
+                                            .find { it.question == selectedQuestion }?.tags ?: emptyList()
+                                    items(questionsUiState.tags) {
+                                        TagChip(
+                                            tag = it,
+                                            containerColor = if (tagsAttachedSelectedQuestions.contains(it))
+                                            { CardColor }
+                                            else { Color.Transparent },
+                                        )
+                                    }
                                 }
                             }
 
