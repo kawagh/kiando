@@ -326,46 +326,11 @@ fun ListScreen(
 
                         }
 
-                        item { Text("tags") }
 
                         item {
-                            val handleTagClick: (Tag) -> Unit = { tag ->
-                                selectedQuestion?.let {
-                                    handleToggleCrossRef(it, tag)
-                                }
-
-                            }
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (selectedQuestion == null) {
-                                    items(questionsUiState.tags) {
-                                        TagChip(tag = it, { handleTagClick(it) })
-                                    }
-                                } else {
-                                    val tagsAttachedSelectedQuestions =
-                                        questionsUiState.questionsWithTags
-                                            .find { it.question == selectedQuestion }?.tags
-                                            ?: emptyList()
-                                    items(questionsUiState.tags) {
-                                        TagChip(
-                                            tag = it,
-                                            onClick = { handleTagClick(it) },
-                                            containerColor = if (tagsAttachedSelectedQuestions.contains(
-                                                    it
-                                                )
-                                            ) {
-                                                CardColor
-                                            } else {
-                                                Color.Transparent
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-
-                        }
-
-                        item {
+                            Spacer(modifier = Modifier.size(24.dp))
                             Divider()
+                            Spacer(modifier = Modifier.size(24.dp))
                         }
 
                         item {
@@ -406,60 +371,98 @@ fun ListScreen(
                             }
                         }
 
-                        item {
-                            ExposedDropdownMenuBox(
-                                expanded = tagDropDownExpanded,
-                                onExpandedChange = {
-                                    tagDropDownExpanded = !tagDropDownExpanded
-                                }) {
-                                OutlinedTextField(
-                                    value = selectedTag?.title ?: "タグを選択してください",
-                                    onValueChange = {},
-                                    label = { Text("タグ") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = tagDropDownExpanded
-                                        )
-                                    },
-                                    readOnly = true,
-                                    modifier = Modifier
-                                        .menuAnchor()
-                                        .fillMaxWidth()
-                                )
-                                ExposedDropdownMenu(
-                                    expanded = tagDropDownExpanded,
-                                    onDismissRequest = { tagDropDownExpanded = false }) {
-                                    tagOptions.forEach {
-                                        DropdownMenuItem(
-                                            text = { Text(it.title) },
-                                            onClick = {
-                                                selectedTag = it
-                                                tagDropDownExpanded = false
-                                            },
-                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                        )
-                                    }
-                                }
-                            }
-                        }
+//                        item {
+//                            ExposedDropdownMenuBox(
+//                                expanded = tagDropDownExpanded,
+//                                onExpandedChange = {
+//                                    tagDropDownExpanded = !tagDropDownExpanded
+//                                }) {
+//                                OutlinedTextField(
+//                                    value = selectedTag?.title ?: "タグを選択してください",
+//                                    onValueChange = {},
+//                                    label = { Text("タグ") },
+//                                    trailingIcon = {
+//                                        ExposedDropdownMenuDefaults.TrailingIcon(
+//                                            expanded = tagDropDownExpanded
+//                                        )
+//                                    },
+//                                    readOnly = true,
+//                                    modifier = Modifier
+//                                        .menuAnchor()
+//                                        .fillMaxWidth()
+//                                )
+//                                ExposedDropdownMenu(
+//                                    expanded = tagDropDownExpanded,
+//                                    onDismissRequest = { tagDropDownExpanded = false }) {
+//                                    tagOptions.forEach {
+//                                        DropdownMenuItem(
+//                                            text = { Text(it.title) },
+//                                            onClick = {
+//                                                selectedTag = it
+//                                                tagDropDownExpanded = false
+//                                            },
+//                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                        }
+
+                        item { Text("tags") }
 
                         item {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Button(onClick = {
-                                    selectedQuestion?.let { question ->
-                                        selectedTag?.let { tag ->
-                                            handleAddCrossRef(question, tag)
-                                        }
+                            val handleTagClick: (Tag) -> Unit = { tag ->
+                                selectedQuestion?.let {
+                                    handleToggleCrossRef(it, tag)
+                                }
+
+                            }
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (selectedQuestion == null) {
+                                    items(questionsUiState.tags) {
+                                        TagChip(tag = it, { handleTagClick(it) })
                                     }
-                                })
-                                {
-                                    Text("問題にタグを追加")
+                                } else {
+                                    val tagsAttachedSelectedQuestions =
+                                        questionsUiState.questionsWithTags
+                                            .find { it.question == selectedQuestion }?.tags
+                                            ?: emptyList()
+                                    items(questionsUiState.tags) {
+                                        TagChip(
+                                            tag = it,
+                                            onClick = { handleTagClick(it) },
+                                            containerColor = if (tagsAttachedSelectedQuestions.contains(
+                                                    it
+                                                )
+                                            ) {
+                                                CardColor
+                                            } else {
+                                                Color.Transparent
+                                            },
+                                        )
+                                    }
                                 }
                             }
+
                         }
+
+//                        item {
+//                            Column(
+//                                horizontalAlignment = Alignment.CenterHorizontally,
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) {
+//                                Button(onClick = {
+//                                    selectedQuestion?.let { question ->
+//                                        selectedTag?.let { tag ->
+//                                            handleAddCrossRef(question, tag)
+//                                        }
+//                                    }
+//                                })
+//                                {
+//                                    Text("問題にタグを追加")
+//                                }
+//                            }
+//                        }
                     }
                 }
             }
