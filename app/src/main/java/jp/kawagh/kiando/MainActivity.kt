@@ -123,7 +123,11 @@ fun App(
                                 question,
                                 tag
                             )
-                        }
+                        },
+                        handleToggleCrossRef = { question: Question, tag: Tag ->
+                            questionsViewModel.toggleCrossRef(question,tag)
+                        },
+
                     )
                 }
                 composable(

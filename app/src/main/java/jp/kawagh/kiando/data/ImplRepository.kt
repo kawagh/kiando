@@ -51,6 +51,14 @@ class ImplRepository @Inject constructor(
         crossRefDao.insert(crossRef)
     }
 
+    override suspend fun toggle(crossRef: QuestionTagCrossRef) {
+        if (crossRefDao.hasCrossRef(crossRef.tagId, crossRef.questionId)) {
+            crossRefDao.deleteCrossRef(crossRef)
+        } else {
+            crossRefDao.insert(crossRef)
+        }
+    }
+
     override fun updateQuestion(question: Question) {
         questionDao.updateQuestion(question)
     }

@@ -15,9 +15,13 @@ import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TagChip(tag: Tag,containerColor:Color = Color.Transparent) {
+fun TagChip(
+    tag: Tag,
+    onClick: () -> Unit,
+    containerColor: Color = Color.Transparent,
+) {
     AssistChip(
-        onClick = {}, label = { Text(tag.title) },
+        onClick = onClick, label = { Text(tag.title) },
         interactionSource = NoRippleInteractionSource(),
         colors = AssistChipDefaults.assistChipColors(containerColor = containerColor),
     )
@@ -26,7 +30,7 @@ fun TagChip(tag: Tag,containerColor:Color = Color.Transparent) {
 @Preview
 @Composable
 private fun TagChipPreview() {
-    TagChip(tag = Tag(title = "序盤"))
+    TagChip(tag = Tag(title = "序盤"), {})
 }
 
 private class NoRippleInteractionSource : MutableInteractionSource {

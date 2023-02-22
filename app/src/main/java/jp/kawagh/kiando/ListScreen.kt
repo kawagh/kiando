@@ -45,7 +45,7 @@ fun PreviewListScreen() {
         QuestionsUiState(
             sampleQuestions.map { QuestionWithTags(it, emptyList()) }
         ),
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} })
+        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, { _, _ -> {} })
 
 }
 
@@ -73,6 +73,7 @@ fun ListScreen(
     handleLoadQuestionFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
     handleAddCrossRef: (Question, Tag) -> Unit,
+    handleToggleCrossRef: (Question, Tag) -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
@@ -328,21 +329,34 @@ fun ListScreen(
                         item { Text("tags") }
 
                         item {
+                            val handleTagClick: (Tag) -> Unit = { tag ->
+                                selectedQuestion?.let {
+                                    handleToggleCrossRef(it, tag)
+                                }
+
+                            }
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (selectedQuestion == null) {
                                     items(questionsUiState.tags) {
-                                        TagChip(tag = it)
+                                        TagChip(tag = it, { handleTagClick(it) })
                                     }
                                 } else {
                                     val tagsAttachedSelectedQuestions =
                                         questionsUiState.questionsWithTags
-                                            .find { it.question == selectedQuestion }?.tags ?: emptyList()
+                                            .find { it.question == selectedQuestion }?.tags
+                                            ?: emptyList()
                                     items(questionsUiState.tags) {
                                         TagChip(
                                             tag = it,
-                                            containerColor = if (tagsAttachedSelectedQuestions.contains(it))
-                                            { CardColor }
-                                            else { Color.Transparent },
+                                            onClick = { handleTagClick(it) },
+                                            containerColor = if (tagsAttachedSelectedQuestions.contains(
+                                                    it
+                                                )
+                                            ) {
+                                                CardColor
+                                            } else {
+                                                Color.Transparent
+                                            },
                                         )
                                     }
                                 }
