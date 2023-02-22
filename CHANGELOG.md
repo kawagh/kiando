@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## unreleased [2023-02-22]
+- improve multi tagging in app
+- detach tag in app
+
 ## unreleased [2023-02-21]
 - autofocus to renameDialog
 

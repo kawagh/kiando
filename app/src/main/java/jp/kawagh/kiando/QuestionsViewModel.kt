@@ -92,6 +92,11 @@ class QuestionsViewModel @Inject constructor(
             repository.add(QuestionTagCrossRef(question.id, tag.id))
         }
     }
+    fun toggleCrossRef(question: Question, tag: Tag) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.toggle(crossRef = QuestionTagCrossRef(question.id,tag.id))
+        }
+    }
 
     fun loadQuestionsFromAsset() {
         val csvQuestionStream = context.resources.openRawResource(R.raw.questions)

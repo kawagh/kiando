@@ -21,6 +21,7 @@ interface Repository {
     suspend fun add(question: Question)
     suspend fun add(tag: Tag)
     suspend fun add(crossRef: QuestionTagCrossRef)
+    suspend fun toggle(crossRef: QuestionTagCrossRef)
     fun updateQuestion(question: Question)
 }
 
@@ -61,6 +62,10 @@ class FakeRepository @Inject constructor() : Repository {
     }
 
     override suspend fun add(crossRef: QuestionTagCrossRef) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun toggle(crossRef: QuestionTagCrossRef) {
         TODO("Not yet implemented")
     }
 
