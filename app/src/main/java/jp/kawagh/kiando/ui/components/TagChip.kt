@@ -7,6 +7,7 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import jp.kawagh.kiando.models.Tag
@@ -19,10 +20,15 @@ fun TagChip(
     tag: Tag,
     onClick: () -> Unit,
     containerColor: Color = Color.Transparent,
+    rippleEnabled: Boolean = false
 ) {
     AssistChip(
         onClick = onClick, label = { Text(tag.title) },
-        interactionSource = NoRippleInteractionSource(),
+        interactionSource = if (rippleEnabled) {
+            remember { MutableInteractionSource() }
+        } else {
+            NoRippleInteractionSource()
+        },
         colors = AssistChipDefaults.assistChipColors(containerColor = containerColor),
     )
 }

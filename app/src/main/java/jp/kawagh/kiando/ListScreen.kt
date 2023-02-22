@@ -380,6 +380,7 @@ fun ListScreen(
                                         TagChip(
                                             tag = it,
                                             onClick = { handleTagClick(it) },
+                                            rippleEnabled = true,
                                             containerColor = if (tagsAttachedSelectedQuestions.contains(
                                                     it
                                                 )
