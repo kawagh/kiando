@@ -118,12 +118,6 @@ fun App(
                             questionsViewModel.loadQuestionsFromAsset()
                         },
                         handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
-                        handleAddCrossRef = { question: Question, tag: Tag ->
-                            questionsViewModel.addCrossRef(
-                                question,
-                                tag
-                            )
-                        },
                         handleToggleCrossRef = { question: Question, tag: Tag ->
                             questionsViewModel.toggleCrossRef(question,tag)
                         },

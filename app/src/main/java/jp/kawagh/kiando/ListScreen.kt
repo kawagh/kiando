@@ -45,7 +45,7 @@ fun PreviewListScreen() {
         QuestionsUiState(
             sampleQuestions.map { QuestionWithTags(it, emptyList()) }
         ),
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, { _, _ -> {} })
+        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} })
 
 }
 
@@ -72,7 +72,6 @@ fun ListScreen(
     handleInsertSampleQuestions: () -> Unit,
     handleLoadQuestionFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
-    handleAddCrossRef: (Question, Tag) -> Unit,
     handleToggleCrossRef: (Question, Tag) -> Unit,
 ) {
     var tabRowIndex by remember {
@@ -124,19 +123,6 @@ fun ListScreen(
      */
     var tagNameInput by remember {
         mutableStateOf("")
-    }
-    var tagDropDownExpanded by remember {
-        mutableStateOf(false)
-    }
-    val tagOptions = questionsUiState.tags
-    var selectedTag by remember {
-        mutableStateOf(
-            if (questionsUiState.tags.isEmpty()) {
-                null
-            } else {
-                Tag(-1, "sample")
-            }
-        )
     }
     var questionsDropdownExpanded by remember {
         mutableStateOf(false)
@@ -371,43 +357,6 @@ fun ListScreen(
                             }
                         }
 
-//                        item {
-//                            ExposedDropdownMenuBox(
-//                                expanded = tagDropDownExpanded,
-//                                onExpandedChange = {
-//                                    tagDropDownExpanded = !tagDropDownExpanded
-//                                }) {
-//                                OutlinedTextField(
-//                                    value = selectedTag?.title ?: "タグを選択してください",
-//                                    onValueChange = {},
-//                                    label = { Text("タグ") },
-//                                    trailingIcon = {
-//                                        ExposedDropdownMenuDefaults.TrailingIcon(
-//                                            expanded = tagDropDownExpanded
-//                                        )
-//                                    },
-//                                    readOnly = true,
-//                                    modifier = Modifier
-//                                        .menuAnchor()
-//                                        .fillMaxWidth()
-//                                )
-//                                ExposedDropdownMenu(
-//                                    expanded = tagDropDownExpanded,
-//                                    onDismissRequest = { tagDropDownExpanded = false }) {
-//                                    tagOptions.forEach {
-//                                        DropdownMenuItem(
-//                                            text = { Text(it.title) },
-//                                            onClick = {
-//                                                selectedTag = it
-//                                                tagDropDownExpanded = false
-//                                            },
-//                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                        }
-
                         item { Text("tags") }
 
                         item {
@@ -446,23 +395,6 @@ fun ListScreen(
 
                         }
 
-//                        item {
-//                            Column(
-//                                horizontalAlignment = Alignment.CenterHorizontally,
-//                                modifier = Modifier.fillMaxWidth()
-//                            ) {
-//                                Button(onClick = {
-//                                    selectedQuestion?.let { question ->
-//                                        selectedTag?.let { tag ->
-//                                            handleAddCrossRef(question, tag)
-//                                        }
-//                                    }
-//                                })
-//                                {
-//                                    Text("問題にタグを追加")
-//                                }
-//                            }
-//                        }
                     }
                 }
             }
