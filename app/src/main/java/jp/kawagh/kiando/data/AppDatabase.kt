@@ -20,7 +20,7 @@ import jp.kawagh.kiando.models.Tag
         AutoMigration(4, 5),
         AutoMigration(7, 8, spec = AppDatabase.AutoMigration7to8::class),
     ],
-    version = 8
+    version = 9
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -57,6 +57,14 @@ val MIGRATION6to7 = object : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
             """ DROP TABLE IF EXISTS question_movie_cross_ref """.trimIndent()
+        )
+    }
+}
+
+val MIGRATION8to9 = object : Migration(8, 9) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            """ CREATE UNIQUE INDEX IF NOT EXISTS `index_tags_title` ON `tags` (`title`) """.trimIndent()
         )
     }
 }
