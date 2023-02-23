@@ -7,6 +7,7 @@ plugins {
     id("com.cookpad.android.plugin.license-tools") version "1.2.8"
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
@@ -16,7 +17,7 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.10"
+val appVersion = "1.0.11"
 
 android {
     compileSdk = 33
@@ -48,6 +49,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            applicationIdSuffix = ".debug"
         }
     }
     compileOptions {
@@ -114,4 +118,9 @@ dependencies {
 // Hilt: Allow references to generated code
 kapt {
     correctErrorTypes = true
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config = files("$rootDir/config/detekt/detekt.yml")
 }

@@ -18,7 +18,7 @@ tasks.register<Delete>("clean") {
 
 tasks.register("loadBackup") {
     val backupDir = System.getenv("APPS_BACKUP_DIR")
-    val backupZipFilePath = backupDir + rootProject.name.lowercase() + "_sample" + "_database.zip"
+    val backupZipFilePath = backupDir + rootProject.name.lowercase() + "_database.zip"
     val rawDirPath = "app/src/main/res/raw"
     ZipFile(backupZipFilePath).use { zip ->
         zip.entries().asSequence().forEach { entry ->

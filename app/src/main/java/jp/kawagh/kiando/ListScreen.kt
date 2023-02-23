@@ -35,6 +35,7 @@ import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.BoardColor
+import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
 
 @Preview
@@ -69,9 +70,9 @@ fun ListScreen(
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
     handleInsertSampleQuestions: () -> Unit,
-    handleLoadQuestionFromResource: () -> Unit,
+    handleLoadDataFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
-    handleAddCrossRef: (Question, Tag) -> Unit,
+    handleToggleCrossRef: (Question, Tag) -> Unit,
 ) {
     var tabRowIndex by remember {
         mutableStateOf(0)
@@ -122,19 +123,6 @@ fun ListScreen(
      */
     var tagNameInput by remember {
         mutableStateOf("")
-    }
-    var tagDropDownExpanded by remember {
-        mutableStateOf(false)
-    }
-    val tagOptions = questionsUiState.tags
-    var selectedTag by remember {
-        mutableStateOf(
-            if (questionsUiState.tags.isEmpty()) {
-                null
-            } else {
-                Tag(-1, "sample")
-            }
-        )
     }
     var questionsDropdownExpanded by remember {
         mutableStateOf(false)
@@ -201,7 +189,7 @@ fun ListScreen(
                         icon = { Icon(Icons.Default.LogoDev, null) },
                         label = { Text("load questions from resource") },
                         selected = false,
-                        onClick = handleLoadQuestionFromResource
+                        onClick = handleLoadDataFromResource
                     )
                 }
             }
@@ -324,19 +312,11 @@ fun ListScreen(
 
                         }
 
-                        item { Text("tags") }
 
                         item {
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                items(questionsUiState.tags) {
-                                    TagChip(tag = it)
-                                }
-                            }
-
-                        }
-
-                        item {
+                            Spacer(modifier = Modifier.size(24.dp))
                             Divider()
+                            Spacer(modifier = Modifier.size(24.dp))
                         }
 
                         item {
@@ -377,60 +357,45 @@ fun ListScreen(
                             }
                         }
 
-                        item {
-                            ExposedDropdownMenuBox(
-                                expanded = tagDropDownExpanded,
-                                onExpandedChange = {
-                                    tagDropDownExpanded = !tagDropDownExpanded
-                                }) {
-                                OutlinedTextField(
-                                    value = selectedTag?.title ?: "タグを選択してください",
-                                    onValueChange = {},
-                                    label = { Text("タグ") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = tagDropDownExpanded
-                                        )
-                                    },
-                                    readOnly = true,
-                                    modifier = Modifier
-                                        .menuAnchor()
-                                        .fillMaxWidth()
-                                )
-                                ExposedDropdownMenu(
-                                    expanded = tagDropDownExpanded,
-                                    onDismissRequest = { tagDropDownExpanded = false }) {
-                                    tagOptions.forEach {
-                                        DropdownMenuItem(
-                                            text = { Text(it.title) },
-                                            onClick = {
-                                                selectedTag = it
-                                                tagDropDownExpanded = false
-                                            },
-                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        item { Text("tags") }
 
                         item {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Button(onClick = {
-                                    selectedQuestion?.let { question ->
-                                        selectedTag?.let { tag ->
-                                            handleAddCrossRef(question, tag)
-                                        }
+                            val handleTagClick: (Tag) -> Unit = { tag ->
+                                selectedQuestion?.let {
+                                    handleToggleCrossRef(it, tag)
+                                }
+
+                            }
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                if (selectedQuestion == null) {
+                                    items(questionsUiState.tags) {
+                                        TagChip(tag = it, { handleTagClick(it) })
                                     }
-                                })
-                                {
-                                    Text("問題にタグを追加")
+                                } else {
+                                    val tagsAttachedSelectedQuestions =
+                                        questionsUiState.questionsWithTags
+                                            .find { it.question == selectedQuestion }?.tags
+                                            ?: emptyList()
+                                    items(questionsUiState.tags) {
+                                        TagChip(
+                                            tag = it,
+                                            onClick = { handleTagClick(it) },
+                                            rippleEnabled = true,
+                                            containerColor = if (tagsAttachedSelectedQuestions.contains(
+                                                    it
+                                                )
+                                            ) {
+                                                CardColor
+                                            } else {
+                                                Color.Transparent
+                                            },
+                                        )
+                                    }
                                 }
                             }
+
                         }
+
                     }
                 }
             }

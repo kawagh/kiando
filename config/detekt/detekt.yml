@@ -1,0 +1,10 @@
+style:
+  ForbiddenComment:
+    active: false
+  NewLineAtEndOfFile:
+    active: false
+  UnusedPrivateMember:
+    ignoreAnnotated: [ 'Preview' ]
+naming:
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]

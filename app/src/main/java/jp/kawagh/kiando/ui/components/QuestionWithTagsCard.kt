@@ -67,7 +67,7 @@ fun QuestionWithTagsCard(
                         modifier = Modifier.padding(start = 4.dp)
                     ) {
                         items(tags) {
-                            TagChip(tag = it)
+                            TagChip(tag = it, {})
                         }
                     }
                 }

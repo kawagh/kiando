@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.0.11 [2023-02-23]
+- improve multi tagging in app
+- detach tag in app
+- autofocus to renameDialog
+
 ## v1.0.10 [2023-02-19]
 - filter questions by tag
 - move operations to drawer

@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import jp.kawagh.kiando.data.AppDatabase
 import jp.kawagh.kiando.data.MIGRATION6to7
+import jp.kawagh.kiando.data.MIGRATION8to9
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,5 +39,15 @@ class MigrationTest {
 
         // MigrationTestHelper automatically verifies the schema changes,
         // but you need to validate that the data was migrated properly.
+    }
+
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate8To9() {
+        var db = helper.createDatabase(TEST_DB, 8).apply {
+            close()
+        }
+        db = helper.runMigrationsAndValidate(TEST_DB, 9, true, MIGRATION8to9)
     }
 }
