@@ -387,7 +387,8 @@ fun MainScreen(
                             "Do move to register"
                         } else {
                             val pieceKind =
-                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE + moveToRegister.to.column].pieceKind
+                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE
+                                        + moveToRegister.to.column].pieceKind
                             "登録手: ${moveToRegister.toReadable(pieceKind)}"
                         },
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
