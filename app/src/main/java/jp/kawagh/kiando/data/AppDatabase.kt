@@ -50,8 +50,7 @@ val MIGRATION2to3 = object : Migration(2, 3) {
     }
 }
 val MIGRATION3to4 = object : Migration(3, 4) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-    }
+    override fun migrate(database: SupportSQLiteDatabase) = Unit
 }
 val MIGRATION6to7 = object : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
