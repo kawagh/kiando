@@ -1,2 +1,4 @@
-id;description;answerMove;sfen;komadaiSfen;tag_id
-121;角道を開ける手は?;6_2_5_2_0;lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL;;
+id;description;answer_move;sfen;komadai_sfen;is_favorite
+-3;角道を開ける手は?;6_2_5_2_0;lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL;;0
+-2;飛車先を突く手は?;6_7_5_7_0;lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL;;0
+-1;角交換を防ぐ手は?;6_3_5_3_0;lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/1B5R1/LNSGKGSNL b - 1;;0

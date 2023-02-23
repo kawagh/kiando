@@ -92,13 +92,20 @@ class QuestionsViewModel @Inject constructor(
             repository.add(QuestionTagCrossRef(question.id, tag.id))
         }
     }
+
     fun toggleCrossRef(question: Question, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.toggle(crossRef = QuestionTagCrossRef(question.id,tag.id))
+            repository.toggle(crossRef = QuestionTagCrossRef(question.id, tag.id))
         }
     }
 
-    fun loadQuestionsFromAsset() {
+    fun loadDataFromAsset() {
+        loadQuestionsFromAsset()
+        loadTagsFromAsset()
+        loadCrossRefFromAsset()
+    }
+
+    private fun loadQuestionsFromAsset() {
         val csvQuestionStream = context.resources.openRawResource(R.raw.questions)
         val csvReader = csvReader { this.delimiter = ';' }
         val csvQuestionContents = csvReader.readAllWithHeader(csvQuestionStream)
@@ -106,12 +113,42 @@ class QuestionsViewModel @Inject constructor(
         csvQuestionContents.forEach {
             val id = it.getValue("id").toInt()
             val description: String = it.getValue("description")
-            val answerMove: Move = Converters().toMove(it.getValue("answerMove"))
+            val answerMove: Move = Converters().toMove(it.getValue("answer_move"))
             val sfen: String = it.getValue("sfen")
-            val komadaiSfen: String = it.getValue("komadaiSfen")
-            val parsedQuestion = Question(id, description, answerMove, sfen, komadaiSfen)
+            val komadaiSfen: String = it.getValue("komadai_sfen")
+            val isFavorite: Boolean = it.getValue("is_favorite").toBoolean()
+            val parsedQuestion =
+                Question(id, description, answerMove, sfen, komadaiSfen, isFavorite)
             viewModelScope.launch(Dispatchers.IO) {
                 repository.add(parsedQuestion)
+            }
+        }
+    }
+
+    private fun loadTagsFromAsset() {
+        val csvTagStream = context.resources.openRawResource(R.raw.tags)
+        val csvReader = csvReader { this.delimiter = ';' }
+        val csvTagContents = csvReader.readAllWithHeader(csvTagStream)
+        csvTagContents.forEach {
+            val id = it.getValue("id").toInt()
+            val title = it.getValue("title")
+            val parsedTag = Tag(id = id, title = title)
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.add(parsedTag)
+            }
+        }
+    }
+
+    private fun loadCrossRefFromAsset() {
+        val csvCrossRefStream = context.resources.openRawResource(R.raw.question_tag_cross_ref)
+        val csvReader = csvReader { this.delimiter = ';' }
+        val csvCrossRefContents = csvReader.readAllWithHeader(csvCrossRefStream)
+        csvCrossRefContents.forEach {
+            val questionId = it.getValue("question_id").toInt()
+            val tagId = it.getValue("tag_id").toInt()
+            val parsedCrossRef = QuestionTagCrossRef(questionId, tagId)
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.add(parsedCrossRef)
             }
         }
     }
