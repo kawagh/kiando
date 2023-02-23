@@ -5,6 +5,10 @@ style:
     active: false
   UnusedPrivateMember:
     ignoreAnnotated: [ 'Preview' ]
+  WildcardImport:
+    active: false
+  MagicNumber:
+    active: false
 naming:
   FunctionNaming:
     ignoreAnnotated: [ 'Composable' ]
