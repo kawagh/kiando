@@ -76,8 +76,8 @@ class GameViewModel @AssistedInject constructor(
         if (fromIndex == toIndex) return
         // 駒台からの打ち込み
         if (isMoveFromKomadai(move)) {
-            val pieceKind: PieceKind = PieceKind.values()[move.from.column]
             if (boardState[posToIndex(move.to)].pieceKind != PieceKind.EMPTY) return
+            val pieceKind: PieceKind = PieceKind.values()[move.from.column]
             when (move.from.row) {
                 -1 -> {
                     boardState[toIndex] =
@@ -93,25 +93,23 @@ class GameViewModel @AssistedInject constructor(
 
                 }
             }
-        } else {
-            val panelState = boardState[fromIndex]
-            if (isValidMove(move, panelState)) {
-                if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
-                    when (boardState[toIndex].isEnemy) {
-                        true -> komadaiState.add(boardState[toIndex].pieceKind)
-                        false -> enemyKomadaiState.add(boardState[toIndex].pieceKind)
-                    }
+        } else if (isValidMove(move, boardState[fromIndex])) {
+            if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
+                if (boardState[toIndex].isEnemy) {
+                    komadaiState.add(boardState[toIndex].pieceKind)
+                } else {
+                    enemyKomadaiState.add(boardState[toIndex].pieceKind)
                 }
-                boardState[toIndex] =
-                    PanelState(
-                        move.to.row,
-                        move.to.column,
-                        boardState[fromIndex].pieceKind,
-                        isEnemy = boardState[fromIndex].isEnemy,
-                        isPromoted = move.isPromote || boardState[fromIndex].isPromoted // 成駒は維持
-                    )
-                boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
             }
+            boardState[toIndex] =
+                PanelState(
+                    move.to.row,
+                    move.to.column,
+                    boardState[fromIndex].pieceKind,
+                    isEnemy = boardState[fromIndex].isEnemy,
+                    isPromoted = move.isPromote || boardState[fromIndex].isPromoted // 成駒は維持
+                )
+            boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
         }
     }
 
