@@ -60,7 +60,8 @@ class GameViewModel @AssistedInject constructor(
             else ->
                 when (boardState[fromIndex].isEnemy) {
                     true ->
-                        !boardState[fromIndex].isPromoted && (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+                        !boardState[fromIndex].isPromoted &&
+                                (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
 
                     false ->
                         !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
