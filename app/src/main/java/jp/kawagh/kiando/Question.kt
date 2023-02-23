@@ -81,7 +81,8 @@ const val SAMPLE3_SFEN = "lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/1B5R1/LN
 
 val sampleQuestionWithLongDescription = Question(
     id = -3,
-    description = "LongDescriptionLongDescriptionLongDescriptionLongDescriptionLongDescriptionLongDescriptionLongDescription",
+    description = "LongDescriptionLongDescriptionLongDescription" +
+            "LongDescriptionLongDescriptionLongDescriptionLongDescription",
     answerMove = Move(Position(6, 2), Position(5, 2)),
     sfen = INITIAL_SFEN,
     komadaiSfen = ""
