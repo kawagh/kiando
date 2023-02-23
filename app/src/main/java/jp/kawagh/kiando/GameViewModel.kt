@@ -37,14 +37,6 @@ class GameViewModel @AssistedInject constructor(
         }
     }
 
-
-    fun loadQuestion(questionId: Int) {
-//        boardState = db.qustionDao().findById(questionId).boardState.toMutableStateList()
-        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
-        komadaiState = listOf<PieceKind>().toMutableStateList()
-
-    }
-
     fun loadSFEN(sfen: String) {
         boardState = SFENConverter().convertFrom(sfen).toMutableStateList()
         komadaiState = emptyList<PieceKind>().toMutableStateList()
@@ -146,8 +138,7 @@ class GameViewModel @AssistedInject constructor(
                     boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
                             || (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
                     )
-        }
-    }
+        } }
 
     fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> =
         // TODO 二歩,進行方向なしの考慮
