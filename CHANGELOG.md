@@ -1,10 +1,8 @@
 # CHANGELOG
 
-## unreleased [2023-02-22]
+## v1.0.11 [2023-02-23]
 - improve multi tagging in app
 - detach tag in app
-
-## unreleased [2023-02-21]
 - autofocus to renameDialog
 
 ## v1.0.10 [2023-02-19]
