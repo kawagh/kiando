@@ -93,26 +93,25 @@ class GameViewModel @AssistedInject constructor(
 
                 }
             }
-            return
-        }
-
-        val panelState = boardState[fromIndex]
-        if (isValidMove(move, panelState)) {
-            if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
-                when (boardState[toIndex].isEnemy) {
-                    true -> komadaiState.add(boardState[toIndex].pieceKind)
-                    false -> enemyKomadaiState.add(boardState[toIndex].pieceKind)
+        } else {
+            val panelState = boardState[fromIndex]
+            if (isValidMove(move, panelState)) {
+                if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
+                    when (boardState[toIndex].isEnemy) {
+                        true -> komadaiState.add(boardState[toIndex].pieceKind)
+                        false -> enemyKomadaiState.add(boardState[toIndex].pieceKind)
+                    }
                 }
+                boardState[toIndex] =
+                    PanelState(
+                        move.to.row,
+                        move.to.column,
+                        boardState[fromIndex].pieceKind,
+                        isEnemy = boardState[fromIndex].isEnemy,
+                        isPromoted = move.isPromote || boardState[fromIndex].isPromoted // 成駒は維持
+                    )
+                boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
             }
-            boardState[toIndex] =
-                PanelState(
-                    move.to.row,
-                    move.to.column,
-                    boardState[fromIndex].pieceKind,
-                    isEnemy = boardState[fromIndex].isEnemy,
-                    isPromoted = move.isPromote || boardState[fromIndex].isPromoted // 成駒は維持
-                )
-            boardState[fromIndex] = PanelState(move.from.row, move.from.column, PieceKind.EMPTY)
         }
     }
 
