@@ -87,12 +87,6 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    fun addCrossRef(question: Question, tag: Tag) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.add(QuestionTagCrossRef(question.id, tag.id))
-        }
-    }
-
     fun toggleCrossRef(question: Question, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.toggle(crossRef = QuestionTagCrossRef(question.id, tag.id))
