@@ -114,15 +114,15 @@ fun App(
                         handleInsertSampleQuestions = {
                             questionsViewModel.addSampleQuestionsAndTags()
                         },
-                        handleLoadQuestionFromResource = {
-                            questionsViewModel.loadQuestionsFromAsset()
+                        handleLoadDataFromResource = {
+                            questionsViewModel.loadDataFromAsset()
                         },
                         handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
                         handleToggleCrossRef = { question: Question, tag: Tag ->
-                            questionsViewModel.toggleCrossRef(question,tag)
+                            questionsViewModel.toggleCrossRef(question, tag)
                         },
 
-                    )
+                        )
                 }
                 composable(
                     "main/{questionId}/{fromTabIndex}",

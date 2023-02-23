@@ -70,7 +70,7 @@ fun ListScreen(
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
     handleInsertSampleQuestions: () -> Unit,
-    handleLoadQuestionFromResource: () -> Unit,
+    handleLoadDataFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
     handleToggleCrossRef: (Question, Tag) -> Unit,
 ) {
@@ -189,7 +189,7 @@ fun ListScreen(
                         icon = { Icon(Icons.Default.LogoDev, null) },
                         label = { Text("load questions from resource") },
                         selected = false,
-                        onClick = handleLoadQuestionFromResource
+                        onClick = handleLoadDataFromResource
                     )
                 }
             }
