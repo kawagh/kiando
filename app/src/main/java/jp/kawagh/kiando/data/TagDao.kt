@@ -17,4 +17,7 @@ interface TagDao {
 
     @Query("DELETE FROM tags")
     fun deleteAll()
+
+    @Query("DELETE FROM tags WHERE id = :tagId")
+    fun deleteById(tagId: Int)
 }
