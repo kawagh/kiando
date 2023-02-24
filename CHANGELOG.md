@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.0.12(unreleased) [2023-02-24]
+- change topAppBarTitle
+- change register button from fab to trailing icon button
+
 ## v1.0.11 [2023-02-23]
 - improve multi tagging in app
 - detach tag in app
