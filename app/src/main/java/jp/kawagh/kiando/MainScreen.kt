@@ -19,12 +19,13 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextRotateVertical
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -473,31 +474,40 @@ fun MainScreen(
 
                 false -> Column() {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = question.description,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(20.dp)
-                        )
-                        IconButton(
+                        OutlinedButton(
                             onClick = {
                                 navigateToPrevQuestion.invoke()
                             },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                         ) {
-                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                            Icon(
+                                Icons.Default.SkipPrevious,
+                                contentDescription = "back to prev question",
+                                modifier = Modifier.size(
+                                    ButtonDefaults.IconSize
+                                )
+                            )
+                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("前の問題へ")
                         }
-                        IconButton(
+                        OutlinedButton(
                             onClick = {
                                 navigateToNextQuestion.invoke()
                             },
-                            modifier = Modifier.padding(10.dp)
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                         ) {
-                            Icon(Icons.Default.SkipNext, "go to next question")
+                            Text("次の問題へ")
+                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                            Icon(
+                                Icons.Default.SkipNext,
+                                contentDescription = "back to prev question",
+                                modifier = Modifier.size(
+                                    ButtonDefaults.IconSize
+                                )
+                            )
                         }
                     }
                     if (shouldShowAnswerButton) {
@@ -505,8 +515,11 @@ fun MainScreen(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Button(onClick = handleShowAnswerClick) {
-                                Text(text = "show answer")
+                            OutlinedButton(
+                                onClick = handleShowAnswerClick,
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
+                            ) {
+                                Text(text = "回答を表示")
                             }
                         }
                     }
