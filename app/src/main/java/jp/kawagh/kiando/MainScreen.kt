@@ -6,9 +6,11 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -17,10 +19,11 @@ import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.theme.BoardColor
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     gameViewModel: GameViewModel,
@@ -228,51 +231,6 @@ fun MainScreen(
                 }
             )
         },
-        floatingActionButton = {
-            if (isRegisterQuestionMode) {
-                val newQuestion = Question(
-                    id = 0,
-                    description = inputQuestionDescription,
-                    answerMove = moveToRegister,
-                    sfen = inputSFEN,
-                    komadaiSfen = inputKomadaiSFEN,
-                )
-                FloatingActionButton(onClick = {
-                    when (validateQuestion(newQuestion)) {
-                        QuestionValidationResults.EmptyDescription -> {
-                            snackbarCoroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "🆖 empty description"
-                                )
-                            }
-                        }
-
-                        QuestionValidationResults.NeedMove -> {
-                            snackbarCoroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "🆖 need move"
-                                )
-                            }
-
-                        }
-
-                        QuestionValidationResults.Valid -> {
-                            gameViewModel.saveQuestion(newQuestion)
-                            snackbarCoroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "🆗 saved"
-                                )
-                            }
-                            isRegisterQuestionMode = false
-                            moveToRegister = NonMove
-                            inputQuestionDescription = ""
-                        }
-                    }
-                }) {
-                    Icon(Icons.Filled.Add, contentDescription = "register new Question")
-                }
-            }
-        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -384,7 +342,7 @@ fun MainScreen(
                 true -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = if (moveToRegister == NonMove) {
-                            "Do move to register"
+                            "登録する手を指してください"
                         } else {
                             val pieceKind =
                                 gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE
@@ -393,12 +351,62 @@ fun MainScreen(
                         },
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
                     )
-                    TextField(
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    OutlinedTextField(
                         value = inputQuestionDescription,
                         onValueChange = { inputQuestionDescription = it },
                         label = {
-                            Text(text = "Input question description")
+                            Text(text = "問題名")
                         },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                val newQuestion = Question(
+                                    id = 0,
+                                    description = inputQuestionDescription,
+                                    answerMove = moveToRegister,
+                                    sfen = inputSFEN,
+                                    komadaiSfen = inputKomadaiSFEN,
+                                )
+                                when (validateQuestion(newQuestion)) {
+                                    QuestionValidationResults.EmptyDescription -> {
+                                        keyboardController?.hide() // to avoid keyboard on snackbar
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "🆖 empty description"
+                                            )
+                                        }
+                                    }
+
+                                    QuestionValidationResults.NeedMove -> {
+                                        keyboardController?.hide()
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "🆖 need move"
+                                            )
+                                        }
+
+                                    }
+
+                                    QuestionValidationResults.Valid -> {
+                                        keyboardController?.hide()
+                                        gameViewModel.saveQuestion(newQuestion)
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "🆗 saved"
+                                            )
+                                        }
+                                        isRegisterQuestionMode = false
+                                        moveToRegister = NonMove
+                                        inputQuestionDescription = ""
+                                    }
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "register question"
+                                )
+                            }
+                        }
                     )
                 }
 
