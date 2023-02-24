@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## v1.0.12(unreleased) [2023-02-24]
+- modify SFEN form padding,visibility
 - add tagEditScreen to remove tags
 - change topAppBarTitle
 - change register button from fab to trailing icon button
