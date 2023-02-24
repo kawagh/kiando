@@ -1,5 +1,6 @@
 package jp.kawagh.kiando
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -44,6 +46,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -244,14 +247,19 @@ fun MainScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        shouldShowSFENInput = !shouldShowSFENInput
-                    }) {
-                        Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
+                    if (isRegisterQuestionMode) {
+                        IconToggleButton(
+                            checked = shouldShowSFENInput,
+                            onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }) {
+                            Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
+
+                        }
                     }
                     IconButton(onClick = {
                         if (!isRegisterQuestionMode) {
                             moveToRegister = NonMove
+                        } else {
+                            shouldShowSFENInput = false
                         }
                         isRegisterQuestionMode = !isRegisterQuestionMode
                         // modeに入った時点の局面を保持する
@@ -328,8 +336,10 @@ fun MainScreen(
                 handleKomadaiClick
             )
 
-            if (shouldShowSFENInput) {
-                val clipboardManager = LocalClipboardManager.current
+            val clipboardManager = LocalClipboardManager.current
+            val context = LocalContext.current
+            Spacer(modifier = Modifier.size(8.dp))
+            AnimatedVisibility(visible = shouldShowSFENInput) {
                 Row {
                     TextField(
                         value = inputSFEN,
@@ -347,7 +357,10 @@ fun MainScreen(
                                         }
                                         )
                                         snackbarCoroutineScope.launch {
-                                            snackbarHostState.showSnackbar("copied $inputSFEN")
+                                            snackbarHostState
+                                                .showSnackbar(
+                                                    context.getString(R.string.sfen_copy)
+                                                )
                                         }
                                     },
                                     enabled = inputSFEN.isNotEmpty(),
@@ -364,6 +377,12 @@ fun MainScreen(
                                         isRegisterQuestionMode = false
                                         isRegisterQuestionMode = true // invoke recompose
                                         inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState
+                                                .showSnackbar(
+                                                    context.getString(R.string.sfen_load)
+                                                )
+                                        }
                                     },
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
@@ -374,7 +393,9 @@ fun MainScreen(
                                 }
                             }
                         },
-                        modifier = Modifier.semantics { contentDescription = "SFEN input form" }
+                        modifier = Modifier
+                            .semantics { contentDescription = "SFEN input form" }
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
