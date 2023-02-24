@@ -43,9 +43,14 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    fun deleteById(questionId: Int) {
+    fun deleteQuestionById(questionId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteById(questionId)
+            repository.deleteQuestionById(questionId)
+        }
+    }
+    fun deleteTagById(tagId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteTagById(tagId)
         }
     }
 

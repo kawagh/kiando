@@ -22,8 +22,12 @@ class ImplRepository @Inject constructor(
         return questionDao.findById(questionId)
     }
 
-    override fun deleteById(questionId: Int) {
+    override fun deleteQuestionById(questionId: Int) {
         questionDao.deleteById(questionId)
+    }
+
+    override fun deleteTagById(tagId: Int) {
+        tagDao.deleteById(tagId)
     }
 
     override fun deleteAllQuestions() {

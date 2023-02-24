@@ -121,8 +121,9 @@ fun App(
                         handleToggleCrossRef = { question: Question, tag: Tag ->
                             questionsViewModel.toggleCrossRef(question, tag)
                         },
+                        handleRemoveTagById = { tagId: Int -> questionsViewModel.deleteTagById(tagId) }
 
-                        )
+                    )
                 }
                 composable(
                     "main/{questionId}/{fromTabIndex}",
@@ -220,7 +221,7 @@ fun App(
                         confirmButton = {
                             TextButton(onClick = {
                                 navController.navigate("list")
-                                questionsViewModel.deleteById(deleteId)
+                                questionsViewModel.deleteQuestionById(deleteId)
                             }) {
                                 Text(text = "DELETE")
                             }
