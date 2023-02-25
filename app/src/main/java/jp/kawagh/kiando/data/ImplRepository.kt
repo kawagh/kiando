@@ -18,8 +18,12 @@ class ImplRepository @Inject constructor(
     override val tags: Flow<List<Tag>> = tagDao.getAll()
 
 
-    override fun findById(questionId: Int): Question {
+    override fun findQuestionById(questionId: Int): Question {
         return questionDao.findById(questionId)
+    }
+
+    override fun findTagById(tagId: Int): Tag {
+        return tagDao.findById(tagId)
     }
 
     override fun deleteQuestionById(questionId: Int) {
@@ -65,5 +69,9 @@ class ImplRepository @Inject constructor(
 
     override fun updateQuestion(question: Question) {
         questionDao.updateQuestion(question)
+    }
+
+    override fun updateTag(tag: Tag) {
+        tagDao.update(tag)
     }
 }

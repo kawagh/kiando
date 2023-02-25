@@ -48,6 +48,7 @@ class QuestionsViewModel @Inject constructor(
             repository.deleteQuestionById(questionId)
         }
     }
+
     fun deleteTagById(tagId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteTagById(tagId)
@@ -60,14 +61,22 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    fun renameById(questionId: Int, newTitle: String) {
+    fun renameQuestionById(questionId: Int, newTitle: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val question = repository.findById(questionId)
+            val question = repository.findQuestionById(questionId)
             repository.updateQuestion(
                 question.copy(description = newTitle)
             )
         }
+    }
 
+    fun renameTagId(tagId: Int, newTitle: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tag = repository.findTagById(tagId)
+            repository.updateTag(
+                tag.copy(title = newTitle)
+            )
+        }
     }
 
     /**
@@ -85,6 +94,19 @@ class QuestionsViewModel @Inject constructor(
             }
         }
     }
+
+    fun setTabRowIndex(index: Int) {
+        uiState = uiState.copy(tabRowIndex = index)
+    }
+
+    fun setBottomBarIndex(index: Int) {
+        uiState = uiState.copy(bottomBarIndex = index)
+    }
+
+    fun toggleTagEditMode() {
+        uiState = uiState.copy(isTagEditMode = !uiState.isTagEditMode)
+    }
+
 
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -155,5 +177,8 @@ class QuestionsViewModel @Inject constructor(
 
 data class QuestionsUiState(
     val questionsWithTags: List<QuestionWithTags> = emptyList(),
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    val tabRowIndex: Int = 0,
+    val bottomBarIndex: Int = 0,
+    val isTagEditMode: Boolean = false
 )
