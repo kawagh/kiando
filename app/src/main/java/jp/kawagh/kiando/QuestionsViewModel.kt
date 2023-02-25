@@ -184,7 +184,6 @@ data class QuestionsUiState(
     val tags: List<Tag> = emptyList(),
     val tabRowIndex: Int = 0,
     val bottomBarIndex: Int = 0,
-    val isTagEditMode: Boolean = false
-    val hideDefaultQuestions: Boolean = false
-}
+    val isTagEditMode: Boolean = false,
+    val hideDefaultQuestions: Boolean = false,
 )
