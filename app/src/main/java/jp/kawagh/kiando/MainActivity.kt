@@ -98,7 +98,7 @@ fun App(
                 }
                 composable("list") {
                     ListScreen(
-                        questionsUiState = uiState,
+                        questionsViewModel = questionsViewModel,
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },

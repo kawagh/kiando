@@ -95,6 +95,19 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
+    fun setTabRowIndex(index: Int) {
+        uiState = uiState.copy(tabRowIndex = index)
+    }
+
+    fun setBottomBarIndex(index: Int) {
+        uiState = uiState.copy(bottomBarIndex = index)
+    }
+
+    fun toggleTagEditMode() {
+        uiState = uiState.copy(isTagEditMode = !uiState.isTagEditMode)
+    }
+
+
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.add(tag)
@@ -164,5 +177,8 @@ class QuestionsViewModel @Inject constructor(
 
 data class QuestionsUiState(
     val questionsWithTags: List<QuestionWithTags> = emptyList(),
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    val tabRowIndex: Int = 0,
+    val bottomBarIndex: Int = 0,
+    val isTagEditMode: Boolean = false
 )

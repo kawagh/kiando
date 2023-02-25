@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
@@ -32,16 +31,16 @@ import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
 
-@Preview
-@Composable
-fun PreviewListScreen() {
-    ListScreen(
-        QuestionsUiState(
-            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
-        ),
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
-
-}
+//@Preview
+//@Composable
+//fun PreviewListScreen() {
+//    ListScreen(
+//        QuestionsUiState(
+//            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
+//        ),
+//        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
+//
+//}
 
 enum class TabItem {
     All,
@@ -56,7 +55,7 @@ enum class BottomBarItems(val title: String, val icon: ImageVector) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    questionsUiState: QuestionsUiState,
+    questionsViewModel: QuestionsViewModel,
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
@@ -70,14 +69,9 @@ fun ListScreen(
     handleToggleCrossRef: (Question, Tag) -> Unit,
     handleRemoveTagById: (Int) -> Unit
 ) {
-    var tabRowIndex by remember {
-        mutableStateOf(0)
-    }
-    var bottomBarIndex by remember {
-        mutableStateOf(0)
-    }
+    val questionsUiState = questionsViewModel.uiState
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
-        navigateToQuestion(it, tabRowIndex)
+        navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
 
     var hideDefaultQuestions by remember {
@@ -86,7 +80,7 @@ fun ListScreen(
     var selectedFilterTag: Tag? by remember {
         mutableStateOf(null)
     }
-    val questionsToDisplay = when (TabItem.values()[tabRowIndex]) {
+    val questionsToDisplay = when (TabItem.values()[questionsUiState.tabRowIndex]) {
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
@@ -117,9 +111,6 @@ fun ListScreen(
     /**
      * states for tags
      */
-    var isTagEditMode by remember {
-        mutableStateOf(false)
-    }
     var tagNameInput by remember {
         mutableStateOf("")
     }
@@ -197,9 +188,9 @@ fun ListScreen(
             topBar = {
                 TopAppBar(title = {
                     Text(
-                        when (BottomBarItems.values()[bottomBarIndex]) {
+                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                             BottomBarItems.Questions -> "問題一覧"
-                            BottomBarItems.Tags -> if (isTagEditMode) {
+                            BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
                                 "タグ編集"
                             } else {
                                 "タグ一覧"
@@ -213,7 +204,7 @@ fun ListScreen(
                         }
                     },
                     actions = {
-                        when (BottomBarItems.values()[bottomBarIndex]) {
+                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                             BottomBarItems.Questions -> {
                                 if (dropDownMenuItems.isNotEmpty()) {
                                     IconToggleButton(
@@ -234,8 +225,8 @@ fun ListScreen(
 
                             BottomBarItems.Tags -> {
                                 IconToggleButton(
-                                    checked = isTagEditMode,
-                                    onCheckedChange = { isTagEditMode = !isTagEditMode }) {
+                                    checked = questionsUiState.isTagEditMode,
+                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }) {
                                     Icon(Icons.Default.Edit, "edit tags")
                                 }
                             }
@@ -247,8 +238,8 @@ fun ListScreen(
                 NavigationBar {
                     BottomBarItems.values().forEachIndexed { index, bottomBarItem ->
                         NavigationBarItem(
-                            selected = bottomBarIndex == index,
-                            onClick = { bottomBarIndex = index },
+                            selected = questionsUiState.bottomBarIndex == index,
+                            onClick = { questionsViewModel.setBottomBarIndex(index) },
                             label = { Text(bottomBarItem.title) },
                             icon = { Icon(bottomBarItem.icon, null) })
 
@@ -256,7 +247,7 @@ fun ListScreen(
                 }
             }
         ) { paddingValues ->
-            when (BottomBarItems.values()[bottomBarIndex]) {
+            when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                 BottomBarItems.Questions -> {
                     Column(
                         modifier = Modifier
@@ -264,11 +255,11 @@ fun ListScreen(
                             .padding(paddingValues),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        TabRow(selectedTabIndex = tabRowIndex) {
+                        TabRow(selectedTabIndex = questionsUiState.tabRowIndex) {
                             TabItem.values().forEachIndexed { index, tab ->
                                 Tab(
-                                    selected = tabRowIndex == index,
-                                    onClick = { tabRowIndex = index }) {
+                                    selected = questionsUiState.tabRowIndex == index,
+                                    onClick = { questionsViewModel.setTabRowIndex(index) }) {
                                     Text(
                                         tab.name,
                                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -307,7 +298,7 @@ fun ListScreen(
                     val tagIdsToDelete = remember {
                         mutableStateListOf<Int>()
                     }
-                    if (isTagEditMode) {
+                    if (questionsUiState.isTagEditMode) {
                         LazyColumn(
                             Modifier
                                 .padding(paddingValues)
