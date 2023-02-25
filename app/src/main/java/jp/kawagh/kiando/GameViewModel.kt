@@ -37,14 +37,6 @@ class GameViewModel @AssistedInject constructor(
         }
     }
 
-
-    fun loadQuestion(questionId: Int) {
-//        boardState = db.qustionDao().findById(questionId).boardState.toMutableStateList()
-        boardState = sampleQuestions[questionId].boardState.toMutableStateList()
-        komadaiState = listOf<PieceKind>().toMutableStateList()
-
-    }
-
     fun loadSFEN(sfen: String) {
         boardState = SFENConverter().convertFrom(sfen).toMutableStateList()
         komadaiState = emptyList<PieceKind>().toMutableStateList()
@@ -60,7 +52,8 @@ class GameViewModel @AssistedInject constructor(
             else ->
                 when (boardState[fromIndex].isEnemy) {
                     true ->
-                        !boardState[fromIndex].isPromoted && (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+                        !boardState[fromIndex].isPromoted &&
+                                (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
 
                     false ->
                         !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
@@ -75,8 +68,8 @@ class GameViewModel @AssistedInject constructor(
         if (fromIndex == toIndex) return
         // 駒台からの打ち込み
         if (isMoveFromKomadai(move)) {
-            val pieceKind: PieceKind = PieceKind.values()[move.from.column]
             if (boardState[posToIndex(move.to)].pieceKind != PieceKind.EMPTY) return
+            val pieceKind: PieceKind = PieceKind.values()[move.from.column]
             when (move.from.row) {
                 -1 -> {
                     boardState[toIndex] =
@@ -92,15 +85,12 @@ class GameViewModel @AssistedInject constructor(
 
                 }
             }
-            return
-        }
-
-        val panelState = boardState[fromIndex]
-        if (isValidMove(move, panelState)) {
+        } else if (isValidMove(move, boardState[fromIndex])) {
             if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
-                when (boardState[toIndex].isEnemy) {
-                    true -> komadaiState.add(boardState[toIndex].pieceKind)
-                    false -> enemyKomadaiState.add(boardState[toIndex].pieceKind)
+                if (boardState[toIndex].isEnemy) {
+                    komadaiState.add(boardState[toIndex].pieceKind)
+                } else {
+                    enemyKomadaiState.add(boardState[toIndex].pieceKind)
                 }
             }
             boardState[toIndex] =
@@ -148,8 +138,7 @@ class GameViewModel @AssistedInject constructor(
                     boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
                             || (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
                     )
-        }
-    }
+        } }
 
     fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> =
         // TODO 二歩,進行方向なしの考慮
@@ -161,24 +150,18 @@ class GameViewModel @AssistedInject constructor(
         val originalRow = panelState.row
         val originalColumn = panelState.column
         // negate offset
-        val results = when (panelState.pieceKind) {
-            PieceKind.EMPTY -> {
-                return listOf()
-            }
+        return when (panelState.pieceKind) {
+            PieceKind.EMPTY -> emptyList()
 
-            PieceKind.PAWN ->
-                when (panelState.isPromoted) {
-                    true -> goldMoves(panelState)
-                    false -> {
-                        when (panelState.isEnemy) {
-                            true -> listOf(Position(originalRow + 1, originalColumn))
-                                .filterMovable(panelState)
-
-                            false -> listOf(Position(originalRow - 1, originalColumn))
-                                .filterMovable(panelState)
-                        }
-                    }
+            PieceKind.PAWN -> {
+                if (panelState.isPromoted) {
+                    goldMoves(panelState)
+                } else {
+                    val sign = if (panelState.isEnemy) -1 else 1
+                    listOf(Position(originalRow - sign, originalColumn))
+                        .filterMovable(panelState)
                 }
+            }
 
             PieceKind.KING -> (-1..1).map { dx ->
                 (-1..1).map { dy ->
@@ -214,7 +197,7 @@ class GameViewModel @AssistedInject constructor(
                     }.filterMovable(panelState)
                     nextPositions.addAll(additionalMoves)
                 }
-                return nextPositions.toList()
+                nextPositions.toList()
             }
 
             PieceKind.BISHOP -> {
@@ -248,59 +231,52 @@ class GameViewModel @AssistedInject constructor(
                     }.filterMovable(panelState)
                     nextPositions.addAll(additionalMoves)
                 }
-
-                return nextPositions.toList()
+                nextPositions.toList()
             }
 
             PieceKind.GOLD -> goldMoves(panelState)
-            PieceKind.SILVER -> when (panelState.isPromoted) {
-                false -> {
-                    val sign = if (panelState.isEnemy) -1 else 1
-                    listOf(
-                        Position(originalRow - sign * 1, originalColumn - 1),
-                        Position(originalRow - sign * 1, originalColumn),
-                        Position(originalRow - sign * 1, originalColumn + 1),
-                        Position(originalRow + sign * 1, originalColumn + 1),
-                        Position(originalRow + sign * 1, originalColumn - 1),
-                    )
-                        .filterMovable(panelState)
-                }
-
-                true -> goldMoves(panelState)
+            PieceKind.SILVER -> if (panelState.isPromoted) {
+                goldMoves(panelState)
+            } else {
+                val sign = if (panelState.isEnemy) -1 else 1
+                listOf(
+                    Position(originalRow - sign * 1, originalColumn - 1),
+                    Position(originalRow - sign * 1, originalColumn),
+                    Position(originalRow - sign * 1, originalColumn + 1),
+                    Position(originalRow + sign * 1, originalColumn + 1),
+                    Position(originalRow + sign * 1, originalColumn - 1),
+                )
+                    .filterMovable(panelState)
             }
 
-            PieceKind.KNIGHT -> when (panelState.isPromoted) {
-                true -> goldMoves(panelState)
-                false -> {
-                    val sign = if (panelState.isEnemy) -1 else 1
-                    listOf(
-                        Position(originalRow - sign * 2, originalColumn + 1),
-                        Position(originalRow - sign * 2, originalColumn - 1),
-                    ).filterMovable(panelState)
-                }
+            PieceKind.KNIGHT -> if (panelState.isPromoted) {
+                goldMoves(panelState)
+            } else {
+                val sign = if (panelState.isEnemy) -1 else 1
+                listOf(
+                    Position(originalRow - sign * 2, originalColumn + 1),
+                    Position(originalRow - sign * 2, originalColumn - 1),
+                ).filterMovable(panelState)
             }
 
             PieceKind.LANCE ->
-                when (panelState.isPromoted) {
-                    true -> goldMoves(panelState)
-                    false -> {
-                        val nextPositions = mutableListOf<Position>()
-                        val sign = if (panelState.isEnemy) -1 else 1
-                        for (length in 1 until BOARD_SIZE) {
-                            val nextPosition = Position(originalRow - sign * length, originalColumn)
-                            if (!isInside(nextPosition)) break
-                            if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                                || boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
-                            ) {
-                                nextPositions.add(nextPosition)
-                            }
-                            if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
+                if (panelState.isPromoted) {
+                    goldMoves(panelState)
+                } else {
+                    val nextPositions = mutableListOf<Position>()
+                    val sign = if (panelState.isEnemy) -1 else 1
+                    for (length in 1 until BOARD_SIZE) {
+                        val nextPosition = Position(originalRow - sign * length, originalColumn)
+                        if (!isInside(nextPosition)) break
+                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
+                            || boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
+                        ) {
+                            nextPositions.add(nextPosition)
                         }
-                        return nextPositions.toList()
-
+                        if (boardState[posToIndex(nextPosition)].pieceKind != PieceKind.EMPTY) break
                     }
+                    nextPositions.toList()
                 }
         }
-        return results
     }
 }

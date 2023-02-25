@@ -1,15 +1,54 @@
 package jp.kawagh.kiando
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.TextRotateVertical
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
@@ -20,7 +59,7 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     gameViewModel: GameViewModel,
@@ -194,21 +233,34 @@ fun MainScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
+                title = {
+                    Text(
+                        text = if (isRegisterQuestionMode) {
+                            "問題登録"
+                        } else {
+                            question.description
+                        }
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = navigateToList) {
                         Icon(Icons.Filled.ArrowBack, "back to the list")
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        shouldShowSFENInput = !shouldShowSFENInput
-                    }) {
-                        Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
+                    if (isRegisterQuestionMode) {
+                        IconToggleButton(
+                            checked = shouldShowSFENInput,
+                            onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }) {
+                            Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
+
+                        }
                     }
                     IconButton(onClick = {
                         if (!isRegisterQuestionMode) {
                             moveToRegister = NonMove
+                        } else {
+                            shouldShowSFENInput = false
                         }
                         isRegisterQuestionMode = !isRegisterQuestionMode
                         // modeに入った時点の局面を保持する
@@ -228,51 +280,6 @@ fun MainScreen(
                 }
             )
         },
-        floatingActionButton = {
-            if (isRegisterQuestionMode) {
-                val newQuestion = Question(
-                    id = 0,
-                    description = inputQuestionDescription,
-                    answerMove = moveToRegister,
-                    sfen = inputSFEN,
-                    komadaiSfen = inputKomadaiSFEN,
-                )
-                FloatingActionButton(onClick = {
-                    when (validateQuestion(newQuestion)) {
-                        QuestionValidationResults.EmptyDescription -> {
-                            snackbarCoroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "🆖 empty description"
-                                )
-                            }
-                        }
-
-                        QuestionValidationResults.NeedMove -> {
-                            snackbarCoroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "🆖 need move"
-                                )
-                            }
-
-                        }
-
-                        QuestionValidationResults.Valid -> {
-                            gameViewModel.saveQuestion(newQuestion)
-                            snackbarCoroutineScope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "🆗 saved"
-                                )
-                            }
-                            isRegisterQuestionMode = false
-                            moveToRegister = NonMove
-                            inputQuestionDescription = ""
-                        }
-                    }
-                }) {
-                    Icon(Icons.Filled.Add, contentDescription = "register new Question")
-                }
-            }
-        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -330,8 +337,10 @@ fun MainScreen(
                 handleKomadaiClick
             )
 
-            if (shouldShowSFENInput) {
-                val clipboardManager = LocalClipboardManager.current
+            val clipboardManager = LocalClipboardManager.current
+            val context = LocalContext.current
+            Spacer(modifier = Modifier.size(8.dp))
+            AnimatedVisibility(visible = shouldShowSFENInput) {
                 Row {
                     TextField(
                         value = inputSFEN,
@@ -349,7 +358,10 @@ fun MainScreen(
                                         }
                                         )
                                         snackbarCoroutineScope.launch {
-                                            snackbarHostState.showSnackbar("copied $inputSFEN")
+                                            snackbarHostState
+                                                .showSnackbar(
+                                                    context.getString(R.string.sfen_copy)
+                                                )
                                         }
                                     },
                                     enabled = inputSFEN.isNotEmpty(),
@@ -366,6 +378,12 @@ fun MainScreen(
                                         isRegisterQuestionMode = false
                                         isRegisterQuestionMode = true // invoke recompose
                                         inputKomadaiSFEN = "" // TODO parse komadai from sfen
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState
+                                                .showSnackbar(
+                                                    context.getString(R.string.sfen_load)
+                                                )
+                                        }
                                     },
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
@@ -376,7 +394,9 @@ fun MainScreen(
                                 }
                             }
                         },
-                        modifier = Modifier.semantics { contentDescription = "SFEN input form" }
+                        modifier = Modifier
+                            .semantics { contentDescription = "SFEN input form" }
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -384,50 +404,110 @@ fun MainScreen(
                 true -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = if (moveToRegister == NonMove) {
-                            "Do move to register"
+                            "登録する手を指してください"
                         } else {
                             val pieceKind =
-                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE + moveToRegister.to.column].pieceKind
+                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE
+                                        + moveToRegister.to.column].pieceKind
                             "登録手: ${moveToRegister.toReadable(pieceKind)}"
                         },
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
                     )
-                    TextField(
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    OutlinedTextField(
                         value = inputQuestionDescription,
                         onValueChange = { inputQuestionDescription = it },
                         label = {
-                            Text(text = "Input question description")
+                            Text(text = "問題名")
                         },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                val newQuestion = Question(
+                                    id = 0,
+                                    description = inputQuestionDescription,
+                                    answerMove = moveToRegister,
+                                    sfen = inputSFEN,
+                                    komadaiSfen = inputKomadaiSFEN,
+                                )
+                                when (validateQuestion(newQuestion)) {
+                                    QuestionValidationResults.EmptyDescription -> {
+                                        keyboardController?.hide() // to avoid keyboard on snackbar
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "🆖 empty description"
+                                            )
+                                        }
+                                    }
+
+                                    QuestionValidationResults.NeedMove -> {
+                                        keyboardController?.hide()
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "🆖 need move"
+                                            )
+                                        }
+
+                                    }
+
+                                    QuestionValidationResults.Valid -> {
+                                        keyboardController?.hide()
+                                        gameViewModel.saveQuestion(newQuestion)
+                                        snackbarCoroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "🆗 saved"
+                                            )
+                                        }
+                                        isRegisterQuestionMode = false
+                                        moveToRegister = NonMove
+                                        inputQuestionDescription = ""
+                                    }
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "register question"
+                                )
+                            }
+                        }
                     )
                 }
 
                 false -> Column() {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = question.description,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(20.dp)
-                        )
-                        IconButton(
+                        OutlinedButton(
                             onClick = {
                                 navigateToPrevQuestion.invoke()
                             },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                         ) {
-                            Icon(Icons.Default.SkipPrevious, "back to prev question")
+                            Icon(
+                                Icons.Default.SkipPrevious,
+                                contentDescription = "back to prev question",
+                                modifier = Modifier.size(
+                                    ButtonDefaults.IconSize
+                                )
+                            )
+                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("前の問題へ")
                         }
-                        IconButton(
+                        OutlinedButton(
                             onClick = {
                                 navigateToNextQuestion.invoke()
                             },
-                            modifier = Modifier.padding(10.dp)
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                         ) {
-                            Icon(Icons.Default.SkipNext, "go to next question")
+                            Text("次の問題へ")
+                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                            Icon(
+                                Icons.Default.SkipNext,
+                                contentDescription = "back to prev question",
+                                modifier = Modifier.size(
+                                    ButtonDefaults.IconSize
+                                )
+                            )
                         }
                     }
                     if (shouldShowAnswerButton) {
@@ -435,8 +515,11 @@ fun MainScreen(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Button(onClick = handleShowAnswerClick) {
-                                Text(text = "show answer")
+                            OutlinedButton(
+                                onClick = handleShowAnswerClick,
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
+                            ) {
+                                Text(text = "回答を表示")
                             }
                         }
                     }

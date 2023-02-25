@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">kiando</string>
     <string name="no_filter_name">条件なし</string>
+    <string name="sfen_copy">クリップボードに局面のSFENをコピーしました</string>
+    <string name="sfen_load">SFENを局面に反映させました</string>
 </resources>

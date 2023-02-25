@@ -5,6 +5,13 @@ style:
     active: false
   UnusedPrivateMember:
     ignoreAnnotated: [ 'Preview' ]
+  WildcardImport:
+    active: false
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    ignoreAnnotated: [ 'Query' ]
+
 naming:
   FunctionNaming:
     ignoreAnnotated: [ 'Composable' ]

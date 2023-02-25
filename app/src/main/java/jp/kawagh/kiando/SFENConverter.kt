@@ -40,6 +40,7 @@ class SFENConverter {
                 PieceKind.EMPTY -> {
                     emptyCount++
                 }
+
                 else -> {
                     if (emptyCount != 0) {
                         sb.append(emptyCount.toString())
@@ -69,26 +70,22 @@ class SFENConverter {
     fun convertKomadaiFrom(komadaiSFEN: String): Pair<List<PieceKind>, List<PieceKind>> {
         val myKomadai = mutableListOf<PieceKind>()
         val enemyKomadai = mutableListOf<PieceKind>()
-        var count = 0
+        var count = 1
         for (ch in komadaiSFEN) {
             when (ch) {
                 in '1'..'9' -> {
                     count = ch - '0'
                 }
+
                 in mapping.keys -> {
                     if (ch.isUpperCase()) {
-                        if (count == 0) enemyKomadai.add(mapping[ch]!!.first)
-                        else {
-                            enemyKomadai.addAll(List(count) { mapping[ch]!!.first })
-                        }
+                        enemyKomadai.addAll(List(count) { mapping[ch]!!.first })
                     } else {
-                        if (count == 0) myKomadai.add(mapping[ch]!!.first)
-                        else {
-                            myKomadai.addAll(List(count) { mapping[ch]!!.first })
-                        }
+                        myKomadai.addAll(List(count) { mapping[ch]!!.first })
                     }
-                    count = 0
+                    count = 1
                 }
+
                 else -> {} // unreachable
             }
         }
@@ -132,6 +129,7 @@ class SFENConverter {
                 '+' -> {
                     isPromoted = true
                 }
+
                 in mapping.keys -> {
                     board[i] = PanelState(
                         i / BOARD_SIZE,
@@ -143,6 +141,7 @@ class SFENConverter {
                     isPromoted = false
                     i += 1
                 }
+
                 in '1'..'9' -> {
                     val digit: Int = ch - '0'
                     repeat(digit) {
@@ -156,6 +155,7 @@ class SFENConverter {
                     }
                     i += digit
                 }
+
                 ' ' -> break //盤面以降は読み込まない
             }
         }

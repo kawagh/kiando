@@ -1,53 +1,46 @@
 package jp.kawagh.kiando
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
-import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
 
-@Preview
-@Composable
-fun PreviewListScreen() {
-    ListScreen(
-        QuestionsUiState(
-            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
-        ),
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} })
-
-}
+//@Preview
+//@Composable
+//fun PreviewListScreen() {
+//    ListScreen(
+//        QuestionsUiState(
+//            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
+//        ),
+//        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
+//
+//}
 
 enum class TabItem {
     All,
@@ -62,26 +55,23 @@ enum class BottomBarItems(val title: String, val icon: ImageVector) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
-    questionsUiState: QuestionsUiState,
+    questionsViewModel: QuestionsViewModel,
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
-    handleRenameAQuestion: (Question) -> Unit,
+    handleRenameQuestion: (Question) -> Unit,
+    handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
     handleInsertSampleQuestions: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
     handleToggleCrossRef: (Question, Tag) -> Unit,
+    handleRemoveTagById: (Int) -> Unit
 ) {
-    var tabRowIndex by remember {
-        mutableStateOf(0)
-    }
-    var bottomBarIndex by remember {
-        mutableStateOf(0)
-    }
+    val questionsUiState = questionsViewModel.uiState
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
-        navigateToQuestion(it, tabRowIndex)
+        navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
 
     var hideDefaultQuestions by remember {
@@ -90,7 +80,7 @@ fun ListScreen(
     var selectedFilterTag: Tag? by remember {
         mutableStateOf(null)
     }
-    val questionsToDisplay = when (TabItem.values()[tabRowIndex]) {
+    val questionsToDisplay = when (TabItem.values()[questionsUiState.tabRowIndex]) {
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
@@ -198,9 +188,13 @@ fun ListScreen(
             topBar = {
                 TopAppBar(title = {
                     Text(
-                        when (BottomBarItems.values()[bottomBarIndex]) {
+                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                             BottomBarItems.Questions -> "問題一覧"
-                            BottomBarItems.Tags -> "タグ一覧"
+                            BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
+                                "タグ編集"
+                            } else {
+                                "タグ一覧"
+                            }
                         }
                     )
                 },
@@ -210,18 +204,32 @@ fun ListScreen(
                         }
                     },
                     actions = {
-                        if (dropDownMenuItems.isNotEmpty()) {
-                            IconToggleButton(
-                                checked = selectedFilterTag is Tag,
-                                onCheckedChange = { dropDownExpanded = !dropDownExpanded }) {
-                                Icon(Icons.Default.FilterAlt, null)
+                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
+                            BottomBarItems.Questions -> {
+                                if (dropDownMenuItems.isNotEmpty()) {
+                                    IconToggleButton(
+                                        checked = selectedFilterTag is Tag,
+                                        onCheckedChange = {
+                                            dropDownExpanded = !dropDownExpanded
+                                        }) {
+                                        Icon(Icons.Default.FilterAlt, null)
+                                    }
+                                    DropdownMenuOnTopBar(
+                                        dropDownMenuItems,
+                                        expanded = dropDownExpanded,
+                                        selectedName = selectedFilterTag?.title
+                                            ?: stringResource(id = R.string.no_filter_name),
+                                        setExpanded = { dropDownExpanded = it })
+                                }
                             }
-                            DropdownMenuOnTopBar(
-                                dropDownMenuItems,
-                                expanded = dropDownExpanded,
-                                selectedName = selectedFilterTag?.title
-                                    ?: stringResource(id = R.string.no_filter_name),
-                                setExpanded = { dropDownExpanded = it })
+
+                            BottomBarItems.Tags -> {
+                                IconToggleButton(
+                                    checked = questionsUiState.isTagEditMode,
+                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }) {
+                                    Icon(Icons.Default.Edit, "edit tags")
+                                }
+                            }
                         }
                     }
                 )
@@ -230,8 +238,8 @@ fun ListScreen(
                 NavigationBar {
                     BottomBarItems.values().forEachIndexed { index, bottomBarItem ->
                         NavigationBarItem(
-                            selected = bottomBarIndex == index,
-                            onClick = { bottomBarIndex = index },
+                            selected = questionsUiState.bottomBarIndex == index,
+                            onClick = { questionsViewModel.setBottomBarIndex(index) },
                             label = { Text(bottomBarItem.title) },
                             icon = { Icon(bottomBarItem.icon, null) })
 
@@ -239,7 +247,7 @@ fun ListScreen(
                 }
             }
         ) { paddingValues ->
-            when (BottomBarItems.values()[bottomBarIndex]) {
+            when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                 BottomBarItems.Questions -> {
                     Column(
                         modifier = Modifier
@@ -247,11 +255,11 @@ fun ListScreen(
                             .padding(paddingValues),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        TabRow(selectedTabIndex = tabRowIndex) {
+                        TabRow(selectedTabIndex = questionsUiState.tabRowIndex) {
                             TabItem.values().forEachIndexed { index, tab ->
                                 Tab(
-                                    selected = tabRowIndex == index,
-                                    onClick = { tabRowIndex = index }) {
+                                    selected = questionsUiState.tabRowIndex == index,
+                                    onClick = { questionsViewModel.setTabRowIndex(index) }) {
                                     Text(
                                         tab.name,
                                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -277,8 +285,8 @@ fun ListScreen(
                             QuestionsList(
                                 questionsWithTags = questionsToDisplay,
                                 navigateToQuestion = navigateToQuestionWithTabIndex,
-                                handleDeleteAQuestion = handleDeleteAQuestion,
-                                handleRenameAQuestion = handleRenameAQuestion,
+                                handleDeleteQuestion = handleDeleteAQuestion,
+                                handleRenameQuestion = handleRenameQuestion,
                                 handleFavoriteQuestion = handleFavoriteQuestion,
                             )
                         }
@@ -287,115 +295,181 @@ fun ListScreen(
                 }
 
                 BottomBarItems.Tags -> {
-                    LazyColumn(
-                        Modifier
-                            .padding(paddingValues)
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        item {
-                            OutlinedTextField(
-                                value = tagNameInput,
-                                onValueChange = { tagNameInput = it },
-                                label = { Text("tag") },
-                                trailingIcon = {
-                                    IconButton(onClick = {
-                                        if (tagNameInput.isNotEmpty()) {
-                                            handleAddTag(Tag(title = tagNameInput))
-                                        }
-                                    }) {
-                                        Icon(Icons.Default.Add, null)
-                                    }
-                                },
-                                modifier = Modifier
+                    val tagIdsToDelete = remember {
+                        mutableStateListOf<Int>()
+                    }
+                    if (questionsUiState.isTagEditMode) {
+                        LazyColumn(
+                            Modifier
+                                .padding(paddingValues)
+                                .padding(horizontal = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            items(questionsUiState.tags) {
+                                Card(modifier = Modifier
                                     .fillMaxWidth()
-                            )
+                                    .height(60.dp)
+                                    .padding(vertical = 4.dp)
+                                    .clickable { handleRenameTag(it) }
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Row {
+                                            Text(
+                                                it.title,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                modifier = Modifier.padding(start = 4.dp)
+                                            )
+                                        }
+                                        Row(
+                                            horizontalArrangement = Arrangement.End,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Checkbox(
+                                                checked = tagIdsToDelete.contains(it.id),
+                                                onCheckedChange = { on ->
+                                                    if (on) {
+                                                        tagIdsToDelete.add(it.id)
+                                                    } else {
+                                                        tagIdsToDelete.remove(it.id)
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
 
-                        }
-
-
-                        item {
-                            Spacer(modifier = Modifier.size(24.dp))
-                            Divider()
-                            Spacer(modifier = Modifier.size(24.dp))
-                        }
-
-                        item {
-                            ExposedDropdownMenuBox(
-                                expanded = questionsDropdownExpanded,
-                                onExpandedChange = {
-                                    questionsDropdownExpanded = !questionsDropdownExpanded
-                                }) {
-                                OutlinedTextField(
-                                    value = selectedQuestion?.description ?: "問題を選択してください",
-                                    onValueChange = {},
-                                    label = { Text("問題") },
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(
-                                            expanded = questionsDropdownExpanded
-                                        )
+                            item {
+                                Button(
+                                    onClick = {
+                                        tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                                        tagIdsToDelete.clear()
                                     },
-                                    readOnly = true,
+                                    enabled = tagIdsToDelete.isNotEmpty(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Red
+                                    )
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete, null,
+                                        modifier = Modifier.size(
+                                            ButtonDefaults.IconSize
+                                        )
+                                    )
+                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                                    Text("選択したタグを削除")
+                                }
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            Modifier
+                                .padding(paddingValues)
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            item {
+                                OutlinedTextField(
+                                    value = tagNameInput,
+                                    onValueChange = { tagNameInput = it },
+                                    label = { Text("tag") },
+                                    trailingIcon = {
+                                        IconButton(onClick = {
+                                            if (tagNameInput.isNotEmpty()) {
+                                                handleAddTag(Tag(title = tagNameInput))
+                                            }
+                                        }) {
+                                            Icon(Icons.Default.Add, null)
+                                        }
+                                    },
                                     modifier = Modifier
-                                        .menuAnchor()
                                         .fillMaxWidth()
                                 )
-                                ExposedDropdownMenu(
+
+                            }
+
+
+                            item {
+                                Spacer(modifier = Modifier.size(24.dp))
+                                Divider()
+                                Spacer(modifier = Modifier.size(24.dp))
+                            }
+
+                            item {
+                                ExposedDropdownMenuBox(
                                     expanded = questionsDropdownExpanded,
-                                    onDismissRequest = { questionsDropdownExpanded = false }) {
-                                    questionOptions.forEach {
-                                        DropdownMenuItem(
-                                            text = { Text(it.description) },
-                                            onClick = {
-                                                selectedQuestion = it
-                                                questionsDropdownExpanded = false
-                                            },
-                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                        )
+                                    onExpandedChange = {
+                                        questionsDropdownExpanded = !questionsDropdownExpanded
+                                    }) {
+                                    OutlinedTextField(
+                                        value = selectedQuestion?.description ?: "問題を選択してください",
+                                        onValueChange = {},
+                                        label = { Text("問題") },
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                                expanded = questionsDropdownExpanded
+                                            )
+                                        },
+                                        readOnly = true,
+                                        modifier = Modifier
+                                            .menuAnchor()
+                                            .fillMaxWidth()
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = questionsDropdownExpanded,
+                                        onDismissRequest = { questionsDropdownExpanded = false }) {
+                                        questionOptions.forEach {
+                                            DropdownMenuItem(
+                                                text = { Text(it.description) },
+                                                onClick = {
+                                                    selectedQuestion = it
+                                                    questionsDropdownExpanded = false
+                                                },
+                                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                            )
+                                        }
+                                    }
+
+                                }
+                            }
+
+                            item { Text("tags") }
+
+                            item {
+                                val handleTagClick: (Tag) -> Unit = { tag ->
+                                    selectedQuestion?.let {
+                                        handleToggleCrossRef(it, tag)
+                                    }
+
+                                }
+                                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    if (selectedQuestion == null) {
+                                        items(questionsUiState.tags) {
+                                            TagChip(tag = it, { handleTagClick(it) })
+                                        }
+                                    } else {
+                                        val tagsAttachedSelectedQuestions =
+                                            questionsUiState.questionsWithTags
+                                                .find { it.question == selectedQuestion }?.tags
+                                                ?: emptyList()
+                                        items(questionsUiState.tags) {
+                                            TagChip(
+                                                tag = it,
+                                                onClick = { handleTagClick(it) },
+                                                rippleEnabled = true,
+                                                containerColor = if (tagsAttachedSelectedQuestions.contains(
+                                                        it
+                                                    )
+                                                ) {
+                                                    CardColor
+                                                } else {
+                                                    Color.Transparent
+                                                },
+                                            )
+                                        }
                                     }
                                 }
-
                             }
                         }
-
-                        item { Text("tags") }
-
-                        item {
-                            val handleTagClick: (Tag) -> Unit = { tag ->
-                                selectedQuestion?.let {
-                                    handleToggleCrossRef(it, tag)
-                                }
-
-                            }
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (selectedQuestion == null) {
-                                    items(questionsUiState.tags) {
-                                        TagChip(tag = it, { handleTagClick(it) })
-                                    }
-                                } else {
-                                    val tagsAttachedSelectedQuestions =
-                                        questionsUiState.questionsWithTags
-                                            .find { it.question == selectedQuestion }?.tags
-                                            ?: emptyList()
-                                    items(questionsUiState.tags) {
-                                        TagChip(
-                                            tag = it,
-                                            onClick = { handleTagClick(it) },
-                                            rippleEnabled = true,
-                                            containerColor = if (tagsAttachedSelectedQuestions.contains(
-                                                    it
-                                                )
-                                            ) {
-                                                CardColor
-                                            } else {
-                                                Color.Transparent
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-
-                        }
-
                     }
                 }
             }
@@ -434,8 +508,8 @@ fun DropdownMenuOnTopBar(
 fun QuestionsList(
     questionsWithTags: List<QuestionWithTags>,
     navigateToQuestion: (Question) -> Unit,
-    handleDeleteAQuestion: (Question) -> Unit,
-    handleRenameAQuestion: (Question) -> Unit,
+    handleDeleteQuestion: (Question) -> Unit,
+    handleRenameQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
@@ -443,69 +517,11 @@ fun QuestionsList(
             QuestionWithTagsCard(
                 questionWithTags = questionWithTags,
                 onClick = { navigateToQuestion(questionWithTags.question) },
-                handleDeleteAQuestion = { handleDeleteAQuestion(questionWithTags.question) },
+                handleDeleteQuestion = { handleDeleteQuestion(questionWithTags.question) },
                 handleFavoriteQuestion = { handleFavoriteQuestion(questionWithTags.question) },
-                handleRenameAQuestion = { handleRenameAQuestion(questionWithTags.question) },
+                handleRenameQuestion = { handleRenameQuestion(questionWithTags.question) },
             )
             Spacer(Modifier.size(5.dp))
         }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun QuestionRow(
-    question: Question, onClick: () -> Unit,
-    handleDeleteAQuestion: () -> Unit,
-    handleFavoriteQuestion: () -> Unit,
-) {
-    var showButtons by remember {
-        mutableStateOf(false)
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(20.dp))
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = { showButtons = !showButtons },
-            )
-            .background(BoardColor),
-        horizontalArrangement = if (showButtons) Arrangement.Start else Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    )
-    {
-        if (showButtons) {
-            IconButton(
-                onClick = { handleFavoriteQuestion.invoke() },
-            ) {
-                Icon(
-                    if (question.isFavorite) Icons.Default.Star else Icons.Default.Remove,
-                    "toggle favorite",
-                )
-            }
-            IconButton(onClick = {
-                handleDeleteAQuestion.invoke()
-                showButtons = false
-            }) {
-                Icon(Icons.Default.Delete, "delete")
-            }
-        }
-        Text(text = question.description, fontSize = MaterialTheme.typography.titleLarge.fontSize)
-    }
-}
-
-@Composable
-fun StableQuestionRow(question: Question, onClick: () -> Unit, handleDeleteAQuestion: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .width(300.dp)
-            .clip(shape = RoundedCornerShape(20.dp))
-            .clickable { onClick.invoke() }
-            .background(BoardColor),
-        horizontalArrangement = Arrangement.Center,
-    )
-    {
-        Text(text = question.description, fontSize = MaterialTheme.typography.titleLarge.fontSize)
     }
 }

@@ -13,8 +13,10 @@ interface Repository {
     val questions: Flow<List<Question>>
     val questionsWithTags: Flow<List<QuestionWithTags>>
     val tags: Flow<List<Tag>>
-    fun findById(questionId: Int): Question
-    fun deleteById(questionId: Int)
+    fun findQuestionById(questionId: Int): Question
+    fun findTagById(tagId: Int): Tag
+    fun deleteQuestionById(questionId: Int)
+    fun deleteTagById(tagId: Int)
     fun deleteAllQuestions()
     fun deleteAllTags()
     fun deleteAllCrossRef()
@@ -23,6 +25,7 @@ interface Repository {
     suspend fun add(crossRef: QuestionTagCrossRef)
     suspend fun toggle(crossRef: QuestionTagCrossRef)
     fun updateQuestion(question: Question)
+    fun updateTag(tag: Tag)
 }
 
 class FakeRepository @Inject constructor() : Repository {
@@ -32,12 +35,20 @@ class FakeRepository @Inject constructor() : Repository {
     override val tags: Flow<List<Tag>>
         get() = TODO("Not yet implemented")
 
-    override fun findById(questionId: Int): Question {
+    override fun findQuestionById(questionId: Int): Question {
         throw NotImplementedError()
     }
 
-    override fun deleteById(questionId: Int) {
+    override fun findTagById(tagId: Int): Tag {
+        TODO("Not yet implemented")
+    }
+
+    override fun deleteQuestionById(questionId: Int) {
         throw NotImplementedError()
+    }
+
+    override fun deleteTagById(tagId: Int) {
+        TODO("Not yet implemented")
     }
 
     override fun deleteAllQuestions() {
@@ -72,5 +83,9 @@ class FakeRepository @Inject constructor() : Repository {
 
     override fun updateQuestion(question: Question) {
         throw NotImplementedError()
+    }
+
+    override fun updateTag(tag: Tag) {
+        TODO("Not yet implemented")
     }
 }

@@ -75,29 +75,30 @@ data class QuestionWithTags(
     val tags: List<Tag>
 )
 
-val initialSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL"
-val sample3_SFEN = "lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/1B5R1/LNSGKGSNL b - 1"
+const val INITIAL_SFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL"
+const val SAMPLE3_SFEN = "lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/1B5R1/LNSGKGSNL b - 1"
 
 
 val sampleQuestionWithLongDescription = Question(
     id = -3,
-    description = "LongDescriptionLongDescriptionLongDescriptionLongDescriptionLongDescriptionLongDescriptionLongDescription",
+    description = "LongDescriptionLongDescriptionLongDescription" +
+            "LongDescriptionLongDescriptionLongDescriptionLongDescription",
     answerMove = Move(Position(6, 2), Position(5, 2)),
-    sfen = initialSFEN,
+    sfen = INITIAL_SFEN,
     komadaiSfen = ""
 )
 val sampleQuestion = Question(
     id = -3,
     description = "角道を開ける手は?",
     answerMove = Move(Position(6, 2), Position(5, 2)),
-    sfen = initialSFEN,
+    sfen = INITIAL_SFEN,
     komadaiSfen = ""
 )
 val sampleQuestion2 = Question(
     id = -2,
     description = "飛車先を突く手は?",
     answerMove = Move(Position(6, 7), Position(5, 7)),
-    sfen = initialSFEN,
+    sfen = INITIAL_SFEN,
     komadaiSfen = ""
 )
 
@@ -109,7 +110,7 @@ val sampleQuestion3 =
             Position(6, 3),
             Position(5, 3)
         ),
-        sfen = sample3_SFEN,
+        sfen = SAMPLE3_SFEN,
         komadaiSfen = ""
     )
 val sampleQuestions: List<Question> = listOf(

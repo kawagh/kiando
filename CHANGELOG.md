@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.0.12 [2023-02-25]
+- rename tag
+- change buttons layout in MainScreen
+- modify SFEN form padding,visibility
+- add tagEditScreen to remove tags
+- change topAppBarTitle
+- change register button from fab to trailing icon button
+
 ## v1.0.11 [2023-02-23]
 - improve multi tagging in app
 - detach tag in app
