@@ -107,6 +107,10 @@ class QuestionsViewModel @Inject constructor(
         uiState = uiState.copy(isTagEditMode = !uiState.isTagEditMode)
     }
 
+    fun toggleHideDefaultQuestions() {
+        uiState = uiState.copy(hideDefaultQuestions = !uiState.hideDefaultQuestions)
+    }
+
 
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -181,4 +185,6 @@ data class QuestionsUiState(
     val tabRowIndex: Int = 0,
     val bottomBarIndex: Int = 0,
     val isTagEditMode: Boolean = false
+    val hideDefaultQuestions: Boolean = false
+}
 )

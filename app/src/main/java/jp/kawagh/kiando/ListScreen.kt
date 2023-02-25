@@ -74,9 +74,6 @@ fun ListScreen(
         navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
 
-    var hideDefaultQuestions by remember {
-        mutableStateOf(false)
-    }
     var selectedFilterTag: Tag? by remember {
         mutableStateOf(null)
     }
@@ -84,7 +81,7 @@ fun ListScreen(
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
-        if (hideDefaultQuestions) {
+        if (questionsUiState.hideDefaultQuestions) {
             it.question.id >= 0
         } else {
             true
@@ -112,58 +109,14 @@ fun ListScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    "カスタム将棋次の一手",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Divider(Modifier.padding(8.dp))
-                Text(
-                    "Version: ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Divider(Modifier.padding(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("hide default questions", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.size(12.dp))
-                    Switch(
-                        checked = hideDefaultQuestions,
-                        onCheckedChange = { hideDefaultQuestions = !hideDefaultQuestions })
-                }
-                Divider(Modifier.padding(8.dp))
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Add, null) },
-                    label = { Text("add sample questions") },
-                    selected = false,
-                    onClick = handleInsertSampleQuestions
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Android, null) },
-                    label = { Text("License") },
-                    selected = false,
-                    onClick = navigateToLicense
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Warning, null) },
-                    label = { Text("Delete All Questions") },
-                    selected = false,
-                    onClick = navigateToDelete
-                )
-                if (BuildConfig.DEBUG) {
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.LogoDev, null) },
-                        label = { Text("load questions from resource") },
-                        selected = false,
-                        onClick = handleLoadDataFromResource
-                    )
-                }
-            }
+            DrawerContent(
+                hideDefaultQuestions = questionsUiState.hideDefaultQuestions,
+                toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
+                handleInsertSampleQuestions = handleInsertSampleQuestions,
+                navigateToDelete = navigateToDelete,
+                navigateToLicense = navigateToLicense,
+                handleLoadDataFromResource = handleLoadDataFromResource,
+            )
         }) {
         Scaffold(
             topBar = {
@@ -301,6 +254,70 @@ fun ListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun DrawerContent(
+    hideDefaultQuestions: Boolean,
+    toggleHideDefaultQuestions: () -> Unit,
+    handleInsertSampleQuestions: () -> Unit,
+    navigateToDelete: () -> Unit,
+    navigateToLicense: () -> Unit,
+    handleLoadDataFromResource: () -> Unit,
+) {
+    ModalDrawerSheet {
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            "カスタム将棋次の一手",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(8.dp)
+        )
+        Divider(Modifier.padding(8.dp))
+        Text(
+            "Version: ${BuildConfig.VERSION_NAME}",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(8.dp)
+        )
+        Divider(Modifier.padding(8.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("hide default questions", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.size(12.dp))
+            Switch(
+                checked = hideDefaultQuestions,
+                onCheckedChange = { toggleHideDefaultQuestions() })
+        }
+        Divider(Modifier.padding(8.dp))
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Add, null) },
+            label = { Text("add sample questions") },
+            selected = false,
+            onClick = handleInsertSampleQuestions
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Android, null) },
+            label = { Text("License") },
+            selected = false,
+            onClick = navigateToLicense
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Warning, null) },
+            label = { Text("Delete All Questions") },
+            selected = false,
+            onClick = navigateToDelete
+        )
+        if (BuildConfig.DEBUG) {
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.LogoDev, null) },
+                label = { Text("load questions from resource") },
+                selected = false,
+                onClick = handleLoadDataFromResource
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun TagsContentOnListMode(
     tags: List<Tag>,
     questionsWithTags: List<QuestionWithTags>,
@@ -350,9 +367,7 @@ private fun TagsContentOnListMode(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-
         }
-
 
         item {
             Spacer(modifier = Modifier.size(24.dp))
