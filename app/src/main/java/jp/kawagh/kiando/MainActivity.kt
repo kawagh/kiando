@@ -105,8 +105,11 @@ fun App(
                         handleDeleteAQuestion = { question ->
                             navController.navigate("delete_each/${question.id}")
                         },
-                        handleRenameAQuestion = { question ->
+                        handleRenameQuestion = { question ->
                             navController.navigate("rename/${question.id}")
+                        },
+                        handleRenameTag = { tag ->
+                            navController.navigate("rename_tag/${tag.id}")
                         },
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
@@ -263,8 +266,51 @@ fun App(
                         confirmButton = {
                             Button(
                                 onClick = {
-                                    questionsViewModel.renameById(
+                                    questionsViewModel.renameQuestionById(
                                         questionId = renameId,
+                                        newTitle = renameTextInput
+                                    )
+                                    navController.navigate("list")
+                                },
+                                enabled = renameTextInput.isNotEmpty()
+                            ) {
+                                Text(text = "変更")
+                            }
+                        }
+                    )
+                }
+
+                dialog(
+                    "rename_tag/{tagId}",
+                    arguments = listOf(navArgument("tagId") {
+                        type = NavType.IntType
+                    })
+                ) {
+                    var renameTextInput by remember {
+                        mutableStateOf("")
+                    }
+                    val renameId = it.arguments?.getInt("tagId") ?: -1
+                    val focusRequester = remember { FocusRequester() }
+                    AlertDialog(onDismissRequest = { navController.navigate("list") },
+                        title = { Text(text = "タグの名前の変更") },
+                        text = {
+                            OutlinedTextField(
+                                value = renameTextInput,
+                                label = { Text("新しい名前") },
+                                onValueChange = { renameTextInput = it },
+                                modifier = Modifier.focusRequester(focusRequester)
+                            )
+                            LaunchedEffect(Unit) {
+                                delay(100) // workaround to show keyboard
+                                // ref: https://issuetracker.google.com/issues/204502668
+                                focusRequester.requestFocus()
+                            }
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    questionsViewModel.renameTagId(
+                                        tagId = renameId,
                                         newTitle = renameTextInput
                                     )
                                     navController.navigate("list")

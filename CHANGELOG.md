@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## v1.0.12(unreleased) [2023-02-24]
+- rename tag
 - change buttons layout in MainScreen
 - modify SFEN form padding,visibility
 - add tagEditScreen to remove tags

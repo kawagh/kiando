@@ -39,8 +39,8 @@ import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 fun QuestionWithTagsCard(
     questionWithTags: QuestionWithTags,
     onClick: () -> Unit,
-    handleDeleteAQuestion: () -> Unit,
-    handleRenameAQuestion: () -> Unit,
+    handleDeleteQuestion: () -> Unit,
+    handleRenameQuestion: () -> Unit,
     handleFavoriteQuestion: () -> Unit,
     showIcons: Boolean = true
 ) {
@@ -50,7 +50,7 @@ fun QuestionWithTagsCard(
         colors = CardDefaults.cardColors(containerColor = CardColor),
         modifier = Modifier
             .padding(start = 4.dp, end = 4.dp)
-            .combinedClickable(onLongClick = handleRenameAQuestion, onClick = onClick)
+            .combinedClickable(onLongClick = handleRenameQuestion, onClick = onClick)
     ) {
         Column(modifier = Modifier.height(80.dp)) {
             Text(
@@ -73,7 +73,7 @@ fun QuestionWithTagsCard(
                 }
                 Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                     if (showIcons) {
-                        IconButton(onClick = handleDeleteAQuestion) {
+                        IconButton(onClick = handleDeleteQuestion) {
                             Icon(Icons.Default.Delete, contentDescription = "delete question")
                         }
                         IconButton(onClick = {

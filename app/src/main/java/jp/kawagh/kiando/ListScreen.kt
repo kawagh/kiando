@@ -39,7 +39,7 @@ fun PreviewListScreen() {
         QuestionsUiState(
             sampleQuestions.map { QuestionWithTags(it, emptyList()) }
         ),
-        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
+        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
 
 }
 
@@ -60,7 +60,8 @@ fun ListScreen(
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
-    handleRenameAQuestion: (Question) -> Unit,
+    handleRenameQuestion: (Question) -> Unit,
+    handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
     handleInsertSampleQuestions: () -> Unit,
@@ -293,8 +294,8 @@ fun ListScreen(
                             QuestionsList(
                                 questionsWithTags = questionsToDisplay,
                                 navigateToQuestion = navigateToQuestionWithTabIndex,
-                                handleDeleteAQuestion = handleDeleteAQuestion,
-                                handleRenameAQuestion = handleRenameAQuestion,
+                                handleDeleteQuestion = handleDeleteAQuestion,
+                                handleRenameQuestion = handleRenameQuestion,
                                 handleFavoriteQuestion = handleFavoriteQuestion,
                             )
                         }
@@ -318,7 +319,7 @@ fun ListScreen(
                                     .fillMaxWidth()
                                     .height(60.dp)
                                     .padding(vertical = 4.dp)
-                                    .clickable { /* tag */ }
+                                    .clickable { handleRenameTag(it) }
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Row {
@@ -516,8 +517,8 @@ fun DropdownMenuOnTopBar(
 fun QuestionsList(
     questionsWithTags: List<QuestionWithTags>,
     navigateToQuestion: (Question) -> Unit,
-    handleDeleteAQuestion: (Question) -> Unit,
-    handleRenameAQuestion: (Question) -> Unit,
+    handleDeleteQuestion: (Question) -> Unit,
+    handleRenameQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit
 ) {
     LazyColumn {
@@ -525,9 +526,9 @@ fun QuestionsList(
             QuestionWithTagsCard(
                 questionWithTags = questionWithTags,
                 onClick = { navigateToQuestion(questionWithTags.question) },
-                handleDeleteAQuestion = { handleDeleteAQuestion(questionWithTags.question) },
+                handleDeleteQuestion = { handleDeleteQuestion(questionWithTags.question) },
                 handleFavoriteQuestion = { handleFavoriteQuestion(questionWithTags.question) },
-                handleRenameAQuestion = { handleRenameAQuestion(questionWithTags.question) },
+                handleRenameQuestion = { handleRenameQuestion(questionWithTags.question) },
             )
             Spacer(Modifier.size(5.dp))
         }
