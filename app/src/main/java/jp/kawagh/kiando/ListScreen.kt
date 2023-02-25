@@ -74,9 +74,6 @@ fun ListScreen(
         navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
 
-    var hideDefaultQuestions by remember {
-        mutableStateOf(false)
-    }
     var selectedFilterTag: Tag? by remember {
         mutableStateOf(null)
     }
@@ -84,7 +81,7 @@ fun ListScreen(
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
-        if (hideDefaultQuestions) {
+        if (questionsUiState.hideDefaultQuestions) {
             it.question.id >= 0
         } else {
             true
@@ -108,81 +105,18 @@ fun ListScreen(
     val scope = rememberCoroutineScope()
 
 
-    /**
-     * states for tags
-     */
-    var tagNameInput by remember {
-        mutableStateOf("")
-    }
-    var questionsDropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-    val questionOptions = questionsUiState.questionsWithTags.map { it.question }
-    var selectedQuestion by remember {
-        mutableStateOf(
-            if (questionsUiState.questionsWithTags.isEmpty()) {
-                null
-            } else {
-                sampleQuestion
-            }
-        )
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    "カスタム将棋次の一手",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Divider(Modifier.padding(8.dp))
-                Text(
-                    "Version: ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Divider(Modifier.padding(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("hide default questions", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.size(12.dp))
-                    Switch(
-                        checked = hideDefaultQuestions,
-                        onCheckedChange = { hideDefaultQuestions = !hideDefaultQuestions })
-                }
-                Divider(Modifier.padding(8.dp))
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Add, null) },
-                    label = { Text("add sample questions") },
-                    selected = false,
-                    onClick = handleInsertSampleQuestions
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Android, null) },
-                    label = { Text("License") },
-                    selected = false,
-                    onClick = navigateToLicense
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Warning, null) },
-                    label = { Text("Delete All Questions") },
-                    selected = false,
-                    onClick = navigateToDelete
-                )
-                if (BuildConfig.DEBUG) {
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.LogoDev, null) },
-                        label = { Text("load questions from resource") },
-                        selected = false,
-                        onClick = handleLoadDataFromResource
-                    )
-                }
-            }
+            DrawerContent(
+                hideDefaultQuestions = questionsUiState.hideDefaultQuestions,
+                toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
+                handleInsertSampleQuestions = handleInsertSampleQuestions,
+                navigateToDelete = navigateToDelete,
+                navigateToLicense = navigateToLicense,
+                handleLoadDataFromResource = handleLoadDataFromResource,
+            )
         }) {
         Scaffold(
             topBar = {
@@ -295,183 +229,300 @@ fun ListScreen(
                 }
 
                 BottomBarItems.Tags -> {
-                    val tagIdsToDelete = remember {
-                        mutableStateListOf<Int>()
-                    }
                     if (questionsUiState.isTagEditMode) {
-                        LazyColumn(
-                            Modifier
-                                .padding(paddingValues)
-                                .padding(horizontal = 16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            items(questionsUiState.tags) {
-                                Card(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(60.dp)
-                                    .padding(vertical = 4.dp)
-                                    .clickable { handleRenameTag(it) }
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Row {
-                                            Text(
-                                                it.title,
-                                                style = MaterialTheme.typography.titleLarge,
-                                                modifier = Modifier.padding(start = 4.dp)
-                                            )
-                                        }
-                                        Row(
-                                            horizontalArrangement = Arrangement.End,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Checkbox(
-                                                checked = tagIdsToDelete.contains(it.id),
-                                                onCheckedChange = { on ->
-                                                    if (on) {
-                                                        tagIdsToDelete.add(it.id)
-                                                    } else {
-                                                        tagIdsToDelete.remove(it.id)
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                            item {
-                                Button(
-                                    onClick = {
-                                        tagIdsToDelete.forEach { handleRemoveTagById(it) }
-                                        tagIdsToDelete.clear()
-                                    },
-                                    enabled = tagIdsToDelete.isNotEmpty(),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Red
-                                    )
-                                ) {
-                                    Icon(
-                                        Icons.Default.Delete, null,
-                                        modifier = Modifier.size(
-                                            ButtonDefaults.IconSize
-                                        )
-                                    )
-                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                    Text("選択したタグを削除")
-                                }
-                            }
-                        }
+                        TagsContentOnEditMode(
+                            questionsUiState.tags,
+                            handleRenameTag,
+                            handleRemoveTagById,
+                            paddingValues
+                        )
                     } else {
-                        LazyColumn(
-                            Modifier
-                                .padding(paddingValues)
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            item {
-                                OutlinedTextField(
-                                    value = tagNameInput,
-                                    onValueChange = { tagNameInput = it },
-                                    label = { Text("tag") },
-                                    trailingIcon = {
-                                        IconButton(onClick = {
-                                            if (tagNameInput.isNotEmpty()) {
-                                                handleAddTag(Tag(title = tagNameInput))
-                                            }
-                                        }) {
-                                            Icon(Icons.Default.Add, null)
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-
-                            }
-
-
-                            item {
-                                Spacer(modifier = Modifier.size(24.dp))
-                                Divider()
-                                Spacer(modifier = Modifier.size(24.dp))
-                            }
-
-                            item {
-                                ExposedDropdownMenuBox(
-                                    expanded = questionsDropdownExpanded,
-                                    onExpandedChange = {
-                                        questionsDropdownExpanded = !questionsDropdownExpanded
-                                    }) {
-                                    OutlinedTextField(
-                                        value = selectedQuestion?.description ?: "問題を選択してください",
-                                        onValueChange = {},
-                                        label = { Text("問題") },
-                                        trailingIcon = {
-                                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                                expanded = questionsDropdownExpanded
-                                            )
-                                        },
-                                        readOnly = true,
-                                        modifier = Modifier
-                                            .menuAnchor()
-                                            .fillMaxWidth()
-                                    )
-                                    ExposedDropdownMenu(
-                                        expanded = questionsDropdownExpanded,
-                                        onDismissRequest = { questionsDropdownExpanded = false }) {
-                                        questionOptions.forEach {
-                                            DropdownMenuItem(
-                                                text = { Text(it.description) },
-                                                onClick = {
-                                                    selectedQuestion = it
-                                                    questionsDropdownExpanded = false
-                                                },
-                                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                            )
-                                        }
-                                    }
-
-                                }
-                            }
-
-                            item { Text("tags") }
-
-                            item {
-                                val handleTagClick: (Tag) -> Unit = { tag ->
-                                    selectedQuestion?.let {
-                                        handleToggleCrossRef(it, tag)
-                                    }
-
-                                }
-                                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    if (selectedQuestion == null) {
-                                        items(questionsUiState.tags) {
-                                            TagChip(tag = it, { handleTagClick(it) })
-                                        }
-                                    } else {
-                                        val tagsAttachedSelectedQuestions =
-                                            questionsUiState.questionsWithTags
-                                                .find { it.question == selectedQuestion }?.tags
-                                                ?: emptyList()
-                                        items(questionsUiState.tags) {
-                                            TagChip(
-                                                tag = it,
-                                                onClick = { handleTagClick(it) },
-                                                rippleEnabled = true,
-                                                containerColor = if (tagsAttachedSelectedQuestions.contains(
-                                                        it
-                                                    )
-                                                ) {
-                                                    CardColor
-                                                } else {
-                                                    Color.Transparent
-                                                },
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        // modes are Edit,List
+                        TagsContentOnListMode(
+                            tags = questionsUiState.tags,
+                            questionsWithTags = questionsUiState.questionsWithTags,
+                            handleAddTag = handleAddTag,
+                            handleToggleCrossRef = handleToggleCrossRef,
+                            paddingValues = paddingValues,
+                        )
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DrawerContent(
+    hideDefaultQuestions: Boolean,
+    toggleHideDefaultQuestions: () -> Unit,
+    handleInsertSampleQuestions: () -> Unit,
+    navigateToDelete: () -> Unit,
+    navigateToLicense: () -> Unit,
+    handleLoadDataFromResource: () -> Unit,
+) {
+    ModalDrawerSheet {
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            "カスタム将棋次の一手",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(8.dp)
+        )
+        Divider(Modifier.padding(8.dp))
+        Text(
+            "Version: ${BuildConfig.VERSION_NAME}",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(8.dp)
+        )
+        Divider(Modifier.padding(8.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text("hide default questions", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.size(12.dp))
+            Switch(
+                checked = hideDefaultQuestions,
+                onCheckedChange = { toggleHideDefaultQuestions() })
+        }
+        Divider(Modifier.padding(8.dp))
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Add, null) },
+            label = { Text("add sample questions") },
+            selected = false,
+            onClick = handleInsertSampleQuestions
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Android, null) },
+            label = { Text("License") },
+            selected = false,
+            onClick = navigateToLicense
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Warning, null) },
+            label = { Text("Delete All Questions") },
+            selected = false,
+            onClick = navigateToDelete
+        )
+        if (BuildConfig.DEBUG) {
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.LogoDev, null) },
+                label = { Text("load questions from resource") },
+                selected = false,
+                onClick = handleLoadDataFromResource
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TagsContentOnListMode(
+    tags: List<Tag>,
+    questionsWithTags: List<QuestionWithTags>,
+    handleAddTag: (Tag) -> Unit,
+    handleToggleCrossRef: (Question, Tag) -> Unit,
+    paddingValues: PaddingValues,
+) {
+    val questionOptions = questionsWithTags.map { it.question }
+
+    /**
+     * states for tags
+     */
+    var questionsDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+    var tagNameInput by remember {
+        mutableStateOf("")
+    }
+    var selectedQuestion by remember {
+        mutableStateOf(
+            if (questionsWithTags.isEmpty()) {
+                null
+            } else {
+                sampleQuestion
+            }
+        )
+    }
+    LazyColumn(
+        Modifier
+            .padding(paddingValues)
+            .padding(horizontal = 16.dp)
+    ) {
+        item {
+            OutlinedTextField(
+                value = tagNameInput,
+                onValueChange = { tagNameInput = it },
+                label = { Text("tag") },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        if (tagNameInput.isNotEmpty()) {
+                            handleAddTag(Tag(title = tagNameInput))
+                        }
+                    }) {
+                        Icon(Icons.Default.Add, null)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(24.dp))
+            Divider()
+            Spacer(modifier = Modifier.size(24.dp))
+        }
+
+        item {
+            ExposedDropdownMenuBox(
+                expanded = questionsDropdownExpanded,
+                onExpandedChange = {
+                    questionsDropdownExpanded = !questionsDropdownExpanded
+                }) {
+                OutlinedTextField(
+                    value = selectedQuestion?.description ?: "問題を選択してください",
+                    onValueChange = {},
+                    label = { Text("問題") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = questionsDropdownExpanded
+                        )
+                    },
+                    readOnly = true,
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = questionsDropdownExpanded,
+                    onDismissRequest = { questionsDropdownExpanded = false }) {
+                    questionOptions.forEach {
+                        DropdownMenuItem(
+                            text = { Text(it.description) },
+                            onClick = {
+                                selectedQuestion = it
+                                questionsDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+                    }
+                }
+
+            }
+        }
+
+        item { Text("tags") }
+
+        item {
+            val handleTagClick: (Tag) -> Unit = { tag ->
+                selectedQuestion?.let {
+                    handleToggleCrossRef(it, tag)
+                }
+
+            }
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (selectedQuestion == null) {
+                    items(tags) {
+                        TagChip(tag = it, { handleTagClick(it) })
+                    }
+                } else {
+                    val tagsAttachedSelectedQuestions =
+                        questionsWithTags
+                            .find { it.question == selectedQuestion }?.tags
+                            ?: emptyList()
+                    items(tags) {
+                        TagChip(
+                            tag = it,
+                            onClick = { handleTagClick(it) },
+                            rippleEnabled = true,
+                            containerColor = if (tagsAttachedSelectedQuestions.contains(
+                                    it
+                                )
+                            ) {
+                                CardColor
+                            } else {
+                                Color.Transparent
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun TagsContentOnEditMode(
+    tags: List<Tag>,
+    handleRenameTag: (Tag) -> Unit,
+    handleRemoveTagById: (Int) -> Unit,
+    paddingValues: PaddingValues,
+) {
+    val tagIdsToDelete = remember {
+        mutableStateListOf<Int>()
+    }
+    LazyColumn(
+        Modifier
+            .padding(paddingValues)
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        items(tags) {
+            Card(modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(vertical = 4.dp)
+                .clickable { handleRenameTag(it) }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row {
+                        Text(
+                            it.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = tagIdsToDelete.contains(it.id),
+                            onCheckedChange = { on ->
+                                if (on) {
+                                    tagIdsToDelete.add(it.id)
+                                } else {
+                                    tagIdsToDelete.remove(it.id)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Button(
+                onClick = {
+                    tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                    tagIdsToDelete.clear()
+                },
+                enabled = tagIdsToDelete.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red
+                )
+            ) {
+                Icon(
+                    Icons.Default.Delete, null,
+                    modifier = Modifier.size(
+                        ButtonDefaults.IconSize
+                    )
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                Text("選択したタグを削除")
             }
         }
     }
