@@ -59,6 +59,7 @@ fun App(
                 composable("entry") {
                     EntryScreen(onNavigateList = { navController.navigate("list") })
                 }
+
                 composable("list") {
                     ListScreen(
                         questionsViewModel = questionsViewModel,
@@ -91,6 +92,7 @@ fun App(
 
                     )
                 }
+
                 composable(
                     "main/{questionId}/{fromTabIndex}",
                     arguments = listOf(
@@ -151,9 +153,11 @@ fun App(
                         },
                     )
                 }
+
                 composable("license") {
                     LicenseScreen(onArrowBackPressed = navigateToList)
                 }
+
                 dialog("delete") {
                     AlertDialog(
                         onDismissRequest = { navController.navigate("list") },
@@ -161,7 +165,7 @@ fun App(
                         text = { Text(text = "Once you delete questions, you cannot recover them.") },
                         confirmButton = {
                             TextButton(onClick = {
-                                questionsViewModel.deleteAll()
+                                questionsViewModel.deleteAllQuestions()
                                 navController.navigate("list")
                             }) {
                                 Text(text = "DELETE")
@@ -174,6 +178,7 @@ fun App(
                         }
                     )
                 }
+
                 dialog("delete_each/{questionId}",
                     arguments = listOf(navArgument("questionId") {
                         type = NavType.IntType

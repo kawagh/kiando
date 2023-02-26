@@ -37,7 +37,7 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    fun deleteAll() {
+    fun deleteAllQuestions() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteAllQuestions()
         }
