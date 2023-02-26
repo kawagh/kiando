@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextRotateVertical
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,7 +33,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
@@ -555,17 +556,17 @@ private fun PromotionDialog(
     if (shouldShowPromotionDialog) {
         AlertDialog(onDismissRequest = {},
             title = {
-                Text(text = "promote?")
+                Text(text = stringResource(R.string.dialog_title_promote))
             },
             confirmButton = {
-                TextButton(onClick = onConfirmClick) {
-                    Text(text = "YES")
+                Button(onClick = onConfirmClick) {
+                    Text(text = stringResource(R.string.button_text_confirm_promotion))
 
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismissClick) {
-                    Text(text = "NO")
+                OutlinedButton(onClick = onDismissClick) {
+                    Text(text = stringResource(R.string.button_text_cancel_promotion))
                 }
             }
         )

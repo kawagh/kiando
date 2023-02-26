@@ -30,4 +30,7 @@
     <string name="text_tags">tags</string>
     <string name="text_tag">tag</string>
     <string name="text_placeholder_add_tag">追加するタグ名を入力してください</string>
+    <string name="dialog_title_promote">成りますか?</string>
+    <string name="button_text_confirm_promotion">成</string>
+    <string name="button_text_cancel_promotion">不成</string>
 </resources>
