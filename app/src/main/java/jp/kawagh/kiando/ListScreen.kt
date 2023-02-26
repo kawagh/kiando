@@ -123,11 +123,11 @@ fun ListScreen(
                 TopAppBar(title = {
                     Text(
                         when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
-                            BottomBarItems.Questions -> "問題一覧"
+                            BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
                             BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
-                                "タグ編集"
+                                stringResource(R.string.top_app_bar_title_edit_tags)
                             } else {
-                                "タグ一覧"
+                                stringResource(R.string.top_app_bar_title_tags)
                             }
                         }
                     )
@@ -209,10 +209,14 @@ fun ListScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
                                     Text(
-                                        "no questions",
+                                        stringResource(R.string.text_no_questions),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
-                                    Button(onClick = handleInsertSampleQuestions) { Text("add sample questions") }
+                                    Button(onClick = handleInsertSampleQuestions) {
+                                        Text(
+                                            stringResource(R.string.button_text_add_samples)
+                                        )
+                                    }
                                 }
                             }
                         } else {
@@ -265,7 +269,7 @@ private fun DrawerContent(
     ModalDrawerSheet {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            "カスタム将棋次の一手",
+            stringResource(R.string.app_title),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(8.dp)
         )
@@ -280,7 +284,10 @@ private fun DrawerContent(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)
         ) {
-            Text("hide default questions", style = MaterialTheme.typography.titleLarge)
+            Text(
+                stringResource(R.string.drawer_item_hide_default_questions),
+                style = MaterialTheme.typography.titleLarge
+            )
             Spacer(modifier = Modifier.size(12.dp))
             Switch(
                 checked = hideDefaultQuestions,
@@ -289,19 +296,19 @@ private fun DrawerContent(
         Divider(Modifier.padding(8.dp))
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Add, null) },
-            label = { Text("add sample questions") },
+            label = { Text(stringResource(R.string.drawer_item_add_samples)) },
             selected = false,
             onClick = handleInsertSampleQuestions
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Android, null) },
-            label = { Text("License") },
+            label = { Text(stringResource(R.string.drawer_item_license)) },
             selected = false,
             onClick = navigateToLicense
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Warning, null) },
-            label = { Text("Delete All Questions") },
+            label = { Text(stringResource(R.string.drawer_item_delete_questions)) },
             selected = false,
             onClick = navigateToDelete
         )
@@ -354,7 +361,8 @@ private fun TagsContentOnListMode(
             OutlinedTextField(
                 value = tagNameInput,
                 onValueChange = { tagNameInput = it },
-                label = { Text("tag") },
+                label = { Text(stringResource(R.string.text_tag)) },
+                placeholder = { Text(stringResource(R.string.text_placeholder_add_tag)) },
                 trailingIcon = {
                     IconButton(onClick = {
                         if (tagNameInput.isNotEmpty()) {
@@ -382,7 +390,8 @@ private fun TagsContentOnListMode(
                     questionsDropdownExpanded = !questionsDropdownExpanded
                 }) {
                 OutlinedTextField(
-                    value = selectedQuestion?.description ?: "問題を選択してください",
+                    value = selectedQuestion?.description
+                        ?: stringResource(R.string.dropdown_initial_item_select_question),
                     onValueChange = {},
                     label = { Text("問題") },
                     trailingIcon = {
@@ -413,7 +422,7 @@ private fun TagsContentOnListMode(
             }
         }
 
-        item { Text("tags") }
+        item { Text(stringResource(R.string.text_tags)) }
 
         item {
             val handleTagClick: (Tag) -> Unit = { tag ->
@@ -472,22 +481,22 @@ private fun TagsContentOnEditMode(
             onDismissRequest = {
                 shouldShowDialog = false
             },
-            title = { Text(text = "delete selected tags?") },
-            text = { Text(text = "Once you delete tags, you cannot recover them.") },
+            title = { Text(text = stringResource(R.string.dialog_title_delete_selected_tags)) },
+            text = { Text(text = stringResource(R.string.dialog_text_delete_selected_tags)) },
             confirmButton = {
                 TextButton(onClick = {
                     tagIdsToDelete.forEach { handleRemoveTagById(it) }
                     tagIdsToDelete.clear()
                     shouldShowDialog = false
                 }) {
-                    Text(text = "DELETE")
+                    Text(text = stringResource(id = R.string.dialog_text_confirm_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     shouldShowDialog = false
                 }) {
-                    Text(text = "CANCEL")
+                    Text(text = stringResource(id = R.string.dialog_text_cancel))
                 }
             }
         )
@@ -549,7 +558,7 @@ private fun TagsContentOnEditMode(
                     )
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text("選択したタグを削除")
+                Text(stringResource(R.string.button_text_delete_selected_tags))
             }
         }
     }

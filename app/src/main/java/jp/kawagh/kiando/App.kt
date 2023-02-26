@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -161,19 +162,19 @@ fun App(
                 dialog("delete") {
                     AlertDialog(
                         onDismissRequest = { navController.navigate("list") },
-                        title = { Text(text = "delete all questions?") },
-                        text = { Text(text = "Once you delete questions, you cannot recover them.") },
+                        title = { Text(text = stringResource(R.string.dialog_title_delete_all_questions)) },
+                        text = { Text(text = stringResource(R.string.dialog_text_delete_all_questions)) },
                         confirmButton = {
                             TextButton(onClick = {
                                 questionsViewModel.deleteAllQuestions()
                                 navController.navigate("list")
                             }) {
-                                Text(text = "DELETE")
+                                Text(text = stringResource(R.string.dialog_text_confirm_delete))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { navController.navigate("list") }) {
-                                Text(text = "CANCEL")
+                                Text(text = stringResource(R.string.dialog_text_cancel))
                             }
                         }
                     )
@@ -187,19 +188,19 @@ fun App(
                     val deleteId = it.arguments?.getInt("questionId") ?: -1
                     AlertDialog(
                         onDismissRequest = { navController.navigate("list") },
-                        title = { Text(text = "delete question?") },
-                        text = { Text(text = "Once you delete a question, you cannot recover it.") },
+                        title = { Text(text = stringResource(R.string.dialog_title_delete_question)) },
+                        text = { Text(text = stringResource(R.string.dialog_text_delete_question)) },
                         confirmButton = {
                             TextButton(onClick = {
                                 navController.navigate("list")
                                 questionsViewModel.deleteQuestionById(deleteId)
                             }) {
-                                Text(text = "DELETE")
+                                Text(text = stringResource(R.string.dialog_text_confirm_delete))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { navController.navigate("list") }) {
-                                Text(text = "CANCEL")
+                                Text(text = stringResource(R.string.dialog_text_cancel))
                             }
                         }
                     )
@@ -217,11 +218,11 @@ fun App(
                     val renameId = it.arguments?.getInt("questionId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(onDismissRequest = { navController.navigate("list") },
-                        title = { Text(text = "問題の名前の変更") },
+                        title = { Text(text = stringResource(R.string.dialog_title_rename_question)) },
                         text = {
                             OutlinedTextField(
                                 value = renameTextInput,
-                                label = { Text("新しい名前") },
+                                label = { Text(stringResource(R.string.label_text_new_name)) },
                                 onValueChange = { renameTextInput = it },
                                 modifier = Modifier.focusRequester(focusRequester)
                             )
@@ -242,7 +243,7 @@ fun App(
                                 },
                                 enabled = renameTextInput.isNotEmpty()
                             ) {
-                                Text(text = "変更")
+                                Text(text = stringResource(R.string.button_text_confirm_change))
                             }
                         }
                     )
@@ -260,11 +261,11 @@ fun App(
                     val renameId = it.arguments?.getInt("tagId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(onDismissRequest = { navController.navigate("list") },
-                        title = { Text(text = "タグの名前の変更") },
+                        title = { Text(text = stringResource(R.string.dialog_title_rename_tag)) },
                         text = {
                             OutlinedTextField(
                                 value = renameTextInput,
-                                label = { Text("新しい名前") },
+                                label = { Text(stringResource(id = R.string.label_text_new_name)) },
                                 onValueChange = { renameTextInput = it },
                                 modifier = Modifier.focusRequester(focusRequester)
                             )
@@ -285,7 +286,7 @@ fun App(
                                 },
                                 enabled = renameTextInput.isNotEmpty()
                             ) {
-                                Text(text = "変更")
+                                Text(text = stringResource(R.string.button_text_confirm_change))
                             }
                         }
                     )
