@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.LogoDev
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Tag
@@ -112,7 +111,6 @@ fun ListScreen(
             DrawerContent(
                 hideDefaultQuestions = questionsUiState.hideDefaultQuestions,
                 toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
-                handleInsertSampleQuestions = handleInsertSampleQuestions,
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
                 handleLoadDataFromResource = handleLoadDataFromResource,
@@ -261,7 +259,6 @@ fun ListScreen(
 private fun DrawerContent(
     hideDefaultQuestions: Boolean,
     toggleHideDefaultQuestions: () -> Unit,
-    handleInsertSampleQuestions: () -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
@@ -279,26 +276,28 @@ private fun DrawerContent(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(8.dp)
         )
-        Divider(Modifier.padding(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text(
-                stringResource(R.string.drawer_item_hide_default_questions),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.size(12.dp))
-            Switch(
-                checked = hideDefaultQuestions,
-                onCheckedChange = { toggleHideDefaultQuestions() })
-        }
+
+//        Divider(Modifier.padding(8.dp))
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier.padding(8.dp)
+//        ) {
+//            Text(
+//                stringResource(R.string.drawer_item_hide_default_questions),
+//                style = MaterialTheme.typography.titleLarge
+//            )
+//            Spacer(modifier = Modifier.size(12.dp))
+//            Switch(
+//                checked = hideDefaultQuestions,
+//                onCheckedChange = { toggleHideDefaultQuestions() })
+//        }
+
         Divider(Modifier.padding(8.dp))
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Add, null) },
             label = { Text(stringResource(R.string.drawer_item_add_samples)) },
             selected = false,
-            onClick = handleInsertSampleQuestions
+            onClick = handleLoadDataFromResource
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Android, null) },
@@ -312,14 +311,14 @@ private fun DrawerContent(
             selected = false,
             onClick = navigateToDelete
         )
-        if (BuildConfig.DEBUG) {
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.LogoDev, null) },
-                label = { Text("load questions from resource") },
-                selected = false,
-                onClick = handleLoadDataFromResource
-            )
-        }
+//        if (BuildConfig.DEBUG) {
+//            NavigationDrawerItem(
+//                icon = { Icon(Icons.Default.LogoDev, null) },
+//                label = { Text("load questions from resource") },
+//                selected = false,
+//                onClick = handleLoadDataFromResource
+//            )
+//        }
     }
 }
 

@@ -16,6 +16,7 @@
     <string name="button_text_confirm_change">変更</string>
     <string name="top_app_bar_title_questions">問題一覧</string>
     <string name="top_app_bar_title_tags">タグ一覧</string>
+    <string name="top_app_bar_title_license">ライセンス</string>
     <string name="top_app_bar_title_edit_tags">タグ編集</string>
     <string name="text_no_questions">問題がありません</string>
     <string name="drawer_item_hide_default_questions">サンプル問題を表示しない</string>
