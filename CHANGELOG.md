@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.0.13 [2023-02-26]
+- show dialog to delete tags
+
 ## v1.0.12 [2023-02-25]
 - rename tag
 - change buttons layout in MainScreen

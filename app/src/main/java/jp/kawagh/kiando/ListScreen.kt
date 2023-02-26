@@ -464,6 +464,34 @@ private fun TagsContentOnEditMode(
     val tagIdsToDelete = remember {
         mutableStateListOf<Int>()
     }
+    var shouldShowDialog by remember {
+        mutableStateOf(false)
+    }
+    if (shouldShowDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                shouldShowDialog = false
+            },
+            title = { Text(text = "delete selected tags?") },
+            text = { Text(text = "Once you delete tags, you cannot recover them.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                    tagIdsToDelete.clear()
+                    shouldShowDialog = false
+                }) {
+                    Text(text = "DELETE")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    shouldShowDialog = false
+                }) {
+                    Text(text = "CANCEL")
+                }
+            }
+        )
+    }
     LazyColumn(
         Modifier
             .padding(paddingValues)
@@ -507,8 +535,7 @@ private fun TagsContentOnEditMode(
         item {
             Button(
                 onClick = {
-                    tagIdsToDelete.forEach { handleRemoveTagById(it) }
-                    tagIdsToDelete.clear()
+                    shouldShowDialog = true
                 },
                 enabled = tagIdsToDelete.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(
