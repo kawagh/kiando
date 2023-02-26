@@ -79,9 +79,6 @@ fun App(
                         handleFavoriteQuestion = { question ->
                             questionsViewModel.toggleQuestionFavorite(question)
                         },
-                        handleInsertSampleQuestions = {
-                            questionsViewModel.addSampleQuestionsAndTags()
-                        },
                         handleLoadDataFromResource = {
                             questionsViewModel.loadDataFromAsset()
                         },

@@ -62,7 +62,6 @@ fun ListScreen(
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
-    handleInsertSampleQuestions: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
     handleAddTag: (Tag) -> Unit,
     handleToggleCrossRef: (Question, Tag) -> Unit,
@@ -210,7 +209,7 @@ fun ListScreen(
                                         stringResource(R.string.text_no_questions),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
-                                    Button(onClick = handleInsertSampleQuestions) {
+                                    Button(onClick = handleLoadDataFromResource) {
                                         Text(
                                             stringResource(R.string.button_text_add_samples)
                                         )
