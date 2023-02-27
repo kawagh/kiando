@@ -61,11 +61,6 @@ fun ListScreen(
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
-    handleFavoriteQuestion: (Question) -> Unit,
-    handleLoadDataFromResource: () -> Unit,
-    handleAddTag: (Tag) -> Unit,
-    handleToggleCrossRef: (Question, Tag) -> Unit,
-    handleRemoveTagById: (Int) -> Unit
 ) {
     val questionsUiState = questionsViewModel.uiState
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
@@ -112,7 +107,7 @@ fun ListScreen(
                 toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
-                handleLoadDataFromResource = handleLoadDataFromResource,
+                handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
             )
         }) {
         Scaffold(
@@ -209,7 +204,7 @@ fun ListScreen(
                                         stringResource(R.string.text_no_questions),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
-                                    Button(onClick = handleLoadDataFromResource) {
+                                    Button(onClick = { questionsViewModel.loadDataFromAsset() }) {
                                         Text(
                                             stringResource(R.string.button_text_add_samples)
                                         )
@@ -222,7 +217,11 @@ fun ListScreen(
                                 navigateToQuestion = navigateToQuestionWithTabIndex,
                                 handleDeleteQuestion = handleDeleteAQuestion,
                                 handleRenameQuestion = handleRenameQuestion,
-                                handleFavoriteQuestion = handleFavoriteQuestion,
+                                handleFavoriteQuestion = { question: Question ->
+                                    questionsViewModel.toggleQuestionFavorite(
+                                        question
+                                    )
+                                },
                             )
                         }
                     }
@@ -234,7 +233,7 @@ fun ListScreen(
                         TagsContentOnEditMode(
                             questionsUiState.tags,
                             handleRenameTag,
-                            handleRemoveTagById,
+                            { tagId: Int -> questionsViewModel.deleteTagById(tagId) },
                             paddingValues
                         )
                     } else {
@@ -242,8 +241,10 @@ fun ListScreen(
                         TagsContentOnListMode(
                             tags = questionsUiState.tags,
                             questionsWithTags = questionsUiState.questionsWithTags,
-                            handleAddTag = handleAddTag,
-                            handleToggleCrossRef = handleToggleCrossRef,
+                            handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
+                            handleToggleCrossRef = { question: Question, tag: Tag ->
+                                questionsViewModel.toggleCrossRef(question, tag)
+                            },
                             paddingValues = paddingValues,
                         )
                     }

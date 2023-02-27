@@ -76,18 +76,6 @@ fun App(
                         handleRenameTag = { tag ->
                             navController.navigate("rename_tag/${tag.id}")
                         },
-                        handleFavoriteQuestion = { question ->
-                            questionsViewModel.toggleQuestionFavorite(question)
-                        },
-                        handleLoadDataFromResource = {
-                            questionsViewModel.loadDataFromAsset()
-                        },
-                        handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
-                        handleToggleCrossRef = { question: Question, tag: Tag ->
-                            questionsViewModel.toggleCrossRef(question, tag)
-                        },
-                        handleRemoveTagById = { tagId: Int -> questionsViewModel.deleteTagById(tagId) }
-
                     )
                 }
 
