@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v1.0.14 [2023-03-01]
+- disable empty panel touch
+
 ## v1.0.13 [2023-02-26]
 - show dialog to delete tags
 
