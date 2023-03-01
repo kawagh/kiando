@@ -23,6 +23,12 @@ data class Move(
     val isPromote: Boolean = false
 )
 
+const val MY_KOMADAI_INDEX = -1
+const val ENEMY_KOMADAI_INDEX = -2
+
+fun Move.fromMyKomadai(): Boolean = this.from.row == MY_KOMADAI_INDEX
+fun Move.fromEnemyKomadai(): Boolean = this.from.row == ENEMY_KOMADAI_INDEX
+
 fun Move.toReadable(pieceKind: PieceKind): String {
     val pieceText = when (pieceKind) {
         PieceKind.EMPTY -> ""
