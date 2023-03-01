@@ -152,25 +152,17 @@ fun MainScreen(
             panelClickedOnce = false
             positionStack.add(Position(it.row, it.column))
             val move = Move(positionStack.first(), positionStack.last())
-            if (gameViewModel.isMoveFromKomadai(move)) {
+            // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
+            if (gameViewModel.listLegalMoves(lastClickedPanel)
+                    .contains(positionStack.last()) && gameViewModel.isPromotable(move)
+            ) {
+                // decide to promote in dialog
+                shouldShowPromotionDialog = true
+            } else {
                 if (isRegisterQuestionMode) {
                     registerMove(move)
                 } else {
                     processMove(move)
-                }
-            } else {
-                // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
-                if (gameViewModel.listLegalMoves(lastClickedPanel)
-                        .contains(positionStack.last()) && gameViewModel.isPromotable(move)
-                ) {
-                    // judge promote here
-                    shouldShowPromotionDialog = true
-                } else {
-                    if (isRegisterQuestionMode) {
-                        registerMove(move)
-                    } else {
-                        processMove(move)
-                    }
                 }
             }
         } else {
