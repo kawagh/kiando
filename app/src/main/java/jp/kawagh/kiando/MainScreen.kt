@@ -176,35 +176,27 @@ fun MainScreen(
         }
     }
 
-    // komadaik
-    //    myKomadai:-1,
-    //    enemyKomadai:-2,
+    // komadai
+    val myKomadaiIndex = -1
+    val enemyKomadaiIndex = -2
     val handleKomadaiClick: (PieceKind) -> Unit = {
-        when (panelClickedOnce) {
-            true -> {
-                panelClickedOnce = !panelClickedOnce
-            }
-
-            false -> {
-                panelClickedOnce = !panelClickedOnce
-                positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
-                lastClickedPanelPos = Position(-1, -1) // 駒台を表す
-            }
+        if (panelClickedOnce) {
+            panelClickedOnce = false
+        } else {
+            panelClickedOnce = true
+            positionStack.add(Position(myKomadaiIndex, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
     val handleEnemyKomadaiClick: (PieceKind) -> Unit = {
-        when (panelClickedOnce) {
-            true -> {
-                panelClickedOnce = !panelClickedOnce
-            }
-
-            false -> {
-                panelClickedOnce = !panelClickedOnce
-                positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
-                lastClickedPanelPos = Position(-1, -1) // 駒台を表す
-            }
+        if (panelClickedOnce) {
+            panelClickedOnce = false
+        } else {
+            panelClickedOnce = true
+            positionStack.add(Position(enemyKomadaiIndex, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
 
