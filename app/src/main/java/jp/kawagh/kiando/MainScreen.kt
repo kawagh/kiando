@@ -148,37 +148,34 @@ fun MainScreen(
 
     val handlePanelClick: (PanelState) -> Unit = {
         shouldShowAnswerButton = false
-        when (panelClickedOnce) {
-            true -> {
-                panelClickedOnce = !panelClickedOnce
-                positionStack.add(Position(it.row, it.column))
-                val move = Move(positionStack.first(), positionStack.last())
-                if (gameViewModel.isMoveFromKomadai(move)) {
-                    when (isRegisterQuestionMode) {
-                        false -> processMove(move)
-                        true -> registerMove(move)
-                    }
+        if (panelClickedOnce) {
+            panelClickedOnce = false
+            positionStack.add(Position(it.row, it.column))
+            val move = Move(positionStack.first(), positionStack.last())
+            if (gameViewModel.isMoveFromKomadai(move)) {
+                if (isRegisterQuestionMode) {
+                    registerMove(move)
                 } else {
-                    // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
-                    when (gameViewModel.listLegalMoves(lastClickedPanel)
-                        .contains(positionStack.last()) && gameViewModel.isPromotable(move)) {
-                        true -> {
-                            // judge promote here
-                            shouldShowPromotionDialog = true
-                        }
-
-                        false -> {
-                            when (isRegisterQuestionMode) {
-                                false -> processMove(move)
-                                true -> registerMove(move)
-                            }
-                        }
+                    processMove(move)
+                }
+            } else {
+                // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
+                if (gameViewModel.listLegalMoves(lastClickedPanel)
+                        .contains(positionStack.last()) && gameViewModel.isPromotable(move)
+                ) {
+                    // judge promote here
+                    shouldShowPromotionDialog = true
+                } else {
+                    if (isRegisterQuestionMode) {
+                        registerMove(move)
+                    } else {
+                        processMove(move)
                     }
                 }
             }
-
-            false -> {
-                panelClickedOnce = !panelClickedOnce
+        } else {
+            if (it.pieceKind != PieceKind.EMPTY) {
+                panelClickedOnce = true
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
                 lastClickedPanel = it
