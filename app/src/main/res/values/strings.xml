@@ -34,4 +34,6 @@
     <string name="dialog_title_promote">成りますか?</string>
     <string name="button_text_confirm_promotion">成</string>
     <string name="button_text_cancel_promotion">不成</string>
+    <string name="snackbar_text_good_move">正解👍</string>
+    <string name="snackbar_label_text_good_move">次へ</string>
 </resources>
