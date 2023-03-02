@@ -1,6 +1,9 @@
 # CHANGELOG
 
-## v1.0.14 [2023-03-01]
+## unreleased [2023-03-02]
+- change snackbar style,duration
+
+## unreleased [2023-03-01]
 - disable empty panel touch
 
 ## v1.0.13 [2023-02-26]
