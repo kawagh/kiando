@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -68,7 +69,7 @@ fun MainScreen(
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
 ) {
-
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
         mutableStateOf(false)
@@ -130,7 +131,11 @@ fun MainScreen(
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
                 val snackbarResult =
-                    snackbarHostState.showSnackbar(message = "Good Move👍", actionLabel = "Next")
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.snackbar_text_good_move),
+                        actionLabel = context.getString(R.string.snackbar_label_text_good_move),
+                        duration = SnackbarDuration.Short,
+                    )
 
                 when (snackbarResult) {
                     SnackbarResult.ActionPerformed -> {
@@ -192,7 +197,12 @@ fun MainScreen(
             panelClickedOnce = false
         } else {
             panelClickedOnce = true
-            positionStack.add(Position(ENEMY_KOMADAI_INDEX, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+            positionStack.add(
+                Position(
+                    ENEMY_KOMADAI_INDEX,
+                    it.ordinal
+                )
+            ) // move.fromにpiecekindを埋め込んでいる
             positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
             lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
@@ -318,7 +328,6 @@ fun MainScreen(
             )
 
             val clipboardManager = LocalClipboardManager.current
-            val context = LocalContext.current
             Spacer(modifier = Modifier.size(8.dp))
             AnimatedVisibility(visible = shouldShowSFENInput) {
                 Row {
