@@ -29,6 +29,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -220,7 +222,14 @@ fun MainScreen(
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { snackbarData: SnackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    actionColor = BoardColor,
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
