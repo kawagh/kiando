@@ -4,8 +4,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -150,10 +153,15 @@ fun App(
                         title = { Text(text = stringResource(R.string.dialog_title_delete_all_questions)) },
                         text = { Text(text = stringResource(R.string.dialog_text_delete_all_questions)) },
                         confirmButton = {
-                            TextButton(onClick = {
-                                questionsViewModel.deleteAllQuestions()
-                                navController.navigate("list")
-                            }) {
+                            Button(
+                                onClick = {
+                                    questionsViewModel.deleteAllQuestions()
+                                    navController.navigate("list")
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red
+                                )
+                            ) {
                                 Text(text = stringResource(R.string.dialog_text_confirm_delete))
                             }
                         },
@@ -176,10 +184,15 @@ fun App(
                         title = { Text(text = stringResource(R.string.dialog_title_delete_question)) },
                         text = { Text(text = stringResource(R.string.dialog_text_delete_question)) },
                         confirmButton = {
-                            TextButton(onClick = {
-                                navController.navigate("list")
-                                questionsViewModel.deleteQuestionById(deleteId)
-                            }) {
+                            Button(
+                                onClick = {
+                                    navController.navigate("list")
+                                    questionsViewModel.deleteQuestionById(deleteId)
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red
+                                )
+                            ) {
                                 Text(text = stringResource(R.string.dialog_text_confirm_delete))
                             }
                         },

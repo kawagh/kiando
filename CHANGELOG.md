@@ -2,6 +2,7 @@
 
 ## unreleased [2023-03-04]
 - describe 4 dots on board
+- change delete button color
 
 ## unreleased [2023-03-02]
 - change snackbar style,duration
