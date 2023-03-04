@@ -204,7 +204,10 @@ fun ListScreen(
                                         stringResource(R.string.text_no_questions),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
-                                    Button(onClick = { questionsViewModel.loadDataFromAsset() }) {
+                                    Button(
+                                        onClick = { questionsViewModel.loadDataFromAsset() },
+                                        colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
+                                    ) {
                                         Text(
                                             stringResource(R.string.button_text_add_samples)
                                         )
