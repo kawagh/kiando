@@ -486,11 +486,14 @@ private fun TagsContentOnEditMode(
             title = { Text(text = stringResource(R.string.dialog_title_delete_selected_tags)) },
             text = { Text(text = stringResource(R.string.dialog_text_delete_selected_tags)) },
             confirmButton = {
-                TextButton(onClick = {
-                    tagIdsToDelete.forEach { handleRemoveTagById(it) }
-                    tagIdsToDelete.clear()
-                    shouldShowDialog = false
-                }) {
+                Button(
+                    onClick = {
+                        tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                        tagIdsToDelete.clear()
+                        shouldShowDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
                     Text(text = stringResource(id = R.string.dialog_text_confirm_delete))
                 }
             },
