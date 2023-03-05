@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +16,7 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun AppIcon() {
+fun AppIcon(withDebug: Boolean = true) {
     val offsets = listOf(
         Pair(0.dp, 10.dp),
         Pair(15.dp, 0.dp),
@@ -31,6 +32,9 @@ fun AppIcon() {
                 .rotate(20f),
         ) {
             Box(modifier = Modifier.offset(x = 30.dp, y = 15.dp)) {
+                if (withDebug) {
+                    Text("DEBUG", modifier = Modifier.offset(x = (-10).dp, y = 5.dp))
+                }
                 repeat(offsets.size) {
                     Piece(
                         text = " ",
