@@ -3,7 +3,6 @@ package jp.kawagh.kiando.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +23,7 @@ fun Piece(
     modifier: Modifier = Modifier,
     isEnemy: Boolean = false,
     isPromoted: Boolean = false,
+    pieceColor: Color = PieceColor,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -44,7 +44,7 @@ fun Piece(
                         lineTo(w / 4, h / 3)
                         close()
                     },
-                    color = PieceColor,
+                    color = pieceColor,
                 )
             }
         }
