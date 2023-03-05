@@ -1,17 +1,19 @@
 # CHANGELOG
 
-## unreleased [2023-03-05]
-- change app icon
+## v1.0.14 [2023-03-05]
 
-## unreleased [2023-03-04]
+### [2023-03-05]
+- change app icon 
+
+### [2023-03-04]
 - describe 4 dots on board
 - change delete button color
 - change add-samples button content color
 
-## unreleased [2023-03-02]
+### [2023-03-02]
 - change snackbar style,duration
 
-## unreleased [2023-03-01]
+### [2023-03-01]
 - disable empty panel touch
 
 ## v1.0.13 [2023-02-26]
