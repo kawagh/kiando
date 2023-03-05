@@ -27,7 +27,6 @@ android {
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -37,11 +36,9 @@ android {
                 argument("room.schemaLocation", "$projectDir/schemas")
             }
         }
+        manifestPlaceholders["icon"] = "@mipmap/ic_launcher"
+        manifestPlaceholders["roundIcon"] = "@mipmap/ic_launcher_round"
     }
-    sourceSets {
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -52,7 +49,12 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
+            manifestPlaceholders["icon"] = "@mipmap/ic_debug_launcher"
+            manifestPlaceholders["roundIcon"] = "@mipmap/ic_debug_launcher_round"
         }
+    }
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
