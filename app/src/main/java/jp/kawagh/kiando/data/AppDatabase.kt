@@ -9,7 +9,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import jp.kawagh.kiando.models.Converters
+import jp.kawagh.kiando.models.MoveConverters
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.Tag
@@ -22,7 +22,7 @@ import jp.kawagh.kiando.models.Tag
     ],
     version = 9
 )
-@TypeConverters(Converters::class)
+@TypeConverters(MoveConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     @DeleteColumn(tableName = "questions", columnName = "tag_id")
     @RenameColumn(

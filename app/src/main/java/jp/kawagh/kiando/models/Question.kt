@@ -11,7 +11,7 @@ import jp.kawagh.kiando.Move
 import jp.kawagh.kiando.Position
 import jp.kawagh.kiando.SFENConverter
 
-class Converters {
+class MoveConverters {
     // encode Move -> fromRow_fromCol_toRow_toCol_isPromote
     @TypeConverter
     fun fromMove(move: Move): String = StringBuilder().apply {

@@ -1,15 +1,15 @@
 package jp.kawagh.kiando
 
-import jp.kawagh.kiando.models.Converters
+import jp.kawagh.kiando.models.MoveConverters
 import org.junit.Test
 
-class ConvertersTest {
+class MoveConvertersTest {
 
     @Test
     fun fromMove() {
         val inputMove = Move(Position(2, 0), Position(2, 2), isPromote = false)
         val expectedString = "2_0_2_2_0"
-        val encodedString = Converters().fromMove(inputMove)
+        val encodedString = MoveConverters().fromMove(inputMove)
         assert(encodedString == expectedString)
 
     }
@@ -18,7 +18,7 @@ class ConvertersTest {
     fun fromMove2() {
         val inputMove = Move(Position(2, 0), Position(2, 2), isPromote = true)
         val expectedString = "2_0_2_2_1"
-        assert(Converters().fromMove(inputMove) == expectedString)
+        assert(MoveConverters().fromMove(inputMove) == expectedString)
     }
 
 
@@ -26,13 +26,13 @@ class ConvertersTest {
     fun toMove() {
         val inputString = "2_0_2_2_0"
         val expectedMove = Move(Position(2, 0), Position(2, 2), isPromote = false)
-        assert(Converters().toMove(inputString) == expectedMove)
+        assert(MoveConverters().toMove(inputString) == expectedMove)
     }
 
     @Test
     fun toMove2() {
         val inputString = "2_0_2_2_1"
         val expectedMove = Move(Position(2, 0), Position(2, 2), isPromote = true)
-        assert(Converters().toMove(inputString) == expectedMove)
+        assert(MoveConverters().toMove(inputString) == expectedMove)
     }
 }
