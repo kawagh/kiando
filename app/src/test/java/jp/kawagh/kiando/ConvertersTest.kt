@@ -1,5 +1,6 @@
 package jp.kawagh.kiando
 
+import jp.kawagh.kiando.models.Converters
 import org.junit.Test
 
 class ConvertersTest {

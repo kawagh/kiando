@@ -21,7 +21,7 @@ import jp.kawagh.kiando.BOARD_SIZE
 import jp.kawagh.kiando.PanelState
 import jp.kawagh.kiando.PieceKind
 import jp.kawagh.kiando.Position
-import jp.kawagh.kiando.sampleQuestions
+import jp.kawagh.kiando.models.sampleQuestions
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme

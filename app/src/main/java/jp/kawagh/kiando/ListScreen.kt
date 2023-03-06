@@ -24,7 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
+import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor

@@ -8,6 +8,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import jp.kawagh.kiando.data.Repository
+import jp.kawagh.kiando.models.Question
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

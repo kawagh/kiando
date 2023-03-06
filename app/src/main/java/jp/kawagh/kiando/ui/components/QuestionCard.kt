@@ -13,8 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import jp.kawagh.kiando.Question
-import jp.kawagh.kiando.sampleQuestionWithLongDescription
+import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.sampleQuestionWithLongDescription
 import jp.kawagh.kiando.ui.theme.CardColor
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 

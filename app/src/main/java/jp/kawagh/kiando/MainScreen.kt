@@ -57,6 +57,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.theme.BoardColor

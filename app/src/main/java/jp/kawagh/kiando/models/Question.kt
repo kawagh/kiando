@@ -1,4 +1,4 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
@@ -7,8 +7,9 @@ import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverter
-import jp.kawagh.kiando.models.QuestionTagCrossRef
-import jp.kawagh.kiando.models.Tag
+import jp.kawagh.kiando.Move
+import jp.kawagh.kiando.Position
+import jp.kawagh.kiando.SFENConverter
 
 class Converters {
     // encode Move -> fromRow_fromCol_toRow_toCol_isPromote
