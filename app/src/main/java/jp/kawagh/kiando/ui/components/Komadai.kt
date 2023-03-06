@@ -11,7 +11,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
-import jp.kawagh.kiando.PieceKind
+import jp.kawagh.kiando.models.PieceKind
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 
 @Composable

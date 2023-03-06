@@ -1,5 +1,9 @@
 package jp.kawagh.kiando
 
+import jp.kawagh.kiando.models.Move
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
+import jp.kawagh.kiando.models.toReadable
 import org.junit.Assert
 import org.junit.Test
 

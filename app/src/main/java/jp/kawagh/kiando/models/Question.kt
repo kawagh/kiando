@@ -6,8 +6,6 @@ import androidx.room.Entity
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import jp.kawagh.kiando.Move
-import jp.kawagh.kiando.Position
 import jp.kawagh.kiando.SFENConverter
 
 

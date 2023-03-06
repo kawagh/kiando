@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.kawagh.kiando.data.MoveConverters
 import jp.kawagh.kiando.data.Repository
+import jp.kawagh.kiando.models.Move
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.QuestionWithTags

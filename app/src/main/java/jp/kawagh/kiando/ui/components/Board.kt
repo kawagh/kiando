@@ -18,9 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
-import jp.kawagh.kiando.PanelState
-import jp.kawagh.kiando.PieceKind
-import jp.kawagh.kiando.Position
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
 import jp.kawagh.kiando.models.sampleQuestions
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused

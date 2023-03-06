@@ -1,6 +1,8 @@
 package jp.kawagh.kiando
 
 import jp.kawagh.kiando.data.MoveConverters
+import jp.kawagh.kiando.models.Move
+import jp.kawagh.kiando.models.Position
 import org.junit.Test
 
 class MoveConvertersTest {

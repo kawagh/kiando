@@ -8,7 +8,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import jp.kawagh.kiando.data.Repository
+import jp.kawagh.kiando.models.Move
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
 import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.fromEnemyKomadai
+import jp.kawagh.kiando.models.fromMyKomadai
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
