@@ -3,7 +3,6 @@ package jp.kawagh.kiando.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import jp.kawagh.kiando.Question
 
 @Entity(
     primaryKeys = ["question_id", "tag_id"],

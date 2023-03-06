@@ -1,10 +1,10 @@
 package jp.kawagh.kiando.data
 
-import jp.kawagh.kiando.Question
-import jp.kawagh.kiando.QuestionWithTags
+import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.Tag
-import jp.kawagh.kiando.sampleQuestions
+import jp.kawagh.kiando.models.sampleQuestions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject

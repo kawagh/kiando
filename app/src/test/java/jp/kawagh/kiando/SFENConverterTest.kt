@@ -1,5 +1,8 @@
 package jp.kawagh.kiando
 
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.initialBoardState
 import org.junit.Test
 
 class SFENConverterTest {
