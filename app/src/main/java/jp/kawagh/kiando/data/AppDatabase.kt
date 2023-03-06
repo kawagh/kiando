@@ -9,7 +9,6 @@ import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import jp.kawagh.kiando.models.MoveConverters
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.Tag

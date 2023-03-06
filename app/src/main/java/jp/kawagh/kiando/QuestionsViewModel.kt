@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.kawagh.kiando.data.MoveConverters
 import jp.kawagh.kiando.data.Repository
-import jp.kawagh.kiando.models.MoveConverters
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.QuestionWithTags
