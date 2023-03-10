@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## unreleased [2023-03-10]
+## v1.0.15 [2023-03-10]
 - add Crashlytics
 
 ## v1.0.14 [2023-03-05]
