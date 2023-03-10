@@ -8,6 +8,8 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
@@ -115,6 +117,10 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
+
+    implementation(platform("com.google.firebase:firebase-bom:31.2.3"))
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 }
 
 // Hilt: Allow references to generated code

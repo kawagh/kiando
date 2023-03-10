@@ -58,8 +58,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
-import jp.kawagh.kiando.models.ENEMY_KOMADAI_INDEX
 import jp.kawagh.kiando.GameViewModel
+import jp.kawagh.kiando.R
+import jp.kawagh.kiando.SFENConverter
+import jp.kawagh.kiando.models.ENEMY_KOMADAI_INDEX
 import jp.kawagh.kiando.models.MY_KOMADAI_INDEX
 import jp.kawagh.kiando.models.Move
 import jp.kawagh.kiando.models.NonMove
@@ -67,8 +69,6 @@ import jp.kawagh.kiando.models.NonPosition
 import jp.kawagh.kiando.models.PanelState
 import jp.kawagh.kiando.models.PieceKind
 import jp.kawagh.kiando.models.Position
-import jp.kawagh.kiando.R
-import jp.kawagh.kiando.SFENConverter
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.toReadable
 import jp.kawagh.kiando.ui.components.Board
