@@ -9,9 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.kawagh.kiando.data.MoveConverters
 import jp.kawagh.kiando.data.Repository
+import jp.kawagh.kiando.models.Move
+import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionTagCrossRef
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
+import jp.kawagh.kiando.models.sampleQuestions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,7 +42,7 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    fun deleteAll() {
+    fun deleteAllQuestions() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteAllQuestions()
         }
@@ -107,6 +112,10 @@ class QuestionsViewModel @Inject constructor(
         uiState = uiState.copy(isTagEditMode = !uiState.isTagEditMode)
     }
 
+    fun toggleHideDefaultQuestions() {
+        uiState = uiState.copy(hideDefaultQuestions = !uiState.hideDefaultQuestions)
+    }
+
 
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -134,7 +143,7 @@ class QuestionsViewModel @Inject constructor(
         csvQuestionContents.forEach {
             val id = it.getValue("id").toInt()
             val description: String = it.getValue("description")
-            val answerMove: Move = Converters().toMove(it.getValue("answer_move"))
+            val answerMove: Move = MoveConverters().toMove(it.getValue("answer_move"))
             val sfen: String = it.getValue("sfen")
             val komadaiSfen: String = it.getValue("komadai_sfen")
             val isFavorite: Boolean = it.getValue("is_favorite").toBoolean()
@@ -180,5 +189,6 @@ data class QuestionsUiState(
     val tags: List<Tag> = emptyList(),
     val tabRowIndex: Int = 0,
     val bottomBarIndex: Int = 0,
-    val isTagEditMode: Boolean = false
+    val isTagEditMode: Boolean = false,
+    val hideDefaultQuestions: Boolean = false,
 )

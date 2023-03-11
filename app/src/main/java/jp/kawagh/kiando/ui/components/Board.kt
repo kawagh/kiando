@@ -3,21 +3,25 @@ package jp.kawagh.kiando.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
-import jp.kawagh.kiando.PanelState
-import jp.kawagh.kiando.PieceKind
-import jp.kawagh.kiando.Position
-import jp.kawagh.kiando.sampleQuestions
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
+import jp.kawagh.kiando.models.sampleQuestions
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
@@ -30,16 +34,50 @@ fun Board(
     lastClickedPanelPos: Position,
     positionsToHighlight: List<Position>,
 ) {
-    Column {
-        repeat(BOARD_SIZE) { rowIndex ->
-            BoardRow(
-                boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
-                handlePanelClick,
-                shouldHighlight,
-                lastClickedPanelPos,
-                positionsToHighlight
-            )
+    val dotSize = 8
+    val panelSize = 40
+    Box {
+        Column {
+            repeat(BOARD_SIZE) { rowIndex ->
+                BoardRow(
+                    boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
+                    handlePanelClick,
+                    shouldHighlight,
+                    lastClickedPanelPos,
+                    positionsToHighlight,
+                    panelSize
+                )
+            }
         }
+        Box(
+            Modifier
+                .size(dotSize.dp)
+                .offset(x = (3 * panelSize - dotSize / 2).dp, y = (3 * panelSize - dotSize / 2).dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+        )
+        Box(
+            Modifier
+                .size(dotSize.dp)
+                .offset(x = (6 * panelSize - dotSize / 2).dp, y = (3 * panelSize - dotSize / 2).dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+        )
+        Box(
+            Modifier
+                .size(dotSize.dp)
+                .offset(x = (3 * panelSize - dotSize / 2).dp, y = (6 * panelSize - dotSize / 2).dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+        )
+        Box(
+            Modifier
+                .size(dotSize.dp)
+                .offset(x = (6 * panelSize - dotSize / 2).dp, y = (6 * panelSize - dotSize / 2).dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+        )
+
     }
 }
 
@@ -64,6 +102,7 @@ private fun BoardRow(
     shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
     positionsToHighlight: List<Position>,
+    panelSize: Int,
 ) = Row {
     repeat(BOARD_SIZE) { colIndex ->
         Panel(
@@ -71,7 +110,8 @@ private fun BoardRow(
             handlePanelClick,
             shouldHighlight,
             lastClickedPanelPos,
-            positionsToHighlight
+            positionsToHighlight,
+            panelSize,
         )
     }
 }
@@ -83,6 +123,7 @@ private fun Panel(
     shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
     positionsToHighlight: List<Position>,
+    panelSize: Int,
 ) {
     val text = when (panelState.pieceKind) {
         PieceKind.EMPTY -> ""
@@ -108,7 +149,7 @@ private fun Panel(
         isEnemy = panelState.isEnemy,
         isPromoted = panelState.isPromoted,
         modifier = Modifier
-            .size(40.dp)
+            .size(panelSize.dp)
             .background(backgroundColor)
             .border(BorderStroke(0.4.dp, Color.Black))
     )

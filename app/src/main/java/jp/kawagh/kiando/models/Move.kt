@@ -1,7 +1,13 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.models
 
 typealias BoardState = List<List<PanelState>>
 typealias BoardStateFlatten = List<PanelState>
+
+data class Move(
+    val from: Position,
+    val to: Position,
+    val isPromote: Boolean = false
+)
 
 enum class PieceKind {
     KING,
@@ -17,11 +23,11 @@ enum class PieceKind {
 
 data class Position(val row: Int, val column: Int)
 
-data class Move(
-    val from: Position,
-    val to: Position,
-    val isPromote: Boolean = false
-)
+const val MY_KOMADAI_INDEX = -1
+const val ENEMY_KOMADAI_INDEX = -2
+
+fun Move.fromMyKomadai(): Boolean = this.from.row == MY_KOMADAI_INDEX
+fun Move.fromEnemyKomadai(): Boolean = this.from.row == ENEMY_KOMADAI_INDEX
 
 fun Move.toReadable(pieceKind: PieceKind): String {
     val pieceText = when (pieceKind) {

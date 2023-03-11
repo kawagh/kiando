@@ -8,6 +8,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import jp.kawagh.kiando.data.Repository
+import jp.kawagh.kiando.models.Move
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
+import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.fromEnemyKomadai
+import jp.kawagh.kiando.models.fromMyKomadai
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -61,7 +68,9 @@ class GameViewModel @AssistedInject constructor(
         }
     }
 
-    fun isMoveFromKomadai(move: Move): Boolean = move.from.row < 0
+    private fun isMoveFromKomadai(move: Move): Boolean =
+        move.fromMyKomadai() || move.fromEnemyKomadai()
+
     fun move(move: Move) {
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         val toIndex = move.to.row * BOARD_SIZE + move.to.column
@@ -70,20 +79,14 @@ class GameViewModel @AssistedInject constructor(
         if (isMoveFromKomadai(move)) {
             if (boardState[posToIndex(move.to)].pieceKind != PieceKind.EMPTY) return
             val pieceKind: PieceKind = PieceKind.values()[move.from.column]
-            when (move.from.row) {
-                -1 -> {
-                    boardState[toIndex] =
-                        PanelState(move.to.row, move.to.column, pieceKind, isEnemy = false)
-                    komadaiState.remove(pieceKind)
-
-                }
-
-                -2 -> {
-                    enemyKomadaiState.remove(pieceKind)
-                    boardState[toIndex] =
-                        PanelState(move.to.row, move.to.column, pieceKind, isEnemy = true)
-
-                }
+            if (move.fromMyKomadai()) {
+                boardState[toIndex] =
+                    PanelState(move.to.row, move.to.column, pieceKind, isEnemy = false)
+                komadaiState.remove(pieceKind)
+            } else if (move.fromEnemyKomadai()) {
+                boardState[toIndex] =
+                    PanelState(move.to.row, move.to.column, pieceKind, isEnemy = true)
+                enemyKomadaiState.remove(pieceKind)
             }
         } else if (isValidMove(move, boardState[fromIndex])) {
             if (boardState[toIndex].pieceKind != PieceKind.EMPTY) {
@@ -138,7 +141,8 @@ class GameViewModel @AssistedInject constructor(
                     boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
                             || (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
                     )
-        } }
+        }
+    }
 
     fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> =
         // TODO 二歩,進行方向なしの考慮

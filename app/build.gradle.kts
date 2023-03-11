@@ -8,6 +8,8 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
@@ -17,7 +19,7 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.12"
+val appVersion = "1.0.16"
 
 android {
     compileSdk = 33
@@ -27,7 +29,6 @@ android {
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -37,11 +38,9 @@ android {
                 argument("room.schemaLocation", "$projectDir/schemas")
             }
         }
+        manifestPlaceholders["icon"] = "@mipmap/ic_launcher"
+        manifestPlaceholders["roundIcon"] = "@mipmap/ic_launcher_round"
     }
-    sourceSets {
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -52,7 +51,12 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
+            manifestPlaceholders["icon"] = "@mipmap/ic_debug_launcher"
+            manifestPlaceholders["roundIcon"] = "@mipmap/ic_debug_launcher_round"
         }
+    }
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -113,6 +117,10 @@ dependencies {
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
+
+    implementation(platform("com.google.firebase:firebase-bom:31.2.3"))
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 }
 
 // Hilt: Allow references to generated code

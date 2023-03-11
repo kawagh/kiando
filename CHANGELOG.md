@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v1.0.16 [2023-03-10]
+- add Crashlytics
+
+## v1.0.14 [2023-03-05]
+
+### [2023-03-05]
+- change app icon 
+
+### [2023-03-04]
+- describe 4 dots on board
+- change delete button color
+- change add-samples button content color
+
+### [2023-03-02]
+- change snackbar style,duration
+
+### [2023-03-01]
+- disable empty panel touch
+
+## v1.0.13 [2023-02-26]
+- show dialog to delete tags
+
 ## v1.0.12 [2023-02-25]
 - rename tag
 - change buttons layout in MainScreen

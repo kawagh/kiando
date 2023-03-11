@@ -1,4 +1,4 @@
-package jp.kawagh.kiando
+package jp.kawagh.kiando.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextRotateVertical
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,11 +29,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -49,10 +52,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import jp.kawagh.kiando.BOARD_SIZE
+import jp.kawagh.kiando.GameViewModel
+import jp.kawagh.kiando.R
+import jp.kawagh.kiando.SFENConverter
+import jp.kawagh.kiando.models.ENEMY_KOMADAI_INDEX
+import jp.kawagh.kiando.models.MY_KOMADAI_INDEX
+import jp.kawagh.kiando.models.Move
+import jp.kawagh.kiando.models.NonMove
+import jp.kawagh.kiando.models.NonPosition
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
+import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.toReadable
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.theme.BoardColor
@@ -67,7 +85,7 @@ fun MainScreen(
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
 ) {
-
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
         mutableStateOf(false)
@@ -129,7 +147,11 @@ fun MainScreen(
         if (move == question.answerMove) {
             snackbarCoroutineScope.launch {
                 val snackbarResult =
-                    snackbarHostState.showSnackbar(message = "Good Move👍", actionLabel = "Next")
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.snackbar_text_good_move),
+                        actionLabel = context.getString(R.string.snackbar_label_text_good_move),
+                        duration = SnackbarDuration.Short,
+                    )
 
                 when (snackbarResult) {
                     SnackbarResult.ActionPerformed -> {
@@ -147,37 +169,26 @@ fun MainScreen(
 
     val handlePanelClick: (PanelState) -> Unit = {
         shouldShowAnswerButton = false
-        when (panelClickedOnce) {
-            true -> {
-                panelClickedOnce = !panelClickedOnce
-                positionStack.add(Position(it.row, it.column))
-                val move = Move(positionStack.first(), positionStack.last())
-                if (gameViewModel.isMoveFromKomadai(move)) {
-                    when (isRegisterQuestionMode) {
-                        false -> processMove(move)
-                        true -> registerMove(move)
-                    }
+        if (panelClickedOnce) {
+            panelClickedOnce = false
+            positionStack.add(Position(it.row, it.column))
+            val move = Move(positionStack.first(), positionStack.last())
+            // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
+            if (gameViewModel.listLegalMoves(lastClickedPanel)
+                    .contains(positionStack.last()) && gameViewModel.isPromotable(move)
+            ) {
+                // decide to promote in dialog
+                shouldShowPromotionDialog = true
+            } else {
+                if (isRegisterQuestionMode) {
+                    registerMove(move)
                 } else {
-                    // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
-                    when (gameViewModel.listLegalMoves(lastClickedPanel)
-                        .contains(positionStack.last()) && gameViewModel.isPromotable(move)) {
-                        true -> {
-                            // judge promote here
-                            shouldShowPromotionDialog = true
-                        }
-
-                        false -> {
-                            when (isRegisterQuestionMode) {
-                                false -> processMove(move)
-                                true -> registerMove(move)
-                            }
-                        }
-                    }
+                    processMove(move)
                 }
             }
-
-            false -> {
-                panelClickedOnce = !panelClickedOnce
+        } else {
+            if (it.pieceKind != PieceKind.EMPTY) {
+                panelClickedOnce = true
                 positionStack.add(Position(it.row, it.column))
                 lastClickedPanelPos = Position(it.row, it.column)
                 lastClickedPanel = it
@@ -186,35 +197,30 @@ fun MainScreen(
         }
     }
 
-    // komadaik
-    //    myKomadai:-1,
-    //    enemyKomadai:-2,
+    // komadai
     val handleKomadaiClick: (PieceKind) -> Unit = {
-        when (panelClickedOnce) {
-            true -> {
-                panelClickedOnce = !panelClickedOnce
-            }
-
-            false -> {
-                panelClickedOnce = !panelClickedOnce
-                positionStack.add(Position(-1, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
-                lastClickedPanelPos = Position(-1, -1) // 駒台を表す
-            }
+        if (panelClickedOnce) {
+            panelClickedOnce = false
+        } else {
+            panelClickedOnce = true
+            positionStack.add(Position(MY_KOMADAI_INDEX, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
     val handleEnemyKomadaiClick: (PieceKind) -> Unit = {
-        when (panelClickedOnce) {
-            true -> {
-                panelClickedOnce = !panelClickedOnce
-            }
-
-            false -> {
-                panelClickedOnce = !panelClickedOnce
-                positionStack.add(Position(-2, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-                positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
-                lastClickedPanelPos = Position(-1, -1) // 駒台を表す
-            }
+        if (panelClickedOnce) {
+            panelClickedOnce = false
+        } else {
+            panelClickedOnce = true
+            positionStack.add(
+                Position(
+                    ENEMY_KOMADAI_INDEX,
+                    it.ordinal
+                )
+            ) // move.fromにpiecekindを埋め込んでいる
+            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
 
@@ -230,7 +236,14 @@ fun MainScreen(
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { snackbarData: SnackbarData ->
+                Snackbar(
+                    snackbarData = snackbarData,
+                    actionColor = BoardColor,
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -338,7 +351,6 @@ fun MainScreen(
             )
 
             val clipboardManager = LocalClipboardManager.current
-            val context = LocalContext.current
             Spacer(modifier = Modifier.size(8.dp))
             AnimatedVisibility(visible = shouldShowSFENInput) {
                 Row {
@@ -555,17 +567,17 @@ private fun PromotionDialog(
     if (shouldShowPromotionDialog) {
         AlertDialog(onDismissRequest = {},
             title = {
-                Text(text = "promote?")
+                Text(text = stringResource(R.string.dialog_title_promote))
             },
             confirmButton = {
-                TextButton(onClick = onConfirmClick) {
-                    Text(text = "YES")
+                Button(onClick = onConfirmClick) {
+                    Text(text = stringResource(R.string.button_text_confirm_promotion))
 
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismissClick) {
-                    Text(text = "NO")
+                OutlinedButton(onClick = onDismissClick) {
+                    Text(text = stringResource(R.string.button_text_cancel_promotion))
                 }
             }
         )

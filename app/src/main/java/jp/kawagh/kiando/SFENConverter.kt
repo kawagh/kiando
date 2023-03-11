@@ -1,5 +1,9 @@
 package jp.kawagh.kiando
 
+import jp.kawagh.kiando.models.BoardStateFlatten
+import jp.kawagh.kiando.models.PanelState
+import jp.kawagh.kiando.models.PieceKind
+
 
 class SFENConverter {
     private val mapping: Map<Char, Pair<PieceKind, Boolean>> = mapOf(
