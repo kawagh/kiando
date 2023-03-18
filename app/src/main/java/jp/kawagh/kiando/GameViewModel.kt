@@ -68,6 +68,26 @@ class GameViewModel @AssistedInject constructor(
         }
     }
 
+    // 不成で進む先の無い手は成るしかない
+    fun mustPromote(move: Move): Boolean {
+        if (isMoveFromKomadai(move)) {
+            return false
+        }
+        val fromIndex = move.from.row * BOARD_SIZE + move.from.column
+        return when (boardState[fromIndex].pieceKind) {
+            PieceKind.KNIGHT -> (!boardState[fromIndex].isEnemy && move.to.row < 2)
+                    || (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
+
+            PieceKind.LANCE -> (!boardState[fromIndex].isEnemy && move.to.row == 0)
+                    || (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+
+            PieceKind.PAWN -> (!boardState[fromIndex].isEnemy && move.to.row == 0)
+                    || (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+
+            else -> false
+        }
+    }
+
     private fun isMoveFromKomadai(move: Move): Boolean =
         move.fromMyKomadai() || move.fromEnemyKomadai()
 

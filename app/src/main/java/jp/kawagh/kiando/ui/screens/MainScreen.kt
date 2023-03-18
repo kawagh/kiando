@@ -172,10 +172,15 @@ fun MainScreen(
         if (panelClickedOnce) {
             panelClickedOnce = false
             positionStack.add(Position(it.row, it.column))
-            val move = Move(positionStack.first(), positionStack.last())
+            var move = Move(positionStack.first(), positionStack.last())
+            if (gameViewModel.mustPromote(move)) {
+                move = move.copy(isPromote = true)
+            }
             // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
             if (gameViewModel.listLegalMoves(lastClickedPanel)
-                    .contains(positionStack.last()) && gameViewModel.isPromotable(move)
+                    .contains(positionStack.last())
+                && gameViewModel.isPromotable(move)
+                && !move.isPromote
             ) {
                 // decide to promote in dialog
                 shouldShowPromotionDialog = true
