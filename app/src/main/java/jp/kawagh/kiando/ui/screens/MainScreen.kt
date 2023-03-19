@@ -210,7 +210,13 @@ fun MainScreen(
         } else {
             panelClickedOnce = true
             positionStack.add(Position(MY_KOMADAI_INDEX, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            positionsToHighlight.clear()
+            positionsToHighlight.addAll(
+                gameViewModel.listLegalMovesFromKomadai(
+                    it,
+                    isEnemy = false
+                )
+            )
             lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
@@ -225,7 +231,13 @@ fun MainScreen(
                     it.ordinal
                 )
             ) // move.fromにpiecekindを埋め込んでいる
-            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            positionsToHighlight.clear()
+            positionsToHighlight.addAll(
+                gameViewModel.listLegalMovesFromKomadai(
+                    it,
+                    isEnemy = true
+                )
+            )
             lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
