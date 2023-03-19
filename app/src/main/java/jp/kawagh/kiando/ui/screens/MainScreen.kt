@@ -206,6 +206,7 @@ fun MainScreen(
     val handleKomadaiClick: (PieceKind) -> Unit = {
         if (panelClickedOnce) {
             panelClickedOnce = false
+            positionStack.clear()
         } else {
             panelClickedOnce = true
             positionStack.add(Position(MY_KOMADAI_INDEX, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
