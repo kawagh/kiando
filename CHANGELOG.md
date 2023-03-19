@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [2023-03-19]
+
+- fix bug related komadai
+
 ## [2023-03-18]
 
 - improve promotionDialog
