@@ -3,6 +3,7 @@
 ## [2023-03-19]
 
 - fix bug related komadai
+- detect `二歩`
 
 ## [2023-03-18]
 
