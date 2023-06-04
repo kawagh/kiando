@@ -17,13 +17,17 @@ import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestions
+import jp.kawagh.kiando.network.KiandoApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.net.ConnectException
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
+    private val apiService: KiandoApiService,
     @ApplicationContext private val context: Context,
 ) :
     ViewModel() {
@@ -40,6 +44,20 @@ class QuestionsViewModel @Inject constructor(
                 uiState = uiState.copy(tags = it)
             }
         }
+    }
+
+    fun callApi() {
+        viewModelScope.launch {
+            try {
+                val result = apiService.getSFENResponse()
+                if (result.isSuccessful) {
+                    Timber.d(result.body()!!.sfen)
+                }
+            } catch (e: ConnectException) {
+                Timber.d(e.message)
+            }
+        }
+
     }
 
     fun deleteAllQuestions() {

@@ -10,6 +10,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
