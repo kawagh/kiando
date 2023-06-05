@@ -1,11 +1,13 @@
 # CHANGELOG
 
-## [2023-03-19]
+## v1.0.17 [2023-03-19]
+
+### [2023-03-19]
 
 - fix bug related komadai
 - detect `二歩`
 
-## [2023-03-18]
+### [2023-03-18]
 
 - improve promotionDialog
 
