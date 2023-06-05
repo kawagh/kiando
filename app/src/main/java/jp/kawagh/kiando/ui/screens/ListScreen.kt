@@ -1,5 +1,8 @@
 package jp.kawagh.kiando.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +17,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -35,6 +39,7 @@ import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 //@Preview
 //@Composable
@@ -102,8 +107,16 @@ fun ListScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri == null) {
+            Timber.d("no selected image")
+        } else {
+            Timber.d(uri.toString())
+            // TODO send image to server
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -138,6 +151,16 @@ fun ListScreen(
                     actions = {
                         when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                             BottomBarItems.Questions -> {
+                                IconButton(onClick = {
+                                    pickImageLauncher.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                                        )
+                                    )
+//                                    pickImageLauncher.launch("image/*")
+                                }) {
+                                    Icon(Icons.Default.Screenshot, "access to screenshots")
+                                }
                                 if (dropDownMenuItems.isNotEmpty()) {
                                     IconToggleButton(
                                         checked = selectedFilterTag is Tag,
