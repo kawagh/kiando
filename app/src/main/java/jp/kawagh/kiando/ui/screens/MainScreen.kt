@@ -172,10 +172,15 @@ fun MainScreen(
         if (panelClickedOnce) {
             panelClickedOnce = false
             positionStack.add(Position(it.row, it.column))
-            val move = Move(positionStack.first(), positionStack.last())
+            var move = Move(positionStack.first(), positionStack.last())
+            if (gameViewModel.mustPromote(move)) {
+                move = move.copy(isPromote = true)
+            }
             // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
             if (gameViewModel.listLegalMoves(lastClickedPanel)
-                    .contains(positionStack.last()) && gameViewModel.isPromotable(move)
+                    .contains(positionStack.last())
+                && gameViewModel.isPromotable(move)
+                && !move.isPromote
             ) {
                 // decide to promote in dialog
                 shouldShowPromotionDialog = true
@@ -201,10 +206,17 @@ fun MainScreen(
     val handleKomadaiClick: (PieceKind) -> Unit = {
         if (panelClickedOnce) {
             panelClickedOnce = false
+            positionStack.clear()
         } else {
             panelClickedOnce = true
             positionStack.add(Position(MY_KOMADAI_INDEX, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
-            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            positionsToHighlight.clear()
+            positionsToHighlight.addAll(
+                gameViewModel.listLegalMovesFromKomadai(
+                    it,
+                    isEnemy = false
+                )
+            )
             lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }
@@ -219,7 +231,13 @@ fun MainScreen(
                     it.ordinal
                 )
             ) // move.fromにpiecekindを埋め込んでいる
-            positionsToHighlight.addAll(gameViewModel.listLegalMovesFromKomadai(it))
+            positionsToHighlight.clear()
+            positionsToHighlight.addAll(
+                gameViewModel.listLegalMovesFromKomadai(
+                    it,
+                    isEnemy = true
+                )
+            )
             lastClickedPanelPos = Position(-1, -1) // 駒台を表す
         }
     }

@@ -17,6 +17,7 @@ import jp.kawagh.kiando.models.fromEnemyKomadai
 import jp.kawagh.kiando.models.fromMyKomadai
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 const val BOARD_SIZE = 9
 
@@ -68,6 +69,26 @@ class GameViewModel @AssistedInject constructor(
         }
     }
 
+    // 不成で進む先の無い手は成るしかない
+    fun mustPromote(move: Move): Boolean {
+        if (isMoveFromKomadai(move)) {
+            return false
+        }
+        val fromIndex = move.from.row * BOARD_SIZE + move.from.column
+        return when (boardState[fromIndex].pieceKind) {
+            PieceKind.KNIGHT -> (!boardState[fromIndex].isEnemy && move.to.row < 2)
+                    || (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
+
+            PieceKind.LANCE -> (!boardState[fromIndex].isEnemy && move.to.row == 0)
+                    || (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+
+            PieceKind.PAWN -> (!boardState[fromIndex].isEnemy && move.to.row == 0)
+                    || (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+
+            else -> false
+        }
+    }
+
     private fun isMoveFromKomadai(move: Move): Boolean =
         move.fromMyKomadai() || move.fromEnemyKomadai()
 
@@ -77,8 +98,14 @@ class GameViewModel @AssistedInject constructor(
         if (fromIndex == toIndex) return
         // 駒台からの打ち込み
         if (isMoveFromKomadai(move)) {
-            if (boardState[posToIndex(move.to)].pieceKind != PieceKind.EMPTY) return
             val pieceKind: PieceKind = PieceKind.values()[move.from.column]
+            if (!listLegalMovesFromKomadai(pieceKind, isEnemy = move.fromEnemyKomadai()).contains(
+                    move.to
+                )
+            ) {
+                Timber.d("not legal move")
+                return
+            }
             if (move.fromMyKomadai()) {
                 boardState[toIndex] =
                     PanelState(move.to.row, move.to.column, pieceKind, isEnemy = false)
@@ -144,11 +171,35 @@ class GameViewModel @AssistedInject constructor(
         }
     }
 
-    fun listLegalMovesFromKomadai(pieceKind: PieceKind): List<Position> =
-        // TODO 二歩,進行方向なしの考慮
-        List(BOARD_SIZE * BOARD_SIZE) {
-            Position(it / BOARD_SIZE, it % BOARD_SIZE)
-        }.filter { boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY }
+    fun listLegalMovesFromKomadai(pieceKind: PieceKind, isEnemy: Boolean): List<Position> {
+        // TODO 進行方向なしの考慮
+        if (pieceKind == PieceKind.PAWN) {
+            // 自陣営の歩(と金は除く)の存在する筋を保持する
+            val linesWithPawn = mutableSetOf<Int>()
+            for (index in 0 until BOARD_SIZE * BOARD_SIZE) {
+                if (boardState[index].pieceKind == PieceKind.PAWN
+                    && boardState[index].isEnemy == isEnemy
+                    && !boardState[index].isPromoted
+                ) {
+                    linesWithPawn.add(index % BOARD_SIZE)
+                }
+            }
+            return List(BOARD_SIZE * BOARD_SIZE) {
+                if (linesWithPawn.contains(it % BOARD_SIZE)) {
+                    null
+                } else {
+                    it
+                }
+            }.filterNotNull()
+                .map {
+                    Position(it / BOARD_SIZE, it % BOARD_SIZE)
+                }.filter { boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY }
+        } else {
+            return List(BOARD_SIZE * BOARD_SIZE) {
+                Position(it / BOARD_SIZE, it % BOARD_SIZE)
+            }.filter { boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY }
+        }
+    }
 
     fun listLegalMoves(panelState: PanelState): List<Position> {
         val originalRow = panelState.row
