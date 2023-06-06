@@ -1,5 +1,6 @@
 package jp.kawagh.kiando.ui.screens
 
+import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,7 +40,12 @@ import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import timber.log.Timber
+import java.io.File
 
 //@Preview
 //@Composable
@@ -107,12 +113,16 @@ fun ListScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        questionsViewModel.callApi()
+    }
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri == null) {
             Timber.d("no selected image")
         } else {
+            questionsViewModel.uploadImage(uri)
             Timber.d(uri.toString())
             // TODO send image to server
         }
