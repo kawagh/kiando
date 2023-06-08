@@ -1,8 +1,6 @@
 package jp.kawagh.kiando
 
 import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,22 +17,13 @@ import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestions
-import jp.kawagh.kiando.network.KiandoApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import timber.log.Timber
-import java.io.File
-import java.net.ConnectException
 import javax.inject.Inject
 
 @HiltViewModel
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
-    private val apiService: KiandoApiService,
     @ApplicationContext private val context: Context,
 ) :
     ViewModel() {
@@ -51,38 +40,6 @@ class QuestionsViewModel @Inject constructor(
                 uiState = uiState.copy(tags = it)
             }
         }
-    }
-
-
-    fun uploadImage(uri: Uri) {
-        val file = getFileFromContentUri(context, uri) ?: return
-        val requestFile: RequestBody = file.asRequestBody("image/png".toMediaType())
-        val imagePart: MultipartBody.Part =
-            MultipartBody.Part.createFormData("file", file.name, requestFile)
-        viewModelScope.launch {
-            try {
-                val result = apiService.getSFENResponse(imagePart)
-                if (result.isSuccessful) {
-                    Timber.d(result.body()!!.sfen)
-                }
-            } catch (e: ConnectException) {
-                Timber.d(e.message)
-            }
-        }
-    }
-
-    fun callApi() {
-        viewModelScope.launch {
-            try {
-                val result = apiService.getSFENResponse()
-                if (result.isSuccessful) {
-                    Timber.d(result.body()!!.sfen)
-                }
-            } catch (e: ConnectException) {
-                Timber.d(e.message)
-            }
-        }
-
     }
 
     fun deleteAllQuestions() {
@@ -226,39 +183,6 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
-    private fun getFileFromContentUri(context: Context, uri: Uri): File? {
-        var file: File? = null
-        val filePath: String?
-
-        if (uri.scheme == "content") {
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val displayNameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    val fileName = it.getString(displayNameIndex)
-
-                    // make directory to save file
-                    val cacheDir = context.cacheDir
-                    val tempFile = File(cacheDir, fileName)
-
-                    // copy file
-                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        tempFile.outputStream().use { outputStream ->
-                            inputStream.copyTo(outputStream)
-                        }
-                    }
-
-                    filePath = tempFile.absolutePath
-                    if (filePath == null) {
-                        return null
-                    }
-                    file = File(filePath)
-                }
-            }
-        }
-
-        return file
-    }
 }
 
 data class QuestionsUiState(

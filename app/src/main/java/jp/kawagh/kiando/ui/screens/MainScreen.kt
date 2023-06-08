@@ -1,5 +1,8 @@
 package jp.kawagh.kiando.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +17,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
@@ -75,6 +79,8 @@ import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
 import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -132,6 +138,18 @@ fun MainScreen(
     val snackbarCoroutineScope = rememberCoroutineScope()
     val positionsToHighlight = remember {
         mutableStateListOf<Position>()
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri == null) {
+            Timber.d("no selected image")
+        } else {
+            gameViewModel.uploadImage(uri)
+            // TODO invoke recompose
+            Timber.d(uri.toString())
+        }
     }
 
     fun registerMove(move: Move) {
@@ -286,6 +304,15 @@ fun MainScreen(
                             Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
 
                         }
+                    }
+                    IconButton(onClick = {
+                        pickImageLauncher.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    }) {
+                        Icon(Icons.Default.Screenshot, "access to screenshots")
                     }
                     IconButton(onClick = {
                         if (!isRegisterQuestionMode) {

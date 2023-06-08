@@ -113,20 +113,6 @@ fun ListScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        questionsViewModel.callApi()
-    }
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri == null) {
-            Timber.d("no selected image")
-        } else {
-            questionsViewModel.uploadImage(uri)
-            Timber.d(uri.toString())
-            // TODO send image to server
-        }
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -161,16 +147,6 @@ fun ListScreen(
                     actions = {
                         when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
                             BottomBarItems.Questions -> {
-                                IconButton(onClick = {
-                                    pickImageLauncher.launch(
-                                        PickVisualMediaRequest(
-                                            ActivityResultContracts.PickVisualMedia.ImageOnly
-                                        )
-                                    )
-//                                    pickImageLauncher.launch("image/*")
-                                }) {
-                                    Icon(Icons.Default.Screenshot, "access to screenshots")
-                                }
                                 if (dropDownMenuItems.isNotEmpty()) {
                                     IconToggleButton(
                                         checked = selectedFilterTag is Tag,
