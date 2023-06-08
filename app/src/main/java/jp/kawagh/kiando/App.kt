@@ -45,7 +45,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun App(
     questionsViewModel: QuestionsViewModel = viewModel(),
-    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory
+    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory,
 ) {
     val uiState = questionsViewModel.uiState
     KiandoM3Theme(darkTheme = false) {

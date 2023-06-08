@@ -10,6 +10,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
@@ -121,6 +122,12 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:31.2.3"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+
+    // retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 }
 
 // Hilt: Allow references to generated code

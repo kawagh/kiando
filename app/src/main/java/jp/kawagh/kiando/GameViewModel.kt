@@ -1,5 +1,8 @@
 package jp.kawagh.kiando
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
@@ -7,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.kawagh.kiando.data.Repository
 import jp.kawagh.kiando.models.Move
 import jp.kawagh.kiando.models.PanelState
@@ -15,14 +19,23 @@ import jp.kawagh.kiando.models.Position
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.fromEnemyKomadai
 import jp.kawagh.kiando.models.fromMyKomadai
+import jp.kawagh.kiando.network.KiandoApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import timber.log.Timber
+import java.io.File
+import java.net.ConnectException
 
 const val BOARD_SIZE = 9
 
 class GameViewModel @AssistedInject constructor(
     private val repository: Repository,
+    private val apiService: KiandoApiService,
+    @ApplicationContext private val context: Context,
     @Assisted private val question: Question
 ) :
     ViewModel() {
@@ -38,6 +51,25 @@ class GameViewModel @AssistedInject constructor(
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
+
+    fun uploadImage(uri: Uri) {
+        val file = getFileFromContentUri(uri) ?: return
+        val requestFile: RequestBody = file.asRequestBody("image/png".toMediaType())
+        val imagePart: MultipartBody.Part =
+            MultipartBody.Part.createFormData("file", file.name, requestFile)
+        viewModelScope.launch {
+            try {
+                val result = apiService.getSFENResponse(imagePart)
+                if (result.isSuccessful) {
+                    Timber.d(result.body()!!.sfen)
+                    loadSFEN(result.body()!!.sfen)
+                }
+            } catch (e: ConnectException) {
+                Timber.d(e.message)
+            }
+        }
+    }
+
 
     fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -333,5 +365,40 @@ class GameViewModel @AssistedInject constructor(
                     nextPositions.toList()
                 }
         }
+    }
+
+    // file utility
+    private fun getFileFromContentUri(uri: Uri): File? {
+        var file: File? = null
+        val filePath: String?
+
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val displayNameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    val fileName = it.getString(displayNameIndex)
+
+                    // make directory to save file
+                    val cacheDir = context.cacheDir
+                    val tempFile = File(cacheDir, fileName)
+
+                    // copy file
+                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        tempFile.outputStream().use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+
+                    filePath = tempFile.absolutePath
+                    if (filePath == null) {
+                        return null
+                    }
+                    file = File(filePath)
+                }
+            }
+        }
+
+        return file
     }
 }
