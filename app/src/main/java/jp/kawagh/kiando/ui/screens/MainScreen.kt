@@ -62,6 +62,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
+import jp.kawagh.kiando.BuildConfig
 import jp.kawagh.kiando.GameViewModel
 import jp.kawagh.kiando.R
 import jp.kawagh.kiando.SFENConverter
@@ -77,9 +78,9 @@ import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.toReadable
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
+import jp.kawagh.kiando.ui.components.VisibleIf
 import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 
@@ -305,14 +306,16 @@ fun MainScreen(
 
                         }
                     }
-                    IconButton(onClick = {
-                        pickImageLauncher.launch(
-                            PickVisualMediaRequest(
-                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                    VisibleIf(BuildConfig.DEBUG && !isRegisterQuestionMode) {
+                        IconButton(onClick = {
+                            pickImageLauncher.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
                             )
-                        )
-                    }) {
-                        Icon(Icons.Default.Screenshot, "access to screenshots")
+                        }) {
+                            Icon(Icons.Default.Screenshot, "access to screenshots")
+                        }
                     }
                     IconButton(onClick = {
                         if (!isRegisterQuestionMode) {

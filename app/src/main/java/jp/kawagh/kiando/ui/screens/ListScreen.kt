@@ -1,9 +1,5 @@
 package jp.kawagh.kiando.ui.screens
 
-import android.view.View
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,7 +14,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
-import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -40,12 +35,6 @@ import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import timber.log.Timber
-import java.io.File
 
 //@Preview
 //@Composable
