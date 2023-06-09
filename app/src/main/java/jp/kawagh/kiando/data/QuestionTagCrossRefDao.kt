@@ -19,6 +19,8 @@ interface QuestionTagCrossRefDao {
     @Delete
     fun deleteCrossRef(crossRef: QuestionTagCrossRef)
 
-    @Query("SELECT EXISTS (SELECT 1 FROM question_tag_cross_ref WHERE tag_id = :tagId AND question_id = :questionId) LIMIT 1")
+    @Query(
+        "SELECT EXISTS (SELECT 1 FROM question_tag_cross_ref WHERE tag_id = :tagId AND question_id = :questionId) LIMIT 1"
+    )
     fun hasCrossRef(tagId: Int, questionId: Int): Boolean
 }

@@ -2,7 +2,17 @@ package jp.kawagh.kiando.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -16,8 +26,42 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,16 +80,16 @@ import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
 
-//@Preview
-//@Composable
-//fun PreviewListScreen() {
+// @Preview
+// @Composable
+// fun PreviewListScreen() {
 //    ListScreen(
 //        QuestionsUiState(
 //            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
 //        ),
 //        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
 //
-//}
+// }
 
 enum class TabItem {
     All,
@@ -98,7 +142,7 @@ fun ListScreen(
 
     val dropDownMenuItems: Map<String, () -> Unit> =
         mapOf(stringResource(R.string.no_filter_name) to { selectedFilterTag = null }) +
-                questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
+            questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -113,21 +157,23 @@ fun ListScreen(
                 navigateToLicense = navigateToLicense,
                 handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
             )
-        }) {
+        }
+    ) {
         Scaffold(
             topBar = {
-                TopAppBar(title = {
-                    Text(
-                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
-                            BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
-                            BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
-                                stringResource(R.string.top_app_bar_title_edit_tags)
-                            } else {
-                                stringResource(R.string.top_app_bar_title_tags)
+                TopAppBar(
+                    title = {
+                        Text(
+                            when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
+                                BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
+                                BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
+                                    stringResource(R.string.top_app_bar_title_edit_tags)
+                                } else {
+                                    stringResource(R.string.top_app_bar_title_tags)
+                                }
                             }
-                        }
-                    )
-                },
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, null)
@@ -141,7 +187,8 @@ fun ListScreen(
                                         checked = selectedFilterTag is Tag,
                                         onCheckedChange = {
                                             dropDownExpanded = !dropDownExpanded
-                                        }) {
+                                        }
+                                    ) {
                                         Icon(Icons.Default.FilterAlt, null)
                                     }
                                     DropdownMenuOnTopBar(
@@ -149,14 +196,16 @@ fun ListScreen(
                                         expanded = dropDownExpanded,
                                         selectedName = selectedFilterTag?.title
                                             ?: stringResource(id = R.string.no_filter_name),
-                                        setExpanded = { dropDownExpanded = it })
+                                        setExpanded = { dropDownExpanded = it }
+                                    )
                                 }
                             }
 
                             BottomBarItems.Tags -> {
                                 IconToggleButton(
                                     checked = questionsUiState.isTagEditMode,
-                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }) {
+                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }
+                                ) {
                                     Icon(Icons.Default.Edit, "edit tags")
                                 }
                             }
@@ -171,8 +220,8 @@ fun ListScreen(
                             selected = questionsUiState.bottomBarIndex == index,
                             onClick = { questionsViewModel.setBottomBarIndex(index) },
                             label = { Text(bottomBarItem.title) },
-                            icon = { Icon(bottomBarItem.icon, null) })
-
+                            icon = { Icon(bottomBarItem.icon, null) }
+                        )
                     }
                 }
             }
@@ -189,7 +238,8 @@ fun ListScreen(
                             TabItem.values().forEachIndexed { index, tab ->
                                 Tab(
                                     selected = questionsUiState.tabRowIndex == index,
-                                    onClick = { questionsViewModel.setTabRowIndex(index) }) {
+                                    onClick = { questionsViewModel.setTabRowIndex(index) }
+                                ) {
                                     Text(
                                         tab.name,
                                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -232,7 +282,6 @@ fun ListScreen(
                             )
                         }
                     }
-
                 }
 
                 BottomBarItems.Tags -> {
@@ -394,7 +443,8 @@ private fun TagsContentOnListMode(
                 expanded = questionsDropdownExpanded,
                 onExpandedChange = {
                     questionsDropdownExpanded = !questionsDropdownExpanded
-                }) {
+                }
+            ) {
                 OutlinedTextField(
                     value = selectedQuestion?.description
                         ?: stringResource(R.string.dropdown_initial_item_select_question),
@@ -412,7 +462,8 @@ private fun TagsContentOnListMode(
                 )
                 ExposedDropdownMenu(
                     expanded = questionsDropdownExpanded,
-                    onDismissRequest = { questionsDropdownExpanded = false }) {
+                    onDismissRequest = { questionsDropdownExpanded = false }
+                ) {
                     questionOptions.forEach {
                         DropdownMenuItem(
                             text = { Text(it.description) },
@@ -424,7 +475,6 @@ private fun TagsContentOnListMode(
                         )
                     }
                 }
-
             }
         }
 
@@ -435,7 +485,6 @@ private fun TagsContentOnListMode(
                 selectedQuestion?.let {
                     handleToggleCrossRef(it, tag)
                 }
-
             }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (selectedQuestion == null) {
@@ -467,7 +516,6 @@ private fun TagsContentOnListMode(
         }
     }
 }
-
 
 @Composable
 private fun TagsContentOnEditMode(
@@ -517,11 +565,12 @@ private fun TagsContentOnEditMode(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(tags) {
-            Card(modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(vertical = 4.dp)
-                .clickable { handleRenameTag(it) }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .padding(vertical = 4.dp)
+                    .clickable { handleRenameTag(it) }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row {
@@ -561,7 +610,8 @@ private fun TagsContentOnEditMode(
                 )
             ) {
                 Icon(
-                    Icons.Default.Delete, null,
+                    Icons.Default.Delete,
+                    null,
                     modifier = Modifier.size(
                         ButtonDefaults.IconSize
                     )
@@ -586,19 +636,20 @@ fun DropdownMenuOnTopBar(
                 Text(
                     text = name,
                     modifier = Modifier.background(
-                        if (name == selectedName) Color.LightGray else {
+                        if (name == selectedName) {
+                            Color.LightGray
+                        } else {
                             Color.Transparent
                         }
                     )
                 )
             }, onClick = {
-                callback.invoke()
-                setExpanded(false)
-            })
+                    callback.invoke()
+                    setExpanded(false)
+                })
         }
     }
 }
-
 
 @Composable
 fun QuestionsList(

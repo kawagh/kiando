@@ -4,7 +4,6 @@ import jp.kawagh.kiando.models.BoardStateFlatten
 import jp.kawagh.kiando.models.PanelState
 import jp.kawagh.kiando.models.PieceKind
 
-
 class SFENConverter {
     private val mapping: Map<Char, Pair<PieceKind, Boolean>> = mapOf(
         'l' to Pair(PieceKind.LANCE, true),
@@ -34,7 +33,7 @@ class SFENConverter {
         PieceKind.BISHOP to 'b',
         PieceKind.ROOK to 'r',
 
-        )
+    )
 
     fun covertTo(boardStateFlatten: BoardStateFlatten): String {
         val sb = StringBuilder()
@@ -54,11 +53,9 @@ class SFENConverter {
                     sb.append(
                         if (ps.isEnemy) reverseMapping[ps.pieceKind] else reverseMapping[ps.pieceKind]!!.uppercase()
                     )
-
                 }
             }
             if (index % BOARD_SIZE == BOARD_SIZE - 1) {
-
                 if (emptyCount != 0) {
                     sb.append(emptyCount.toString())
                     emptyCount = 0
@@ -121,7 +118,6 @@ class SFENConverter {
         return sb.toString()
     }
 
-
     fun convertFrom(sfen: String): BoardStateFlatten {
         val board = MutableList(BOARD_SIZE * BOARD_SIZE) {
             PanelState(it / BOARD_SIZE, it % BOARD_SIZE, PieceKind.EMPTY)
@@ -160,7 +156,7 @@ class SFENConverter {
                     i += digit
                 }
 
-                ' ' -> break //盤面以降は読み込まない
+                ' ' -> break // 盤面以降は読み込まない
             }
         }
         return board.toList()

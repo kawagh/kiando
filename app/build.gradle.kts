@@ -128,6 +128,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+
+    // formatter
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
 }
 
 // Hilt: Allow references to generated code
@@ -138,4 +141,5 @@ kapt {
 detekt {
     buildUponDefaultConfig = true
     config = files("$rootDir/config/detekt/detekt.yml")
+    autoCorrect = true // `./gradlew detekt correct files
 }
