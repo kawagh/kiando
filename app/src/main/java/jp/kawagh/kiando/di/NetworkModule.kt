@@ -11,21 +11,42 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ForEmulator
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ForRealDevice
 
     @Provides
     @Singleton
-    fun provideKiandoApiService(retrofit: Retrofit): KiandoApiService =
+    fun provideKiandoApiService(@ForRealDevice retrofit: Retrofit): KiandoApiService =
         retrofit.create(KiandoApiService::class.java)
 
+    @ForEmulator
     @Provides
     @Singleton
     fun provideRetrofitForEmulator(httpClient: OkHttpClient): Retrofit {
         val url = "http://10.0.2.2:8000/"
+        return Retrofit.Builder()
+            .baseUrl(url)
+            .client(httpClient)
+            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @ForRealDevice
+    @Provides
+    @Singleton
+    fun provideRetrofitForRealDevice(httpClient: OkHttpClient): Retrofit {
+        val url = "http://192.168.1.4:8000/"
         return Retrofit.Builder()
             .baseUrl(url)
             .client(httpClient)
