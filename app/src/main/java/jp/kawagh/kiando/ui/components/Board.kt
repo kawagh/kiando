@@ -77,7 +77,6 @@ fun Board(
                 .clip(CircleShape)
                 .background(Color.Black)
         )
-
     }
 }
 
@@ -142,7 +141,9 @@ private fun Panel(
             in positionsToHighlight -> BoardColor
             else -> BoardColorUnfocused
         }
-    } else BoardColorUnfocused
+    } else {
+        BoardColorUnfocused
+    }
     Piece(
         text = text,
         onClick = { handlePanelClick(panelState) },

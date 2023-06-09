@@ -54,7 +54,6 @@ object NetworkModule {
             .build()
     }
 
-
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -66,5 +65,4 @@ object NetworkModule {
             )
             .build()
     }
-
 }

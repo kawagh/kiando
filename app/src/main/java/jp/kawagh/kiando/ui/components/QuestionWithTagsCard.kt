@@ -33,7 +33,6 @@ import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.ui.theme.CardColor
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuestionWithTagsCard(

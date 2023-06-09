@@ -36,16 +36,16 @@ import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
 import kotlinx.coroutines.launch
 
-//@Preview
-//@Composable
-//fun PreviewListScreen() {
+// @Preview
+// @Composable
+// fun PreviewListScreen() {
 //    ListScreen(
 //        QuestionsUiState(
 //            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
 //        ),
 //        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
 //
-//}
+// }
 
 enum class TabItem {
     All,
@@ -98,7 +98,7 @@ fun ListScreen(
 
     val dropDownMenuItems: Map<String, () -> Unit> =
         mapOf(stringResource(R.string.no_filter_name) to { selectedFilterTag = null }) +
-                questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
+            questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -113,21 +113,23 @@ fun ListScreen(
                 navigateToLicense = navigateToLicense,
                 handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
             )
-        }) {
+        }
+    ) {
         Scaffold(
             topBar = {
-                TopAppBar(title = {
-                    Text(
-                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
-                            BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
-                            BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
-                                stringResource(R.string.top_app_bar_title_edit_tags)
-                            } else {
-                                stringResource(R.string.top_app_bar_title_tags)
+                TopAppBar(
+                    title = {
+                        Text(
+                            when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
+                                BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
+                                BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
+                                    stringResource(R.string.top_app_bar_title_edit_tags)
+                                } else {
+                                    stringResource(R.string.top_app_bar_title_tags)
+                                }
                             }
-                        }
-                    )
-                },
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, null)
@@ -141,7 +143,8 @@ fun ListScreen(
                                         checked = selectedFilterTag is Tag,
                                         onCheckedChange = {
                                             dropDownExpanded = !dropDownExpanded
-                                        }) {
+                                        }
+                                    ) {
                                         Icon(Icons.Default.FilterAlt, null)
                                     }
                                     DropdownMenuOnTopBar(
@@ -149,14 +152,16 @@ fun ListScreen(
                                         expanded = dropDownExpanded,
                                         selectedName = selectedFilterTag?.title
                                             ?: stringResource(id = R.string.no_filter_name),
-                                        setExpanded = { dropDownExpanded = it })
+                                        setExpanded = { dropDownExpanded = it }
+                                    )
                                 }
                             }
 
                             BottomBarItems.Tags -> {
                                 IconToggleButton(
                                     checked = questionsUiState.isTagEditMode,
-                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }) {
+                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }
+                                ) {
                                     Icon(Icons.Default.Edit, "edit tags")
                                 }
                             }
@@ -171,8 +176,8 @@ fun ListScreen(
                             selected = questionsUiState.bottomBarIndex == index,
                             onClick = { questionsViewModel.setBottomBarIndex(index) },
                             label = { Text(bottomBarItem.title) },
-                            icon = { Icon(bottomBarItem.icon, null) })
-
+                            icon = { Icon(bottomBarItem.icon, null) }
+                        )
                     }
                 }
             }
@@ -189,7 +194,8 @@ fun ListScreen(
                             TabItem.values().forEachIndexed { index, tab ->
                                 Tab(
                                     selected = questionsUiState.tabRowIndex == index,
-                                    onClick = { questionsViewModel.setTabRowIndex(index) }) {
+                                    onClick = { questionsViewModel.setTabRowIndex(index) }
+                                ) {
                                     Text(
                                         tab.name,
                                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -232,7 +238,6 @@ fun ListScreen(
                             )
                         }
                     }
-
                 }
 
                 BottomBarItems.Tags -> {
@@ -394,7 +399,8 @@ private fun TagsContentOnListMode(
                 expanded = questionsDropdownExpanded,
                 onExpandedChange = {
                     questionsDropdownExpanded = !questionsDropdownExpanded
-                }) {
+                }
+            ) {
                 OutlinedTextField(
                     value = selectedQuestion?.description
                         ?: stringResource(R.string.dropdown_initial_item_select_question),
@@ -412,7 +418,8 @@ private fun TagsContentOnListMode(
                 )
                 ExposedDropdownMenu(
                     expanded = questionsDropdownExpanded,
-                    onDismissRequest = { questionsDropdownExpanded = false }) {
+                    onDismissRequest = { questionsDropdownExpanded = false }
+                ) {
                     questionOptions.forEach {
                         DropdownMenuItem(
                             text = { Text(it.description) },
@@ -424,7 +431,6 @@ private fun TagsContentOnListMode(
                         )
                     }
                 }
-
             }
         }
 
@@ -435,7 +441,6 @@ private fun TagsContentOnListMode(
                 selectedQuestion?.let {
                     handleToggleCrossRef(it, tag)
                 }
-
             }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (selectedQuestion == null) {
@@ -467,7 +472,6 @@ private fun TagsContentOnListMode(
         }
     }
 }
-
 
 @Composable
 private fun TagsContentOnEditMode(
@@ -517,11 +521,12 @@ private fun TagsContentOnEditMode(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(tags) {
-            Card(modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(vertical = 4.dp)
-                .clickable { handleRenameTag(it) }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .padding(vertical = 4.dp)
+                    .clickable { handleRenameTag(it) }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row {
@@ -561,7 +566,8 @@ private fun TagsContentOnEditMode(
                 )
             ) {
                 Icon(
-                    Icons.Default.Delete, null,
+                    Icons.Default.Delete,
+                    null,
                     modifier = Modifier.size(
                         ButtonDefaults.IconSize
                     )
@@ -586,19 +592,20 @@ fun DropdownMenuOnTopBar(
                 Text(
                     text = name,
                     modifier = Modifier.background(
-                        if (name == selectedName) Color.LightGray else {
+                        if (name == selectedName) {
+                            Color.LightGray
+                        } else {
                             Color.Transparent
                         }
                     )
                 )
             }, onClick = {
-                callback.invoke()
-                setExpanded(false)
-            })
+                    callback.invoke()
+                    setExpanded(false)
+                })
         }
     }
 }
-
 
 @Composable
 fun QuestionsList(

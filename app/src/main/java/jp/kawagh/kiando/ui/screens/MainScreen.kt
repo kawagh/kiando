@@ -83,12 +83,12 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     gameViewModel: GameViewModel,
-    question: Question, navigateToList: () -> Unit,
+    question: Question,
+    navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
 ) {
@@ -109,7 +109,6 @@ fun MainScreen(
     var moveToRegister by remember {
         mutableStateOf(NonMove)
     }
-
 
     // state
     val positionStack = remember {
@@ -197,9 +196,9 @@ fun MainScreen(
             }
             // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
             if (gameViewModel.listLegalMoves(lastClickedPanel)
-                    .contains(positionStack.last())
-                && gameViewModel.isPromotable(move)
-                && !move.isPromote
+                .contains(positionStack.last()) &&
+                gameViewModel.isPromotable(move) &&
+                !move.isPromote
             ) {
                 // decide to promote in dialog
                 shouldShowPromotionDialog = true
@@ -301,9 +300,9 @@ fun MainScreen(
                     if (isRegisterQuestionMode) {
                         IconToggleButton(
                             checked = shouldShowSFENInput,
-                            onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }) {
+                            onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }
+                        ) {
                             Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
-
                         }
                     }
                     VisibleIf(BuildConfig.DEBUG && !isRegisterQuestionMode) {
@@ -376,7 +375,8 @@ fun MainScreen(
                         false -> processMove(move)
                         true -> registerMove(move)
                     }
-                })
+                }
+            )
 
             // enemy
             Komadai(
@@ -411,11 +411,12 @@ fun MainScreen(
                             Row {
                                 IconButton(
                                     onClick = {
-                                        clipboardManager.setText(buildAnnotatedString {
-                                            append(
-                                                inputSFEN
-                                            )
-                                        }
+                                        clipboardManager.setText(
+                                            buildAnnotatedString {
+                                                append(
+                                                    inputSFEN
+                                                )
+                                            }
                                         )
                                         snackbarCoroutineScope.launch {
                                             snackbarHostState
@@ -427,10 +428,10 @@ fun MainScreen(
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
                                     Icon(
-                                        Icons.Filled.ContentCopy, null,
+                                        Icons.Filled.ContentCopy,
+                                        null,
                                         tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
                                     )
-
                                 }
                                 IconButton(
                                     onClick = {
@@ -448,7 +449,8 @@ fun MainScreen(
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
                                     Icon(
-                                        Icons.Filled.Sync, "load SFEN",
+                                        Icons.Filled.Sync,
+                                        "load SFEN",
                                         tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
                                     )
                                 }
@@ -467,8 +469,10 @@ fun MainScreen(
                             "登録する手を指してください"
                         } else {
                             val pieceKind =
-                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE
-                                        + moveToRegister.to.column].pieceKind
+                                gameViewModel.boardState[
+                                    moveToRegister.to.row * BOARD_SIZE +
+                                        moveToRegister.to.column
+                                ].pieceKind
                             "登録手: ${moveToRegister.toReadable(pieceKind)}"
                         },
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
@@ -506,7 +510,6 @@ fun MainScreen(
                                                 "🆖 need move"
                                             )
                                         }
-
                                     }
 
                                     QuestionValidationResults.Valid -> {
@@ -584,7 +587,6 @@ fun MainScreen(
                         }
                     }
                 }
-
             }
         }
     }
@@ -613,14 +615,14 @@ private fun PromotionDialog(
     onDismissClick: () -> Unit,
 ) {
     if (shouldShowPromotionDialog) {
-        AlertDialog(onDismissRequest = {},
+        AlertDialog(
+            onDismissRequest = {},
             title = {
                 Text(text = stringResource(R.string.dialog_title_promote))
             },
             confirmButton = {
                 Button(onClick = onConfirmClick) {
                     Text(text = stringResource(R.string.button_text_confirm_promotion))
-
                 }
             },
             dismissButton = {
@@ -631,4 +633,3 @@ private fun PromotionDialog(
         )
     }
 }
-

@@ -22,7 +22,8 @@ fun LicenseScreen(onArrowBackPressed: () -> Unit) {
                     IconButton(onClick = onArrowBackPressed) {
                         Icon(Icons.Default.ArrowBack, "back to list")
                     }
-                })
+                }
+            )
         }
     ) { padding ->
         AndroidView(factory = ::WebView, modifier = Modifier.padding(padding)) {

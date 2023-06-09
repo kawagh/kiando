@@ -13,7 +13,6 @@ class MoveConvertersTest {
         val expectedString = "2_0_2_2_0"
         val encodedString = MoveConverters().fromMove(inputMove)
         assert(encodedString == expectedString)
-
     }
 
     @Test
@@ -22,7 +21,6 @@ class MoveConvertersTest {
         val expectedString = "2_0_2_2_1"
         assert(MoveConverters().fromMove(inputMove) == expectedString)
     }
-
 
     @Test
     fun toMove() {

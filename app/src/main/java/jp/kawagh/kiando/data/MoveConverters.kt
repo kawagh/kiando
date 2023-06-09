@@ -30,5 +30,4 @@ class MoveConverters {
             tokens[4] == 1
         )
     }
-
 }

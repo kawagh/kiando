@@ -1,8 +1,8 @@
 package jp.kawagh.kiando.data
 
 import jp.kawagh.kiando.models.Question
-import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.QuestionTagCrossRef
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -16,7 +16,6 @@ class ImplRepository @Inject constructor(
     override val questionsWithTags: Flow<List<QuestionWithTags>> =
         questionDao.getQuestionsWithTags()
     override val tags: Flow<List<Tag>> = tagDao.getAll()
-
 
     override fun findQuestionById(questionId: Int): Question {
         return questionDao.findById(questionId)
@@ -45,7 +44,6 @@ class ImplRepository @Inject constructor(
     override fun deleteAllCrossRef() {
         crossRefDao.deleteAll()
     }
-
 
     override suspend fun add(question: Question) {
         questionDao.insert(question)

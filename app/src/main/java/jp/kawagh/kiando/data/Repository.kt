@@ -1,8 +1,8 @@
 package jp.kawagh.kiando.data
 
 import jp.kawagh.kiando.models.Question
-import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.QuestionTagCrossRef
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestions
 import kotlinx.coroutines.flow.Flow
@@ -63,7 +63,6 @@ class FakeRepository @Inject constructor() : Repository {
         TODO("Not yet implemented")
     }
 
-
     override suspend fun add(question: Question) {
         TODO("Not yet implemented")
     }
@@ -79,7 +78,6 @@ class FakeRepository @Inject constructor() : Repository {
     override suspend fun toggle(crossRef: QuestionTagCrossRef) {
         TODO("Not yet implemented")
     }
-
 
     override fun updateQuestion(question: Question) {
         throw NotImplementedError()

@@ -23,7 +23,8 @@ fun TagChip(
     rippleEnabled: Boolean = false
 ) {
     AssistChip(
-        onClick = onClick, label = { Text(tag.title) },
+        onClick = onClick,
+        label = { Text(tag.title) },
         interactionSource = if (rippleEnabled) {
             remember { MutableInteractionSource() }
         } else {

@@ -116,7 +116,6 @@ class QuestionsViewModel @Inject constructor(
         uiState = uiState.copy(hideDefaultQuestions = !uiState.hideDefaultQuestions)
     }
 
-
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.add(tag)
@@ -182,7 +181,6 @@ class QuestionsViewModel @Inject constructor(
             }
         }
     }
-
 }
 
 data class QuestionsUiState(

@@ -20,12 +20,13 @@ private val LightColorScheme = lightColorScheme(
 //    surfaceVariant = CardColor // Card and TextField  background
 )
 
-
 @Composable
 fun KiandoM3Theme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colorScheme = if (darkTheme) {
         DarkColorScheme
-    } else LightColorScheme
+    } else {
+        LightColorScheme
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

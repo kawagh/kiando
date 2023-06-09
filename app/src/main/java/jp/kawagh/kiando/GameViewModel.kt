@@ -47,7 +47,6 @@ class GameViewModel @AssistedInject constructor(
         ): GameViewModel
     }
 
-
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
@@ -69,7 +68,6 @@ class GameViewModel @AssistedInject constructor(
             }
         }
     }
-
 
     fun saveQuestion(question: Question) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -93,7 +91,7 @@ class GameViewModel @AssistedInject constructor(
                 when (boardState[fromIndex].isEnemy) {
                     true ->
                         !boardState[fromIndex].isPromoted &&
-                                (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+                            (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
 
                     false ->
                         !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
@@ -108,14 +106,15 @@ class GameViewModel @AssistedInject constructor(
         }
         val fromIndex = move.from.row * BOARD_SIZE + move.from.column
         return when (boardState[fromIndex].pieceKind) {
-            PieceKind.KNIGHT -> (!boardState[fromIndex].isEnemy && move.to.row < 2)
-                    || (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
+            PieceKind.KNIGHT ->
+                (!boardState[fromIndex].isEnemy && move.to.row < 2) ||
+                    (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
 
-            PieceKind.LANCE -> (!boardState[fromIndex].isEnemy && move.to.row == 0)
-                    || (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+            PieceKind.LANCE -> (!boardState[fromIndex].isEnemy && move.to.row == 0) ||
+                (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
 
-            PieceKind.PAWN -> (!boardState[fromIndex].isEnemy && move.to.row == 0)
-                    || (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+            PieceKind.PAWN -> (!boardState[fromIndex].isEnemy && move.to.row == 0) ||
+                (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
 
             else -> false
         }
@@ -197,9 +196,9 @@ class GameViewModel @AssistedInject constructor(
     private fun List<Position>.filterMovable(panelState: PanelState): List<Position> {
         return this.filter {
             isInside(it) && (
-                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY
-                            || (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
-                    )
+                boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY ||
+                    (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
+                )
         }
     }
 
@@ -209,9 +208,9 @@ class GameViewModel @AssistedInject constructor(
             // 自陣営の歩(と金は除く)の存在する筋を保持する
             val linesWithPawn = mutableSetOf<Int>()
             for (index in 0 until BOARD_SIZE * BOARD_SIZE) {
-                if (boardState[index].pieceKind == PieceKind.PAWN
-                    && boardState[index].isEnemy == isEnemy
-                    && !boardState[index].isPromoted
+                if (boardState[index].pieceKind == PieceKind.PAWN &&
+                    boardState[index].isEnemy == isEnemy &&
+                    !boardState[index].isPromoted
                 ) {
                     linesWithPawn.add(index % BOARD_SIZE)
                 }
@@ -269,8 +268,8 @@ class GameViewModel @AssistedInject constructor(
                         }
                         if (!isInside(nextPosition)) break
                         // 線駒は各方向に自駒に衝突するかはじめに遭遇する敵駒マスまで進める
-                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                            || boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
+                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY ||
+                            boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
                         ) {
                             nextPositions.add(nextPosition)
                         }
@@ -302,8 +301,8 @@ class GameViewModel @AssistedInject constructor(
                         }
                         if (!isInside(nextPosition)) break
 
-                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                            || (boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy))
+                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY ||
+                            (boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy))
                         ) {
                             nextPositions.add(nextPosition)
                         }
@@ -355,8 +354,8 @@ class GameViewModel @AssistedInject constructor(
                     for (length in 1 until BOARD_SIZE) {
                         val nextPosition = Position(originalRow - sign * length, originalColumn)
                         if (!isInside(nextPosition)) break
-                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY
-                            || boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
+                        if (boardState[posToIndex(nextPosition)].pieceKind == PieceKind.EMPTY ||
+                            boardState[posToIndex(nextPosition)].isEnemy.xor(panelState.isEnemy)
                         ) {
                             nextPositions.add(nextPosition)
                         }
