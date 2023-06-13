@@ -13,7 +13,7 @@ interface KiandoApiService {
     suspend fun getSFENResponse(): Response<SFENResponse>
 
     @Multipart
-    @POST("/uploadfile")
+    @POST("/uploadfile/")
     suspend fun getSFENResponse(@Part image: MultipartBody.Part): Response<SFENResponse>
 }
 
