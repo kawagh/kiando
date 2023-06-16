@@ -50,7 +50,6 @@ class GameViewModel @AssistedInject constructor(
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
-
     fun uploadImage(uri: Uri) {
         val file = getFileFromContentUri(uri) ?: return
         val requestFile: RequestBody = file.asRequestBody("image/png".toMediaType())
@@ -91,7 +90,7 @@ class GameViewModel @AssistedInject constructor(
                 when (boardState[fromIndex].isEnemy) {
                     true ->
                         !boardState[fromIndex].isPromoted &&
-                            (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+                                (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
 
                     false ->
                         !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
@@ -108,13 +107,13 @@ class GameViewModel @AssistedInject constructor(
         return when (boardState[fromIndex].pieceKind) {
             PieceKind.KNIGHT ->
                 (!boardState[fromIndex].isEnemy && move.to.row < 2) ||
-                    (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
+                        (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
 
             PieceKind.LANCE -> (!boardState[fromIndex].isEnemy && move.to.row == 0) ||
-                (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+                    (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
 
             PieceKind.PAWN -> (!boardState[fromIndex].isEnemy && move.to.row == 0) ||
-                (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+                    (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
 
             else -> false
         }
@@ -196,9 +195,9 @@ class GameViewModel @AssistedInject constructor(
     private fun List<Position>.filterMovable(panelState: PanelState): List<Position> {
         return this.filter {
             isInside(it) && (
-                boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY ||
-                    (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
-                )
+                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY ||
+                            (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
+                    )
         }
     }
 

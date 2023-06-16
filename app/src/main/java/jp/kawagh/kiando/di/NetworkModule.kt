@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import jp.kawagh.kiando.BuildConfig
 import jp.kawagh.kiando.network.KiandoApiService
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -46,7 +47,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofitForRealDevice(httpClient: OkHttpClient): Retrofit {
-        val url = "http://192.168.1.4:8000/"
+        val url = BuildConfig.APIURL
         return Retrofit.Builder()
             .baseUrl(url)
             .client(httpClient)
