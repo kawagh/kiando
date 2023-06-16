@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -378,7 +379,7 @@ private fun DrawerContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun TagsContentOnListMode(
     tags: List<Tag>,
@@ -486,9 +487,9 @@ private fun TagsContentOnListMode(
                     handleToggleCrossRef(it, tag)
                 }
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (selectedQuestion == null) {
-                    items(tags) {
+                    tags.forEach {
                         TagChip(tag = it, { handleTagClick(it) })
                     }
                 } else {
@@ -496,7 +497,7 @@ private fun TagsContentOnListMode(
                         questionsWithTags
                             .find { it.question == selectedQuestion }?.tags
                             ?: emptyList()
-                    items(tags) {
+                    tags.forEach {
                         TagChip(
                             tag = it,
                             onClick = { handleTagClick(it) },
