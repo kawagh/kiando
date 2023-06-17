@@ -132,6 +132,8 @@ dependencies {
 
     // formatter
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
 
 // Hilt: Allow references to generated code
