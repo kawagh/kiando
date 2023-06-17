@@ -2,6 +2,10 @@
 
 ## v1.0.18(not released)
 
+### [2023-06-17]
+
+- keep filtering questions
+
 ### [2023-06-16]
 
 - show tags in multiple lines
