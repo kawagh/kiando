@@ -1,6 +1,10 @@
 package jp.kawagh.kiando.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -42,4 +46,9 @@ object AppModule {
             .fallbackToDestructiveMigrationFrom(5)
             .build()
     }
+
+    @Provides
+    fun providePreferences(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(produceFile = { context.preferencesDataStoreFile("preferences") })
+
 }
