@@ -57,6 +57,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -117,10 +118,8 @@ fun ListScreen(
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
+    val appliedFilterName = questionsViewModel.appliedFilterName.collectAsState(initial = "").value
 
-    var selectedFilterTag: Tag? by remember {
-        mutableStateOf(null)
-    }
     val questionsToDisplay = when (TabItem.values()[questionsUiState.tabRowIndex]) {
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
@@ -131,19 +130,16 @@ fun ListScreen(
             true
         }
     }.filter {
-        if (selectedFilterTag != null) {
-            it.tags.contains(selectedFilterTag)
-        } else {
-            true
-        }
+        val titles = it.tags.map { tag -> tag.title }
+        appliedFilterName.isEmpty() || titles.contains(appliedFilterName)
     }
     var dropDownExpanded by remember {
         mutableStateOf(false)
     }
 
     val dropDownMenuItems: Map<String, () -> Unit> =
-        mapOf(stringResource(R.string.no_filter_name) to { selectedFilterTag = null }) +
-            questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
+        mapOf(stringResource(R.string.no_filter_name) to { questionsViewModel.setFilter("") }) +
+            questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -185,7 +181,7 @@ fun ListScreen(
                             BottomBarItems.Questions -> {
                                 if (dropDownMenuItems.isNotEmpty()) {
                                     IconToggleButton(
-                                        checked = selectedFilterTag is Tag,
+                                        checked = appliedFilterName.isNotEmpty(),
                                         onCheckedChange = {
                                             dropDownExpanded = !dropDownExpanded
                                         }
@@ -195,8 +191,7 @@ fun ListScreen(
                                     DropdownMenuOnTopBar(
                                         dropDownMenuItems,
                                         expanded = dropDownExpanded,
-                                        selectedName = selectedFilterTag?.title
-                                            ?: stringResource(id = R.string.no_filter_name),
+                                        selectedName = appliedFilterName,
                                         setExpanded = { dropDownExpanded = it }
                                     )
                                 }

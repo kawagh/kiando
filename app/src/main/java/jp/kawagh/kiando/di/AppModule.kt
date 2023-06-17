@@ -50,5 +50,4 @@ object AppModule {
     @Provides
     fun providePreferences(@ApplicationContext context: Context): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(produceFile = { context.preferencesDataStoreFile("preferences") })
-
 }

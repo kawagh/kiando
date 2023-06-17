@@ -23,5 +23,4 @@ class ImplPreferencesRepository @Inject constructor(
             p[filterKey] = value
         }
     }
-
 }

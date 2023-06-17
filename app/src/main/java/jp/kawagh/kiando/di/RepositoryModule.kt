@@ -20,5 +20,4 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindPreferenceRepository(impl: ImplPreferencesRepository): PreferencesRepository
-
 }
