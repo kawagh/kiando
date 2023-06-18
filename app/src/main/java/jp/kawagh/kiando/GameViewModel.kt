@@ -3,6 +3,10 @@ package jp.kawagh.kiando
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
@@ -32,6 +36,8 @@ import java.net.ConnectException
 
 const val BOARD_SIZE = 9
 
+data class GameUiState(val isRequesting: Boolean)
+
 class GameViewModel @AssistedInject constructor(
     private val repository: Repository,
     private val apiService: KiandoApiService,
@@ -47,6 +53,7 @@ class GameViewModel @AssistedInject constructor(
         ): GameViewModel
     }
 
+    var uiState by mutableStateOf(GameUiState(false))
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
@@ -55,6 +62,7 @@ class GameViewModel @AssistedInject constructor(
         val requestFile: RequestBody = file.asRequestBody("image/png".toMediaType())
         val imagePart: MultipartBody.Part =
             MultipartBody.Part.createFormData("file", file.name, requestFile)
+        uiState = uiState.copy(isRequesting = true)
         viewModelScope.launch {
             try {
                 val result = apiService.getSFENResponse(imagePart)
@@ -63,8 +71,10 @@ class GameViewModel @AssistedInject constructor(
                     loadSFEN(result.body()!!.sfen)
                 }
             } catch (e: ConnectException) {
+                Toast.makeText(context, "network request failed", Toast.LENGTH_SHORT).show()
                 Timber.d(e.message)
             }
+            uiState = uiState.copy(isRequesting = false)
         }
     }
 
