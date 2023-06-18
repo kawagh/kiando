@@ -4,6 +4,7 @@
 
 ### [2023-06-18]
 
+- show indicator during network request(network request is experimental)
 - change card color
 
 ### [2023-06-17]
