@@ -31,6 +31,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -566,7 +567,10 @@ private fun TagsContentOnEditMode(
                     .fillMaxWidth()
                     .height(60.dp)
                     .padding(vertical = 4.dp)
-                    .clickable { handleRenameTag(it) }
+                    .clickable {
+                        handleRenameTag(it)
+                    },
+                colors = CardDefaults.cardColors(containerColor = CardColor),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row {
