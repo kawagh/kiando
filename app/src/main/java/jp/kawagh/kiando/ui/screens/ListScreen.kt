@@ -34,6 +34,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -70,29 +71,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BuildConfig
+import jp.kawagh.kiando.QuestionsUiState
 import jp.kawagh.kiando.QuestionsViewModel
 import jp.kawagh.kiando.R
+import jp.kawagh.kiando.SideEffectChangeSystemUi
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.models.sampleQuestions
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import kotlinx.coroutines.launch
 
-// @Preview
-// @Composable
-// fun PreviewListScreen() {
-//    ListScreen(
-//        QuestionsUiState(
-//            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
-//        ),
-//        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
-//
-// }
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun PreviewListScreen() {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    SideEffectChangeSystemUi()
+    KiandoM3Theme {
+        ListScreen(
+            questionsUiState = QuestionsUiState(
+                sampleQuestions.map { QuestionWithTags(it, listOf(Tag(id = 0, "sample"))) }
+            ),
+            appliedFilterName = "",
+            dropDownMenuItems = emptyMap(),
+            drawerState = drawerState,
+            toggleHideDefaultQuestions = {},
+            handleLoadDataFromResource = {},
+            handleToggleTagEdit = {},
+            handleFavoriteQuestion = {},
+            handleAddTag = {},
+            handleTabClick = {},
+            handleBottomBarClick = {},
+            handleRemoveTagById = {},
+            handleToggleCrossRef = { _, _ -> run {} },
+            navigateToQuestion = { _, _ -> run {} },
+            navigateToDelete = {},
+            navigateToLicense = {},
+            handleRenameQuestion = {},
+            handleRenameTag = {},
+            handleDeleteAQuestion = {},
+        )
+    }
+}
 
 enum class TabItem {
     All,
@@ -103,6 +131,7 @@ enum class BottomBarItems(val title: String, val icon: ImageVector) {
     Questions(title = "questions", icon = Icons.Default.QuestionMark),
     Tags(title = "tags", icon = Icons.Default.Tag),
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,12 +144,68 @@ fun ListScreen(
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
 ) {
+    val appliedFilterName = questionsViewModel.appliedFilterName.collectAsState(initial = "").value
     val questionsUiState = questionsViewModel.uiState
+    val dropDownMenuItems: Map<String, () -> Unit> =
+        mapOf(stringResource(R.string.no_filter_name) to { questionsViewModel.setFilter("") }) +
+                questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    ListScreen(
+        questionsUiState = questionsViewModel.uiState,
+        appliedFilterName = appliedFilterName,
+        dropDownMenuItems = dropDownMenuItems,
+        drawerState = drawerState,
+        toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
+        handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
+        handleToggleTagEdit = { questionsViewModel.toggleTagEditMode() },
+        handleFavoriteQuestion = { questionsViewModel.toggleQuestionFavorite(it) },
+        handleAddTag = { questionsViewModel.add(it) },
+        handleTabClick = { questionsViewModel.setTabRowIndex(it) },
+        handleBottomBarClick = { questionsViewModel.setBottomBarIndex(it) },
+        handleRemoveTagById = { questionsViewModel.deleteTagById(it) },
+        handleToggleCrossRef = { question: Question, tag: Tag ->
+            questionsViewModel.toggleCrossRef(
+                question,
+                tag
+            )
+        },
+        navigateToQuestion = navigateToQuestion,
+        navigateToDelete = navigateToDelete,
+        navigateToLicense = navigateToLicense,
+        handleRenameQuestion = handleRenameQuestion,
+        handleRenameTag = handleRenameTag,
+        handleDeleteAQuestion = handleDeleteAQuestion,
+    )
+}
+
+// viewModelLess to preview/screenshot
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListScreen(
+    questionsUiState: QuestionsUiState,
+    appliedFilterName: String,
+    dropDownMenuItems: Map<String, () -> Unit>,
+    drawerState: DrawerState,
+    toggleHideDefaultQuestions: () -> Unit,
+    handleLoadDataFromResource: () -> Unit,
+    handleToggleTagEdit: () -> Unit,
+    handleFavoriteQuestion: (Question) -> Unit,
+    handleAddTag: (Tag) -> Unit,
+    handleTabClick: (Int) -> Unit,
+    handleBottomBarClick: (Int) -> Unit,
+    handleRemoveTagById: (Int) -> Unit,
+    handleToggleCrossRef: (Question, Tag) -> Unit,
+    navigateToQuestion: (Question, Int) -> Unit,
+    navigateToDelete: () -> Unit,
+    navigateToLicense: () -> Unit,
+    handleRenameQuestion: (Question) -> Unit,
+    handleRenameTag: (Tag) -> Unit,
+    handleDeleteAQuestion: (Question) -> Unit,
+) {
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
-    val appliedFilterName = questionsViewModel.appliedFilterName.collectAsState(initial = "").value
-
     val questionsToDisplay = when (TabItem.values()[questionsUiState.tabRowIndex]) {
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
@@ -137,12 +222,6 @@ fun ListScreen(
     var dropDownExpanded by remember {
         mutableStateOf(false)
     }
-
-    val dropDownMenuItems: Map<String, () -> Unit> =
-        mapOf(stringResource(R.string.no_filter_name) to { questionsViewModel.setFilter("") }) +
-            questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
-
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
@@ -150,10 +229,10 @@ fun ListScreen(
         drawerContent = {
             DrawerContent(
                 hideDefaultQuestions = questionsUiState.hideDefaultQuestions,
-                toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
+                toggleHideDefaultQuestions = toggleHideDefaultQuestions,
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
-                handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
+                handleLoadDataFromResource = handleLoadDataFromResource,
             )
         }
     ) {
@@ -201,7 +280,7 @@ fun ListScreen(
                             BottomBarItems.Tags -> {
                                 IconToggleButton(
                                     checked = questionsUiState.isTagEditMode,
-                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }
+                                    onCheckedChange = { handleToggleTagEdit() }
                                 ) {
                                     Icon(Icons.Default.Edit, "edit tags")
                                 }
@@ -215,7 +294,7 @@ fun ListScreen(
                     BottomBarItems.values().forEachIndexed { index, bottomBarItem ->
                         NavigationBarItem(
                             selected = questionsUiState.bottomBarIndex == index,
-                            onClick = { questionsViewModel.setBottomBarIndex(index) },
+                            onClick = { handleBottomBarClick(index) },
                             label = { Text(bottomBarItem.title) },
                             icon = { Icon(bottomBarItem.icon, null) }
                         )
@@ -235,7 +314,7 @@ fun ListScreen(
                             TabItem.values().forEachIndexed { index, tab ->
                                 Tab(
                                     selected = questionsUiState.tabRowIndex == index,
-                                    onClick = { questionsViewModel.setTabRowIndex(index) }
+                                    onClick = { handleTabClick(index) }
                                 ) {
                                     Text(
                                         tab.name,
@@ -256,7 +335,7 @@ fun ListScreen(
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                     Button(
-                                        onClick = { questionsViewModel.loadDataFromAsset() },
+                                        onClick = handleLoadDataFromResource,
                                         colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
                                     ) {
                                         Text(
@@ -271,11 +350,7 @@ fun ListScreen(
                                 navigateToQuestion = navigateToQuestionWithTabIndex,
                                 handleDeleteQuestion = handleDeleteAQuestion,
                                 handleRenameQuestion = handleRenameQuestion,
-                                handleFavoriteQuestion = { question: Question ->
-                                    questionsViewModel.toggleQuestionFavorite(
-                                        question
-                                    )
-                                },
+                                handleFavoriteQuestion = handleFavoriteQuestion
                             )
                         }
                     }
@@ -286,7 +361,7 @@ fun ListScreen(
                         TagsContentOnEditMode(
                             questionsUiState.tags,
                             handleRenameTag,
-                            { tagId: Int -> questionsViewModel.deleteTagById(tagId) },
+                            handleRemoveTagById,
                             paddingValues
                         )
                     } else {
@@ -294,10 +369,8 @@ fun ListScreen(
                         TagsContentOnListMode(
                             tags = questionsUiState.tags,
                             questionsWithTags = questionsUiState.questionsWithTags,
-                            handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
-                            handleToggleCrossRef = { question: Question, tag: Tag ->
-                                questionsViewModel.toggleCrossRef(question, tag)
-                            },
+                            handleAddTag = handleAddTag,
+                            handleToggleCrossRef = handleToggleCrossRef,
                             paddingValues = paddingValues,
                         )
                     }
@@ -644,9 +717,9 @@ fun DropdownMenuOnTopBar(
                     )
                 )
             }, onClick = {
-                    callback.invoke()
-                    setExpanded(false)
-                })
+                callback.invoke()
+                setExpanded(false)
+            })
         }
     }
 }
