@@ -2,10 +2,11 @@ package jp.kawagh.kiando
 
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.test.platform.app.InstrumentationRegistry
-import jp.kawagh.kiando.ui.theme.KiandoM3Theme
+import jp.kawagh.kiando.ui.screens.PreviewListScreen
 import org.junit.Rule
 import org.junit.Test
 import java.io.FileOutputStream
@@ -14,25 +15,13 @@ class TakeScreenShotTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-//    @Test
-//    fun takePictureForFeatureGraphic1() {
-//        composeTestRule.setContent {
-//            KiandoM3Theme() {
-//                ListScreen(
-//                    questions = sampleQuestions,
-//                    navigateToQuestion = { _, _ -> {} },
-//                    navigateToDelete = {},
-//                    navigateToLicense = {},
-//                    handleDeleteAQuestion = {},
-//                    handleFavoriteQuestion = {},
-//                    handleRenameAQuestion = {},
-//                    handleLoadQuestionFromResource = {},
-//                    handleInsertSampleQuestions = {},
-//                )
-//            }
-//        }
-//        takeScreenShot("feature_graphic1.png")
-//    }
+    @Test
+    fun takePictureForFeatureGraphic1() {
+        composeTestRule.setContent {
+            PreviewListScreen()
+        }
+        takeScreenShot("feature_graphic1.png")
+    }
 
 //    @Test
 //    fun takePictureForFeatureGraphic2() {
