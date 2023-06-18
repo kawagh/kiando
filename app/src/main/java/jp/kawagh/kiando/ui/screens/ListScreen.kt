@@ -132,7 +132,6 @@ enum class BottomBarItems(val title: String, val icon: ImageVector) {
     Tags(title = "tags", icon = Icons.Default.Tag),
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(

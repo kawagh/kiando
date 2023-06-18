@@ -29,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -92,6 +93,7 @@ fun MainScreen(
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
 ) {
+    val uiState = gameViewModel.uiState
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
@@ -147,8 +149,6 @@ fun MainScreen(
             Timber.d("no selected image")
         } else {
             gameViewModel.uploadImage(uri)
-            // TODO invoke recompose
-            Timber.d(uri.toString())
         }
     }
 
@@ -377,6 +377,15 @@ fun MainScreen(
                     }
                 }
             )
+
+            if (uiState.isRequesting) {
+                LinearProgressIndicator(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+                Spacer(Modifier.size(4.dp))
+            }
 
             // enemy
             Komadai(
