@@ -487,6 +487,7 @@ private fun TagsContentOnListMode(
                 onValueChange = { tagNameInput = it },
                 label = { Text(stringResource(R.string.text_tag)) },
                 placeholder = { Text(stringResource(R.string.text_placeholder_add_tag)) },
+                singleLine = true,
                 trailingIcon = {
                     IconButton(onClick = {
                         if (tagNameInput.isNotEmpty()) {

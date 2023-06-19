@@ -5,6 +5,7 @@
 ### [2023-06-19]
 
 - show tags count to delete
+- limit tagNameInput singleLine
 
 ### [2023-06-18]
 
