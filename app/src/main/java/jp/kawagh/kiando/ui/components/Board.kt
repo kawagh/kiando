@@ -29,6 +29,8 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
+const val alongBoardSpace = 25
+
 @Composable
 fun Board(
     boardState: SnapshotStateList<PanelState>,
@@ -39,7 +41,6 @@ fun Board(
 ) {
     val dotSize = 8
     val panelSize = 40
-    val alongBoardSpace = 25
     val dpOffset = DpOffset(x = (alongBoardSpace / 2).dp, y = (-alongBoardSpace / 2).dp)
     val fontSize = 12.sp
     Box(
