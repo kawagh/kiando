@@ -15,8 +15,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
 import jp.kawagh.kiando.models.PanelState
@@ -37,7 +39,8 @@ fun Board(
 ) {
     val dotSize = 8
     val panelSize = 40
-    val alongBoardSpace = 16
+    val alongBoardSpace = 20
+    val dpOffset = DpOffset(x = (alongBoardSpace / 2).dp, y = (-alongBoardSpace / 2).dp)
     Box(
         Modifier
             .size((panelSize * BOARD_SIZE + alongBoardSpace).dp)
@@ -46,22 +49,33 @@ fun Board(
                 y = alongBoardSpace.dp,
             )
     ) {
-        Column {
-            repeat(BOARD_SIZE) { rowIndex ->
-                BoardRow(
-                    boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
-                    handlePanelClick,
-                    shouldHighlight,
-                    lastClickedPanelPos,
-                    positionsToHighlight,
-                    panelSize
-                )
+        Box(
+            modifier = Modifier.offset(
+                x = (alongBoardSpace / 2).dp,
+                y = -(alongBoardSpace / 2).dp
+            )
+        ) {
+            Column {
+                repeat(BOARD_SIZE) { rowIndex ->
+                    BoardRow(
+                        boardState.subList(
+                            rowIndex * BOARD_SIZE,
+                            rowIndex * BOARD_SIZE + BOARD_SIZE
+                        ),
+                        handlePanelClick,
+                        shouldHighlight,
+                        lastClickedPanelPos,
+                        positionsToHighlight,
+                        panelSize
+                    )
+                }
             }
         }
         Box(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (3 * panelSize - dotSize / 2).dp, y = (3 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
@@ -69,6 +83,7 @@ fun Board(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (6 * panelSize - dotSize / 2).dp, y = (3 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
@@ -76,6 +91,7 @@ fun Board(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (3 * panelSize - dotSize / 2).dp, y = (6 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
@@ -83,22 +99,76 @@ fun Board(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (6 * panelSize - dotSize / 2).dp, y = (6 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
         // texts along board
         repeat(9) {
-            Text("${9 - it}", Modifier.offset(x = ((it * 40) + 15).dp, y = (-18).dp))
+            Text(
+                "${9 - it}",
+                Modifier
+                    .offset(x = ((it * panelSize) + 15).dp, y = (-alongBoardSpace / 2).dp)
+                    .offset(dpOffset.x, dpOffset.y)
+                    .offset(y = (-10).dp)
+            )
         }
-        Text("一", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = 10.dp))
-        Text("二", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 1 * panelSize).dp))
-        Text("三", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 2 * panelSize).dp))
-        Text("四", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 3 * panelSize).dp))
-        Text("五", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 4 * panelSize).dp))
-        Text("六", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 5 * panelSize).dp))
-        Text("七", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 6 * panelSize).dp))
-        Text("八", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 7 * panelSize).dp))
-        Text("九", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 8 * panelSize).dp))
+        Text(
+            "一", Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = 10.dp)
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "二",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 1 * panelSize).dp)
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "三",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 2 * panelSize).dp)
+
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "四",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 3 * panelSize).dp)
+
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "五",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 4 * panelSize).dp)
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "六",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 5 * panelSize).dp)
+
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "七",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 6 * panelSize).dp)
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "八",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 7 * panelSize).dp)
+                .offset(dpOffset.x, dpOffset.y)
+        )
+        Text(
+            "九",
+            Modifier
+                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 8 * panelSize).dp)
+                .offset(dpOffset.x, dpOffset.y)
+        )
     }
 }
 
