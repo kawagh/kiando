@@ -689,7 +689,13 @@ private fun TagsContentOnEditMode(
                     )
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text(stringResource(R.string.button_text_delete_selected_tags))
+                Text(
+                    if (tagIdsToDelete.isEmpty()) {
+                        stringResource(R.string.button_text_delete_selected_tags)
+                    } else {
+                        stringResource(R.string.button_text_delete_selected_tags) + "(${tagIdsToDelete.size}個)"
+                    }
+                )
             }
         }
     }
