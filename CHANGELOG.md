@@ -2,6 +2,12 @@
 
 ## v1.0.18(not released)
 
+### [2023-06-19]
+
+- show tags count to delete
+- limit tagNameInput singleLine
+- toggle tagEdit/List after deleting all tags
+
 ### [2023-06-18]
 
 - show indicator during network request(network request is experimental)
@@ -14,7 +20,6 @@
 ### [2023-06-16]
 
 - show tags in multiple lines
-
 
 ## v1.0.17 [2023-03-19]
 

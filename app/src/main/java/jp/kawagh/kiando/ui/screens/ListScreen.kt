@@ -147,7 +147,7 @@ fun ListScreen(
     val questionsUiState = questionsViewModel.uiState
     val dropDownMenuItems: Map<String, () -> Unit> =
         mapOf(stringResource(R.string.no_filter_name) to { questionsViewModel.setFilter("") }) +
-                questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
+            questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     ListScreen(
@@ -361,6 +361,7 @@ fun ListScreen(
                             questionsUiState.tags,
                             handleRenameTag,
                             handleRemoveTagById,
+                            handleToggleTagEdit,
                             paddingValues
                         )
                     } else {
@@ -487,6 +488,7 @@ private fun TagsContentOnListMode(
                 onValueChange = { tagNameInput = it },
                 label = { Text(stringResource(R.string.text_tag)) },
                 placeholder = { Text(stringResource(R.string.text_placeholder_add_tag)) },
+                singleLine = true,
                 trailingIcon = {
                     IconButton(onClick = {
                         if (tagNameInput.isNotEmpty()) {
@@ -591,6 +593,7 @@ private fun TagsContentOnEditMode(
     tags: List<Tag>,
     handleRenameTag: (Tag) -> Unit,
     handleRemoveTagById: (Int) -> Unit,
+    handleToggleTagEdit: () -> Unit,
     paddingValues: PaddingValues,
 ) {
     val tagIdsToDelete = remember {
@@ -610,8 +613,12 @@ private fun TagsContentOnEditMode(
                 Button(
                     onClick = {
                         tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                        val tagIdsCount = tagIdsToDelete.size
                         tagIdsToDelete.clear()
                         shouldShowDialog = false
+                        if (tags.size == tagIdsCount) {
+                            handleToggleTagEdit() // 全削除時には編集画面に遷移
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
@@ -689,7 +696,13 @@ private fun TagsContentOnEditMode(
                     )
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text(stringResource(R.string.button_text_delete_selected_tags))
+                Text(
+                    if (tagIdsToDelete.isEmpty()) {
+                        stringResource(R.string.button_text_delete_selected_tags)
+                    } else {
+                        stringResource(R.string.button_text_delete_selected_tags) + "(${tagIdsToDelete.size}個)"
+                    }
+                )
             }
         }
     }
@@ -716,9 +729,9 @@ fun DropdownMenuOnTopBar(
                     )
                 )
             }, onClick = {
-                callback.invoke()
-                setExpanded(false)
-            })
+                    callback.invoke()
+                    setExpanded(false)
+                })
         }
     }
 }
