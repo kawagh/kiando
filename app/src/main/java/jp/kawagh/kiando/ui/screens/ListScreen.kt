@@ -147,7 +147,7 @@ fun ListScreen(
     val questionsUiState = questionsViewModel.uiState
     val dropDownMenuItems: Map<String, () -> Unit> =
         mapOf(stringResource(R.string.no_filter_name) to { questionsViewModel.setFilter("") }) +
-                questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
+            questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     ListScreen(
@@ -729,9 +729,9 @@ fun DropdownMenuOnTopBar(
                     )
                 )
             }, onClick = {
-                callback.invoke()
-                setExpanded(false)
-            })
+                    callback.invoke()
+                    setExpanded(false)
+                })
         }
     }
 }
