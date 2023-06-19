@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -36,7 +37,15 @@ fun Board(
 ) {
     val dotSize = 8
     val panelSize = 40
-    Box {
+    val alongBoardSpace = 16
+    Box(
+        Modifier
+            .size((panelSize * BOARD_SIZE + alongBoardSpace).dp)
+            .background(BoardColorUnfocused)
+            .offset(
+                y = alongBoardSpace.dp,
+            )
+    ) {
         Column {
             repeat(BOARD_SIZE) { rowIndex ->
                 BoardRow(
@@ -77,6 +86,19 @@ fun Board(
                 .clip(CircleShape)
                 .background(Color.Black)
         )
+        // texts along board
+        repeat(9) {
+            Text("${9 - it}", Modifier.offset(x = ((it * 40) + 15).dp, y = (-18).dp))
+        }
+        Text("一", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = 10.dp))
+        Text("二", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 1 * panelSize).dp))
+        Text("三", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 2 * panelSize).dp))
+        Text("四", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 3 * panelSize).dp))
+        Text("五", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 4 * panelSize).dp))
+        Text("六", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 5 * panelSize).dp))
+        Text("七", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 6 * panelSize).dp))
+        Text("八", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 7 * panelSize).dp))
+        Text("九", Modifier.offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 8 * panelSize).dp))
     }
 }
 
