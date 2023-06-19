@@ -6,6 +6,7 @@
 
 - show tags count to delete
 - limit tagNameInput singleLine
+- toggle tagEdit/List after deleting all tags
 
 ### [2023-06-18]
 
@@ -19,7 +20,6 @@
 ### [2023-06-16]
 
 - show tags in multiple lines
-
 
 ## v1.0.17 [2023-03-19]
 

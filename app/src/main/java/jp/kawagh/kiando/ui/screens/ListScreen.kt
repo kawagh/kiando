@@ -361,6 +361,7 @@ fun ListScreen(
                             questionsUiState.tags,
                             handleRenameTag,
                             handleRemoveTagById,
+                            handleToggleTagEdit,
                             paddingValues
                         )
                     } else {
@@ -592,6 +593,7 @@ private fun TagsContentOnEditMode(
     tags: List<Tag>,
     handleRenameTag: (Tag) -> Unit,
     handleRemoveTagById: (Int) -> Unit,
+    handleToggleTagEdit: () -> Unit,
     paddingValues: PaddingValues,
 ) {
     val tagIdsToDelete = remember {
@@ -611,8 +613,12 @@ private fun TagsContentOnEditMode(
                 Button(
                     onClick = {
                         tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                        val tagIdsCount = tagIdsToDelete.size
                         tagIdsToDelete.clear()
                         shouldShowDialog = false
+                        if (tags.size == tagIdsCount) {
+                            handleToggleTagEdit() // 全削除時には編集画面に遷移
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
