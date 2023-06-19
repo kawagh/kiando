@@ -15,11 +15,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import jp.kawagh.kiando.BOARD_SIZE
 import jp.kawagh.kiando.models.PanelState
 import jp.kawagh.kiando.models.PieceKind
@@ -39,8 +39,9 @@ fun Board(
 ) {
     val dotSize = 8
     val panelSize = 40
-    val alongBoardSpace = 20
+    val alongBoardSpace = 25
     val dpOffset = DpOffset(x = (alongBoardSpace / 2).dp, y = (-alongBoardSpace / 2).dp)
+    val fontSize = 12.sp
     Box(
         Modifier
             .size((panelSize * BOARD_SIZE + alongBoardSpace).dp)
@@ -110,64 +111,72 @@ fun Board(
                 Modifier
                     .offset(x = ((it * panelSize) + 15).dp, y = (-alongBoardSpace / 2).dp)
                     .offset(dpOffset.x, dpOffset.y)
-                    .offset(y = (-10).dp)
+                    .offset(y = (-2).dp),
+                fontSize = fontSize
             )
         }
         Text(
-            "一", Modifier
+            "一",
+            modifier = Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = 10.dp)
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "二",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 1 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "三",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 2 * panelSize).dp)
-
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "四",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 3 * panelSize).dp)
-
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "五",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 4 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "六",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 5 * panelSize).dp)
-
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "七",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 6 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "八",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 7 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
         Text(
             "九",
             Modifier
                 .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 8 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y)
+                .offset(dpOffset.x, dpOffset.y),
+            fontSize = fontSize
         )
     }
 }
