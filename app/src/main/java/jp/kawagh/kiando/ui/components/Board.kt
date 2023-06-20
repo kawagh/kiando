@@ -43,6 +43,7 @@ fun Board(
     val panelSize = 40
     val dpOffset = DpOffset(x = (alongBoardSpace / 2).dp, y = (-alongBoardSpace / 2).dp)
     val fontSize = 12.sp
+    val numbers = "一二三四五六七八九"
     Box(
         Modifier
             .size((panelSize * BOARD_SIZE + alongBoardSpace).dp)
@@ -116,69 +117,17 @@ fun Board(
                 fontSize = fontSize
             )
         }
-        Text(
-            "一",
-            modifier = Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = 10.dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "二",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 1 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "三",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 2 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "四",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 3 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "五",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 4 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "六",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 5 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "七",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 6 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "八",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 7 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
-        Text(
-            "九",
-            Modifier
-                .offset(x = (BOARD_SIZE * panelSize).dp, y = (10 + 8 * panelSize).dp)
-                .offset(dpOffset.x, dpOffset.y),
-            fontSize = fontSize
-        )
+        numbers.forEachIndexed { index: Int, c: Char ->
+            Text(
+                c.toString(),
+                modifier = Modifier
+                    .offset(
+                        x = (BOARD_SIZE * panelSize).dp, y = ((10 + index * panelSize).dp)
+                    )
+                    .offset(dpOffset.x, dpOffset.y),
+                fontSize = fontSize
+            )
+        }
     }
 }
 
