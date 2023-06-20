@@ -2,6 +2,10 @@
 
 ## v1.0.18(not released)
 
+### [2023-06-20]
+
+- draw texts along board
+
 ### [2023-06-19]
 
 - show tags count to delete

@@ -40,7 +40,7 @@ fun Komadai(
     Box(
         modifier = Modifier
             .background(BoardColorUnfocused)
-            .width((40 * BOARD_SIZE).dp)
+            .width((40 * BOARD_SIZE + alongBoardSpace).dp)
             .height(40.dp)
     ) {
         LazyRow(

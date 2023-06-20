@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -16,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import jp.kawagh.kiando.BOARD_SIZE
 import jp.kawagh.kiando.models.PanelState
 import jp.kawagh.kiando.models.PieceKind
@@ -25,6 +28,8 @@ import jp.kawagh.kiando.models.sampleQuestions
 import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
+
+const val alongBoardSpace = 25
 
 @Composable
 fun Board(
@@ -36,23 +41,44 @@ fun Board(
 ) {
     val dotSize = 8
     val panelSize = 40
-    Box {
-        Column {
-            repeat(BOARD_SIZE) { rowIndex ->
-                BoardRow(
-                    boardState.subList(rowIndex * BOARD_SIZE, rowIndex * BOARD_SIZE + BOARD_SIZE),
-                    handlePanelClick,
-                    shouldHighlight,
-                    lastClickedPanelPos,
-                    positionsToHighlight,
-                    panelSize
-                )
+    val dpOffset = DpOffset(x = (alongBoardSpace / 2).dp, y = (-alongBoardSpace / 2).dp)
+    val fontSize = 12.sp
+    val numbers = "一二三四五六七八九"
+    Box(
+        Modifier
+            .size((panelSize * BOARD_SIZE + alongBoardSpace).dp)
+            .background(BoardColorUnfocused)
+            .offset(
+                y = alongBoardSpace.dp,
+            )
+    ) {
+        Box(
+            modifier = Modifier.offset(
+                x = (alongBoardSpace / 2).dp,
+                y = -(alongBoardSpace / 2).dp
+            )
+        ) {
+            Column {
+                repeat(BOARD_SIZE) { rowIndex ->
+                    BoardRow(
+                        boardState.subList(
+                            rowIndex * BOARD_SIZE,
+                            rowIndex * BOARD_SIZE + BOARD_SIZE
+                        ),
+                        handlePanelClick,
+                        shouldHighlight,
+                        lastClickedPanelPos,
+                        positionsToHighlight,
+                        panelSize
+                    )
+                }
             }
         }
         Box(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (3 * panelSize - dotSize / 2).dp, y = (3 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
@@ -60,6 +86,7 @@ fun Board(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (6 * panelSize - dotSize / 2).dp, y = (3 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
@@ -67,6 +94,7 @@ fun Board(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (3 * panelSize - dotSize / 2).dp, y = (6 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
@@ -74,9 +102,32 @@ fun Board(
             Modifier
                 .size(dotSize.dp)
                 .offset(x = (6 * panelSize - dotSize / 2).dp, y = (6 * panelSize - dotSize / 2).dp)
+                .offset(dpOffset.x, dpOffset.y)
                 .clip(CircleShape)
                 .background(Color.Black)
         )
+        // texts along board
+        repeat(9) {
+            Text(
+                "${9 - it}",
+                Modifier
+                    .offset(x = ((it * panelSize) + 15).dp, y = (-alongBoardSpace / 2).dp)
+                    .offset(dpOffset.x, dpOffset.y)
+                    .offset(y = (-2).dp),
+                fontSize = fontSize
+            )
+        }
+        numbers.forEachIndexed { index: Int, c: Char ->
+            Text(
+                c.toString(),
+                modifier = Modifier
+                    .offset(
+                        x = (BOARD_SIZE * panelSize).dp, y = ((10 + index * panelSize).dp)
+                    )
+                    .offset(dpOffset.x, dpOffset.y),
+                fontSize = fontSize
+            )
+        }
     }
 }
 
