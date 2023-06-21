@@ -90,6 +90,7 @@ class TakeScreenShotTest {
                 )
             }
         }
+        composeTestRule.onNode(hasContentDescription("6-2")).performClick()
         takeScreenShot("feature_graphic2.png")
     }
 
