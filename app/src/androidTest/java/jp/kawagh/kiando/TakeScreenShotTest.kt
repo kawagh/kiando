@@ -27,6 +27,7 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 
 // to test using Hilt
+@Suppress("unused")
 class CustomTestRunner : AndroidJUnitRunner() {
 
     override fun newApplication(
