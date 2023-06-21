@@ -5,8 +5,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -76,24 +80,32 @@ class TakeScreenShotTest {
         takeScreenShot("feature_graphic2.png")
     }
 
-//    @Test
-//    fun takePictureForFeatureGraphic3() {
-//        composeTestRule.setContent {
-//            KiandoM3Theme() {
-//                MainScreen(
-//                    question = sampleQuestion,
-//                    navigateToList = {},
-//                    navigateToNextQuestion = {}) { }
-//            }
-//        }
-//        val loadedSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/9/9/4K"
-//        composeTestRule.onNode(hasContentDescription("toggle decode SFEN input form"))
-//            .performClick()
-//        composeTestRule.onNode(hasContentDescription("SFEN input form"))
-//            .performTextInput(loadedSFEN)
-//        composeTestRule.onNode(hasContentDescription("load SFEN")).performClick()
-//        takeScreenShot("feature_graphic3.png")
-//    }
+    @Test
+    fun takePictureForFeatureGraphic3() {
+        val viewModel = viewModelAssistedFactory.create(sampleQuestion)
+        composeTestRule.setContent {
+            KiandoM3Theme {
+                MainScreen(
+                    gameViewModel = viewModel,
+                    question = sampleQuestion,
+                    navigateToList = {},
+                    navigateToNextQuestion = {},
+                    navigateToPrevQuestion = {},
+                )
+            }
+        }
+        val loadedSFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/9/9/4K"
+        composeTestRule.onNode(hasContentDescription("enter in registering Question"))
+            .performClick()
+        composeTestRule.onNode(hasContentDescription("toggle decode SFEN input form"))
+            .performClick()
+        composeTestRule.onNode(hasContentDescription("SFEN input form"))
+            .performTextClearance()
+        composeTestRule.onNode(hasContentDescription("SFEN input form"))
+            .performTextInput(loadedSFEN)
+        composeTestRule.onNode(hasContentDescription("load SFEN")).performClick()
+        takeScreenShot("feature_graphic3.png")
+    }
 
     // saved in <packageName>/files/
     private fun takeScreenShot(saveName: String, size: Int? = null) {
