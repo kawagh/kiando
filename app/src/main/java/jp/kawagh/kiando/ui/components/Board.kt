@@ -122,7 +122,8 @@ fun Board(
                 c.toString(),
                 modifier = Modifier
                     .offset(
-                        x = (BOARD_SIZE * panelSize).dp, y = ((10 + index * panelSize).dp)
+                        x = (BOARD_SIZE * panelSize).dp,
+                        y = ((10 + index * panelSize).dp)
                     )
                     .offset(dpOffset.x, dpOffset.y),
                 fontSize = fontSize
