@@ -31,7 +31,6 @@ android {
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
-//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "jp.kawagh.kiando.CustomTestRunner"
 
         vectorDrawables {
@@ -138,6 +137,10 @@ dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 
 }
 
