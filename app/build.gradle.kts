@@ -31,7 +31,9 @@ android {
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "jp.kawagh.kiando.CustomTestRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -115,6 +117,8 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.44")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
 
@@ -134,6 +138,7 @@ dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
 }
 
 // Hilt: Allow references to generated code
