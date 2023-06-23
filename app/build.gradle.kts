@@ -10,6 +10,8 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 fun convertVersionNameToCode(versionName: String): Int {
@@ -19,7 +21,7 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.17"
+val appVersion = "1.0.18"
 
 android {
     compileSdk = 33
@@ -29,7 +31,8 @@ android {
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "jp.kawagh.kiando.CustomTestRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -113,6 +116,8 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.44")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
 
@@ -121,6 +126,22 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:31.2.3"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
+
+    // retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+
+    // formatter
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+
 }
 
 // Hilt: Allow references to generated code
@@ -131,4 +152,5 @@ kapt {
 detekt {
     buildUponDefaultConfig = true
     config = files("$rootDir/config/detekt/detekt.yml")
+    autoCorrect = true // `./gradlew detekt correct files
 }

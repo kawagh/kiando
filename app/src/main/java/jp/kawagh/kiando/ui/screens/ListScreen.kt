@@ -2,9 +2,20 @@ package jp.kawagh.kiando.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -16,36 +27,114 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BuildConfig
+import jp.kawagh.kiando.QuestionsUiState
 import jp.kawagh.kiando.QuestionsViewModel
 import jp.kawagh.kiando.R
+import jp.kawagh.kiando.SideEffectChangeSystemUi
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.models.sampleQuestion2
+import jp.kawagh.kiando.models.sampleQuestion3
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
+import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import kotlinx.coroutines.launch
 
-//@Preview
-//@Composable
-//fun PreviewListScreen() {
-//    ListScreen(
-//        QuestionsUiState(
-//            sampleQuestions.map { QuestionWithTags(it, emptyList()) }
-//        ),
-//        { _, _ -> {} }, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> {} }, {})
-//
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun PreviewListScreen() {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val sampleQuestionsWithTags = listOf(
+        QuestionWithTags(sampleQuestion, listOf(Tag(title = "sample"))),
+        QuestionWithTags(
+            sampleQuestion2,
+            listOf(
+                Tag(title = "sample"),
+                Tag(title = "居飛車"),
+            )
+        ),
+        QuestionWithTags(sampleQuestion3, listOf(Tag(title = "sample"))),
+    )
+    SideEffectChangeSystemUi()
+    KiandoM3Theme {
+        ListScreen(
+            questionsUiState = QuestionsUiState(
+                sampleQuestionsWithTags
+            ),
+            appliedFilterName = "",
+            dropDownMenuItems = emptyMap(),
+            drawerState = drawerState,
+            toggleHideDefaultQuestions = {},
+            handleLoadDataFromResource = {},
+            handleToggleTagEdit = {},
+            handleFavoriteQuestion = {},
+            handleAddTag = {},
+            handleTabClick = {},
+            handleBottomBarClick = {},
+            handleRemoveTagById = {},
+            handleToggleCrossRef = { _, _ -> run {} },
+            navigateToQuestion = { _, _ -> run {} },
+            navigateToDelete = {},
+            navigateToLicense = {},
+            handleRenameQuestion = {},
+            handleRenameTag = {},
+            handleDeleteAQuestion = {},
+        )
+    }
+}
 
 enum class TabItem {
     All,
@@ -68,13 +157,67 @@ fun ListScreen(
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
 ) {
+    val appliedFilterName = questionsViewModel.appliedFilterName.collectAsState(initial = "").value
     val questionsUiState = questionsViewModel.uiState
+    val dropDownMenuItems: Map<String, () -> Unit> =
+        mapOf(stringResource(R.string.no_filter_name) to { questionsViewModel.setFilter("") }) +
+            questionsUiState.tags.associate { it.title to { questionsViewModel.setFilter(it.title) } }
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    ListScreen(
+        questionsUiState = questionsViewModel.uiState,
+        appliedFilterName = appliedFilterName,
+        dropDownMenuItems = dropDownMenuItems,
+        drawerState = drawerState,
+        toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
+        handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
+        handleToggleTagEdit = { questionsViewModel.toggleTagEditMode() },
+        handleFavoriteQuestion = { questionsViewModel.toggleQuestionFavorite(it) },
+        handleAddTag = { questionsViewModel.add(it) },
+        handleTabClick = { questionsViewModel.setTabRowIndex(it) },
+        handleBottomBarClick = { questionsViewModel.setBottomBarIndex(it) },
+        handleRemoveTagById = { questionsViewModel.deleteTagById(it) },
+        handleToggleCrossRef = { question: Question, tag: Tag ->
+            questionsViewModel.toggleCrossRef(
+                question,
+                tag
+            )
+        },
+        navigateToQuestion = navigateToQuestion,
+        navigateToDelete = navigateToDelete,
+        navigateToLicense = navigateToLicense,
+        handleRenameQuestion = handleRenameQuestion,
+        handleRenameTag = handleRenameTag,
+        handleDeleteAQuestion = handleDeleteAQuestion,
+    )
+}
+
+// viewModelLess to preview/screenshot
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListScreen(
+    questionsUiState: QuestionsUiState,
+    appliedFilterName: String,
+    dropDownMenuItems: Map<String, () -> Unit>,
+    drawerState: DrawerState,
+    toggleHideDefaultQuestions: () -> Unit,
+    handleLoadDataFromResource: () -> Unit,
+    handleToggleTagEdit: () -> Unit,
+    handleFavoriteQuestion: (Question) -> Unit,
+    handleAddTag: (Tag) -> Unit,
+    handleTabClick: (Int) -> Unit,
+    handleBottomBarClick: (Int) -> Unit,
+    handleRemoveTagById: (Int) -> Unit,
+    handleToggleCrossRef: (Question, Tag) -> Unit,
+    navigateToQuestion: (Question, Int) -> Unit,
+    navigateToDelete: () -> Unit,
+    navigateToLicense: () -> Unit,
+    handleRenameQuestion: (Question) -> Unit,
+    handleRenameTag: (Tag) -> Unit,
+    handleDeleteAQuestion: (Question) -> Unit,
+) {
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, questionsUiState.tabRowIndex)
-    }
-
-    var selectedFilterTag: Tag? by remember {
-        mutableStateOf(null)
     }
     val questionsToDisplay = when (TabItem.values()[questionsUiState.tabRowIndex]) {
         TabItem.All -> questionsUiState.questionsWithTags
@@ -86,50 +229,41 @@ fun ListScreen(
             true
         }
     }.filter {
-        if (selectedFilterTag != null) {
-            it.tags.contains(selectedFilterTag)
-        } else {
-            true
-        }
+        val titles = it.tags.map { tag -> tag.title }
+        appliedFilterName.isEmpty() || titles.contains(appliedFilterName)
     }
     var dropDownExpanded by remember {
         mutableStateOf(false)
     }
-
-    val dropDownMenuItems: Map<String, () -> Unit> =
-        mapOf(stringResource(R.string.no_filter_name) to { selectedFilterTag = null }) +
-                questionsUiState.tags.associate { it.title to { selectedFilterTag = it } }
-
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
                 hideDefaultQuestions = questionsUiState.hideDefaultQuestions,
-                toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
+                toggleHideDefaultQuestions = toggleHideDefaultQuestions,
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
-                handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
+                handleLoadDataFromResource = handleLoadDataFromResource,
             )
-        }) {
+        }
+    ) {
         Scaffold(
             topBar = {
-                TopAppBar(title = {
-                    Text(
-                        when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
-                            BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
-                            BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
-                                stringResource(R.string.top_app_bar_title_edit_tags)
-                            } else {
-                                stringResource(R.string.top_app_bar_title_tags)
+                TopAppBar(
+                    title = {
+                        Text(
+                            when (BottomBarItems.values()[questionsUiState.bottomBarIndex]) {
+                                BottomBarItems.Questions -> stringResource(R.string.top_app_bar_title_questions)
+                                BottomBarItems.Tags -> if (questionsUiState.isTagEditMode) {
+                                    stringResource(R.string.top_app_bar_title_edit_tags)
+                                } else {
+                                    stringResource(R.string.top_app_bar_title_tags)
+                                }
                             }
-                        }
-                    )
-                },
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, null)
@@ -140,25 +274,27 @@ fun ListScreen(
                             BottomBarItems.Questions -> {
                                 if (dropDownMenuItems.isNotEmpty()) {
                                     IconToggleButton(
-                                        checked = selectedFilterTag is Tag,
+                                        checked = appliedFilterName.isNotEmpty(),
                                         onCheckedChange = {
                                             dropDownExpanded = !dropDownExpanded
-                                        }) {
+                                        }
+                                    ) {
                                         Icon(Icons.Default.FilterAlt, null)
                                     }
                                     DropdownMenuOnTopBar(
                                         dropDownMenuItems,
                                         expanded = dropDownExpanded,
-                                        selectedName = selectedFilterTag?.title
-                                            ?: stringResource(id = R.string.no_filter_name),
-                                        setExpanded = { dropDownExpanded = it })
+                                        selectedName = appliedFilterName,
+                                        setExpanded = { dropDownExpanded = it }
+                                    )
                                 }
                             }
 
                             BottomBarItems.Tags -> {
                                 IconToggleButton(
                                     checked = questionsUiState.isTagEditMode,
-                                    onCheckedChange = { questionsViewModel.toggleTagEditMode() }) {
+                                    onCheckedChange = { handleToggleTagEdit() }
+                                ) {
                                     Icon(Icons.Default.Edit, "edit tags")
                                 }
                             }
@@ -171,10 +307,13 @@ fun ListScreen(
                     BottomBarItems.values().forEachIndexed { index, bottomBarItem ->
                         NavigationBarItem(
                             selected = questionsUiState.bottomBarIndex == index,
-                            onClick = { questionsViewModel.setBottomBarIndex(index) },
+                            onClick = { handleBottomBarClick(index) },
                             label = { Text(bottomBarItem.title) },
-                            icon = { Icon(bottomBarItem.icon, null) })
-
+                            icon = { Icon(bottomBarItem.icon, null) },
+                            modifier = Modifier.semantics {
+                                contentDescription = bottomBarItem.title
+                            }
+                        )
                     }
                 }
             }
@@ -191,7 +330,8 @@ fun ListScreen(
                             TabItem.values().forEachIndexed { index, tab ->
                                 Tab(
                                     selected = questionsUiState.tabRowIndex == index,
-                                    onClick = { questionsViewModel.setTabRowIndex(index) }) {
+                                    onClick = { handleTabClick(index) }
+                                ) {
                                     Text(
                                         tab.name,
                                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -211,7 +351,7 @@ fun ListScreen(
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                     Button(
-                                        onClick = { questionsViewModel.loadDataFromAsset() },
+                                        onClick = handleLoadDataFromResource,
                                         colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
                                     ) {
                                         Text(
@@ -226,15 +366,10 @@ fun ListScreen(
                                 navigateToQuestion = navigateToQuestionWithTabIndex,
                                 handleDeleteQuestion = handleDeleteAQuestion,
                                 handleRenameQuestion = handleRenameQuestion,
-                                handleFavoriteQuestion = { question: Question ->
-                                    questionsViewModel.toggleQuestionFavorite(
-                                        question
-                                    )
-                                },
+                                handleFavoriteQuestion = handleFavoriteQuestion
                             )
                         }
                     }
-
                 }
 
                 BottomBarItems.Tags -> {
@@ -242,7 +377,8 @@ fun ListScreen(
                         TagsContentOnEditMode(
                             questionsUiState.tags,
                             handleRenameTag,
-                            { tagId: Int -> questionsViewModel.deleteTagById(tagId) },
+                            handleRemoveTagById,
+                            handleToggleTagEdit,
                             paddingValues
                         )
                     } else {
@@ -250,10 +386,8 @@ fun ListScreen(
                         TagsContentOnListMode(
                             tags = questionsUiState.tags,
                             questionsWithTags = questionsUiState.questionsWithTags,
-                            handleAddTag = { tag: Tag -> questionsViewModel.add(tag) },
-                            handleToggleCrossRef = { question: Question, tag: Tag ->
-                                questionsViewModel.toggleCrossRef(question, tag)
-                            },
+                            handleAddTag = handleAddTag,
+                            handleToggleCrossRef = handleToggleCrossRef,
                             paddingValues = paddingValues,
                         )
                     }
@@ -331,7 +465,7 @@ private fun DrawerContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun TagsContentOnListMode(
     tags: List<Tag>,
@@ -371,6 +505,7 @@ private fun TagsContentOnListMode(
                 onValueChange = { tagNameInput = it },
                 label = { Text(stringResource(R.string.text_tag)) },
                 placeholder = { Text(stringResource(R.string.text_placeholder_add_tag)) },
+                singleLine = true,
                 trailingIcon = {
                     IconButton(onClick = {
                         if (tagNameInput.isNotEmpty()) {
@@ -396,7 +531,8 @@ private fun TagsContentOnListMode(
                 expanded = questionsDropdownExpanded,
                 onExpandedChange = {
                     questionsDropdownExpanded = !questionsDropdownExpanded
-                }) {
+                }
+            ) {
                 OutlinedTextField(
                     value = selectedQuestion?.description
                         ?: stringResource(R.string.dropdown_initial_item_select_question),
@@ -414,7 +550,8 @@ private fun TagsContentOnListMode(
                 )
                 ExposedDropdownMenu(
                     expanded = questionsDropdownExpanded,
-                    onDismissRequest = { questionsDropdownExpanded = false }) {
+                    onDismissRequest = { questionsDropdownExpanded = false }
+                ) {
                     questionOptions.forEach {
                         DropdownMenuItem(
                             text = { Text(it.description) },
@@ -426,7 +563,6 @@ private fun TagsContentOnListMode(
                         )
                     }
                 }
-
             }
         }
 
@@ -437,11 +573,10 @@ private fun TagsContentOnListMode(
                 selectedQuestion?.let {
                     handleToggleCrossRef(it, tag)
                 }
-
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (selectedQuestion == null) {
-                    items(tags) {
+                    tags.forEach {
                         TagChip(tag = it, { handleTagClick(it) })
                     }
                 } else {
@@ -449,7 +584,7 @@ private fun TagsContentOnListMode(
                         questionsWithTags
                             .find { it.question == selectedQuestion }?.tags
                             ?: emptyList()
-                    items(tags) {
+                    tags.forEach {
                         TagChip(
                             tag = it,
                             onClick = { handleTagClick(it) },
@@ -470,12 +605,12 @@ private fun TagsContentOnListMode(
     }
 }
 
-
 @Composable
 private fun TagsContentOnEditMode(
     tags: List<Tag>,
     handleRenameTag: (Tag) -> Unit,
     handleRemoveTagById: (Int) -> Unit,
+    handleToggleTagEdit: () -> Unit,
     paddingValues: PaddingValues,
 ) {
     val tagIdsToDelete = remember {
@@ -495,8 +630,12 @@ private fun TagsContentOnEditMode(
                 Button(
                     onClick = {
                         tagIdsToDelete.forEach { handleRemoveTagById(it) }
+                        val tagIdsCount = tagIdsToDelete.size
                         tagIdsToDelete.clear()
                         shouldShowDialog = false
+                        if (tags.size == tagIdsCount) {
+                            handleToggleTagEdit() // 全削除時には編集画面に遷移
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
@@ -519,11 +658,15 @@ private fun TagsContentOnEditMode(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(tags) {
-            Card(modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(vertical = 4.dp)
-                .clickable { handleRenameTag(it) }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        handleRenameTag(it)
+                    },
+                colors = CardDefaults.cardColors(containerColor = CardColor),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row {
@@ -563,13 +706,20 @@ private fun TagsContentOnEditMode(
                 )
             ) {
                 Icon(
-                    Icons.Default.Delete, null,
+                    Icons.Default.Delete,
+                    null,
                     modifier = Modifier.size(
                         ButtonDefaults.IconSize
                     )
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                Text(stringResource(R.string.button_text_delete_selected_tags))
+                Text(
+                    if (tagIdsToDelete.isEmpty()) {
+                        stringResource(R.string.button_text_delete_selected_tags)
+                    } else {
+                        stringResource(R.string.button_text_delete_selected_tags) + "(${tagIdsToDelete.size}個)"
+                    }
+                )
             }
         }
     }
@@ -588,19 +738,20 @@ fun DropdownMenuOnTopBar(
                 Text(
                     text = name,
                     modifier = Modifier.background(
-                        if (name == selectedName) Color.LightGray else {
+                        if (name == selectedName) {
+                            Color.LightGray
+                        } else {
                             Color.Transparent
                         }
                     )
                 )
             }, onClick = {
-                callback.invoke()
-                setExpanded(false)
-            })
+                    callback.invoke()
+                    setExpanded(false)
+                })
         }
     }
 }
-
 
 @Composable
 fun QuestionsList(

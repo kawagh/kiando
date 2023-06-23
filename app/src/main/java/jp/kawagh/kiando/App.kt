@@ -45,14 +45,14 @@ import kotlinx.coroutines.delay
 @Composable
 fun App(
     questionsViewModel: QuestionsViewModel = viewModel(),
-    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory
+    gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory,
 ) {
     val uiState = questionsViewModel.uiState
     KiandoM3Theme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
         val navigateToQuestion: (Question, fromTabIndex: Int) -> Unit = { question, fromTabIndex ->
-            navController.navigate("main/${question.id}/${fromTabIndex}")
+            navController.navigate("main/${question.id}/$fromTabIndex")
         }
         val navigateToList: () -> Unit = {
             navController.navigate("list")
@@ -177,11 +177,14 @@ fun App(
                     )
                 }
 
-                dialog("delete_each/{questionId}",
-                    arguments = listOf(navArgument("questionId") {
-                        type = NavType.IntType
-                    }
-                    )) {
+                dialog(
+                    "delete_each/{questionId}",
+                    arguments = listOf(
+                        navArgument("questionId") {
+                            type = NavType.IntType
+                        }
+                    )
+                ) {
                     val deleteId = it.arguments?.getInt("questionId") ?: -1
                     AlertDialog(
                         onDismissRequest = { navController.navigate("list") },
@@ -210,16 +213,19 @@ fun App(
 
                 dialog(
                     "rename/{questionId}",
-                    arguments = listOf(navArgument("questionId") {
-                        type = NavType.IntType
-                    })
+                    arguments = listOf(
+                        navArgument("questionId") {
+                            type = NavType.IntType
+                        }
+                    )
                 ) {
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
                     val renameId = it.arguments?.getInt("questionId") ?: -1
                     val focusRequester = remember { FocusRequester() }
-                    AlertDialog(onDismissRequest = { navController.navigate("list") },
+                    AlertDialog(
+                        onDismissRequest = { navController.navigate("list") },
                         title = { Text(text = stringResource(R.string.dialog_title_rename_question)) },
                         text = {
                             OutlinedTextField(
@@ -253,16 +259,19 @@ fun App(
 
                 dialog(
                     "rename_tag/{tagId}",
-                    arguments = listOf(navArgument("tagId") {
-                        type = NavType.IntType
-                    })
+                    arguments = listOf(
+                        navArgument("tagId") {
+                            type = NavType.IntType
+                        }
+                    )
                 ) {
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
                     val renameId = it.arguments?.getInt("tagId") ?: -1
                     val focusRequester = remember { FocusRequester() }
-                    AlertDialog(onDismissRequest = { navController.navigate("list") },
+                    AlertDialog(
+                        onDismissRequest = { navController.navigate("list") },
                         title = { Text(text = stringResource(R.string.dialog_title_rename_tag)) },
                         text = {
                             OutlinedTextField(

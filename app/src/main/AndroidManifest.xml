@@ -8,7 +8,8 @@
         android:label="@string/app_name"
         android:roundIcon="${roundIcon}"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Kiando">
+        android:theme="@style/Theme.Kiando"
+        android:usesCleartextTraffic="true">
         <activity
             android:name="jp.kawagh.kiando.MainActivity"
             android:exported="true"

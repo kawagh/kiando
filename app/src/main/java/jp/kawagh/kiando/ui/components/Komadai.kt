@@ -1,7 +1,13 @@
 package jp.kawagh.kiando.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -34,7 +40,7 @@ fun Komadai(
     Box(
         modifier = Modifier
             .background(BoardColorUnfocused)
-            .width((40 * BOARD_SIZE).dp)
+            .width((40 * BOARD_SIZE + alongBoardSpace).dp)
             .height(40.dp)
     ) {
         LazyRow(

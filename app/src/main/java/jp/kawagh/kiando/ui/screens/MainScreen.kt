@@ -1,5 +1,8 @@
 package jp.kawagh.kiando.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +17,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
@@ -25,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -58,6 +63,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
+import jp.kawagh.kiando.BuildConfig
 import jp.kawagh.kiando.GameViewModel
 import jp.kawagh.kiando.R
 import jp.kawagh.kiando.SFENConverter
@@ -73,18 +79,21 @@ import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.toReadable
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
+import jp.kawagh.kiando.ui.components.VisibleIf
 import jp.kawagh.kiando.ui.theme.BoardColor
 import kotlinx.coroutines.launch
-
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreen(
     gameViewModel: GameViewModel,
-    question: Question, navigateToList: () -> Unit,
+    question: Question,
+    navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
 ) {
+    val uiState = gameViewModel.uiState
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var isRegisterQuestionMode by remember {
@@ -102,7 +111,6 @@ fun MainScreen(
     var moveToRegister by remember {
         mutableStateOf(NonMove)
     }
-
 
     // state
     val positionStack = remember {
@@ -132,6 +140,16 @@ fun MainScreen(
     val snackbarCoroutineScope = rememberCoroutineScope()
     val positionsToHighlight = remember {
         mutableStateListOf<Position>()
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri == null) {
+            Timber.d("no selected image")
+        } else {
+            gameViewModel.uploadImage(uri)
+        }
     }
 
     fun registerMove(move: Move) {
@@ -178,9 +196,9 @@ fun MainScreen(
             }
             // 指し手の確定タイミングは成の余地の有無でDialog前後に分岐する
             if (gameViewModel.listLegalMoves(lastClickedPanel)
-                    .contains(positionStack.last())
-                && gameViewModel.isPromotable(move)
-                && !move.isPromote
+                .contains(positionStack.last()) &&
+                gameViewModel.isPromotable(move) &&
+                !move.isPromote
             ) {
                 // decide to promote in dialog
                 shouldShowPromotionDialog = true
@@ -282,9 +300,20 @@ fun MainScreen(
                     if (isRegisterQuestionMode) {
                         IconToggleButton(
                             checked = shouldShowSFENInput,
-                            onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }) {
+                            onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }
+                        ) {
                             Icon(Icons.Filled.TextRotateVertical, "toggle decode SFEN input form")
-
+                        }
+                    }
+                    VisibleIf(BuildConfig.DEBUG && !isRegisterQuestionMode) {
+                        IconButton(onClick = {
+                            pickImageLauncher.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                        }) {
+                            Icon(Icons.Default.Screenshot, "access to screenshots")
                         }
                     }
                     IconButton(onClick = {
@@ -346,7 +375,17 @@ fun MainScreen(
                         false -> processMove(move)
                         true -> registerMove(move)
                     }
-                })
+                }
+            )
+
+            if (uiState.isRequesting) {
+                LinearProgressIndicator(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+                Spacer(Modifier.size(4.dp))
+            }
 
             // enemy
             Komadai(
@@ -381,11 +420,12 @@ fun MainScreen(
                             Row {
                                 IconButton(
                                     onClick = {
-                                        clipboardManager.setText(buildAnnotatedString {
-                                            append(
-                                                inputSFEN
-                                            )
-                                        }
+                                        clipboardManager.setText(
+                                            buildAnnotatedString {
+                                                append(
+                                                    inputSFEN
+                                                )
+                                            }
                                         )
                                         snackbarCoroutineScope.launch {
                                             snackbarHostState
@@ -397,10 +437,10 @@ fun MainScreen(
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
                                     Icon(
-                                        Icons.Filled.ContentCopy, null,
+                                        Icons.Filled.ContentCopy,
+                                        null,
                                         tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray
                                     )
-
                                 }
                                 IconButton(
                                     onClick = {
@@ -418,7 +458,8 @@ fun MainScreen(
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
                                     Icon(
-                                        Icons.Filled.Sync, "load SFEN",
+                                        Icons.Filled.Sync,
+                                        "load SFEN",
                                         tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
                                     )
                                 }
@@ -437,8 +478,10 @@ fun MainScreen(
                             "登録する手を指してください"
                         } else {
                             val pieceKind =
-                                gameViewModel.boardState[moveToRegister.to.row * BOARD_SIZE
-                                        + moveToRegister.to.column].pieceKind
+                                gameViewModel.boardState[
+                                    moveToRegister.to.row * BOARD_SIZE +
+                                        moveToRegister.to.column
+                                ].pieceKind
                             "登録手: ${moveToRegister.toReadable(pieceKind)}"
                         },
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
@@ -476,7 +519,6 @@ fun MainScreen(
                                                 "🆖 need move"
                                             )
                                         }
-
                                     }
 
                                     QuestionValidationResults.Valid -> {
@@ -554,7 +596,6 @@ fun MainScreen(
                         }
                     }
                 }
-
             }
         }
     }
@@ -583,14 +624,14 @@ private fun PromotionDialog(
     onDismissClick: () -> Unit,
 ) {
     if (shouldShowPromotionDialog) {
-        AlertDialog(onDismissRequest = {},
+        AlertDialog(
+            onDismissRequest = {},
             title = {
                 Text(text = stringResource(R.string.dialog_title_promote))
             },
             confirmButton = {
                 Button(onClick = onConfirmClick) {
                     Text(text = stringResource(R.string.button_text_confirm_promotion))
-
                 }
             },
             dismissButton = {
@@ -601,4 +642,3 @@ private fun PromotionDialog(
         )
     }
 }
-

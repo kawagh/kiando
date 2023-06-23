@@ -44,7 +44,9 @@ fun Move.toReadable(pieceKind: PieceKind): String {
     val kanji = "一二三四五六七八九"
     return "${9 - this.to.column}" + "${kanji[this.to.row]}" + pieceText + if (this.isPromote) {
         "成"
-    } else ""
+    } else {
+        ""
+    }
 }
 
 val NonPosition = Position(-1, -1)
@@ -58,11 +60,13 @@ data class PanelState(
     val isPromoted: Boolean = false,
 )
 
-
 val initialBoardState: BoardState = listOf(
     listOf(
         PanelState(
-            0, 0, PieceKind.LANCE, isEnemy = true
+            0,
+            0,
+            PieceKind.LANCE,
+            isEnemy = true
         ),
         PanelState(0, 1, PieceKind.KNIGHT, isEnemy = true),
         PanelState(0, 2, PieceKind.SILVER, isEnemy = true),
@@ -121,7 +125,6 @@ val initialBoardState: BoardState = listOf(
         PanelState(4, 8, PieceKind.EMPTY)
     ),
 
-
     listOf(
         PanelState(5, 0, PieceKind.EMPTY),
         PanelState(5, 1, PieceKind.EMPTY),
@@ -148,7 +151,9 @@ val initialBoardState: BoardState = listOf(
 
     listOf(
         PanelState(
-            7, 0, PieceKind.EMPTY
+            7,
+            0,
+            PieceKind.EMPTY
         ),
         PanelState(7, 1, PieceKind.BISHOP, false),
         PanelState(7, 2, PieceKind.EMPTY),

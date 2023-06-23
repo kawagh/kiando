@@ -10,6 +10,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jp.kawagh.kiando.data.MoveConverters
+import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.data.Repository
 import jp.kawagh.kiando.models.Move
 import jp.kawagh.kiando.models.Question
@@ -18,6 +19,7 @@ import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,9 +27,13 @@ import javax.inject.Inject
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
     @ApplicationContext private val context: Context,
+    private val preferencesRepository: PreferencesRepository,
 ) :
     ViewModel() {
     var uiState: QuestionsUiState by mutableStateOf(QuestionsUiState())
+
+    // include flow in uiState?
+    val appliedFilterName: Flow<String> = preferencesRepository.filter
 
     init {
         viewModelScope.launch() {
@@ -100,6 +106,12 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
+    fun setFilter(value: String) {
+        viewModelScope.launch {
+            preferencesRepository.setFilter(value)
+        }
+    }
+
     fun setTabRowIndex(index: Int) {
         uiState = uiState.copy(tabRowIndex = index)
     }
@@ -115,7 +127,6 @@ class QuestionsViewModel @Inject constructor(
     fun toggleHideDefaultQuestions() {
         uiState = uiState.copy(hideDefaultQuestions = !uiState.hideDefaultQuestions)
     }
-
 
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
