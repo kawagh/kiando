@@ -71,6 +71,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BuildConfig
@@ -102,7 +104,7 @@ fun PreviewListScreen() {
             listOf(
                 Tag(title = "sample"),
                 Tag(title = "居飛車"),
-                )
+            )
         ),
         QuestionWithTags(sampleQuestion3, listOf(Tag(title = "sample"))),
     )
@@ -307,7 +309,10 @@ fun ListScreen(
                             selected = questionsUiState.bottomBarIndex == index,
                             onClick = { handleBottomBarClick(index) },
                             label = { Text(bottomBarItem.title) },
-                            icon = { Icon(bottomBarItem.icon, null) }
+                            icon = { Icon(bottomBarItem.icon, null) },
+                            modifier = Modifier.semantics {
+                                contentDescription = bottomBarItem.title
+                            }
                         )
                     }
                 }

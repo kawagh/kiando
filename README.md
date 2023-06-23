@@ -10,7 +10,7 @@ You can download it in [GooglePlay](https://play.google.com/store/apps/details?i
 </p>
 <p>
 <img src="pictures/feature_graphic3.png" width="300" />
-<img src="pictures/list_tags.png" width="300" />
+<img src="pictures/feature_graphic4.png" width="300" />
 </p>
 
 
