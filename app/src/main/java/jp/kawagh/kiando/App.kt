@@ -110,11 +110,11 @@ fun App(
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
                     val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
                         appliedFilterName.isEmpty() ||
-                                tags.map { tag -> tag.title }.contains(appliedFilterName)
+                            tags.map { tag -> tag.title }.contains(appliedFilterName)
                     }
                     val questionsWithTags = uiState.questionsWithTags.filter { qts ->
                         (fromTabIndex != favoriteIndex || qts.question.isFavorite) &&
-                                containAppliedFilter(qts.tags)
+                            containAppliedFilter(qts.tags)
                     }
                     val nextQuestion = questionsWithTags
                         .find { q ->

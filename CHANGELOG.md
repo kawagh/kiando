@@ -2,6 +2,7 @@
 
 ## v1.0.19 [not released]
 
+- show message when no questions are displayed
 - navigate considering applied question filter
 
 ## v1.0.18 [2023-06-23]
