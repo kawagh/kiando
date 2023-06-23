@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.0.19 [not released]
+
+- navigate considering applied question filter
+
 ## v1.0.18 [2023-06-23]
 
 ### [2023-06-20]
