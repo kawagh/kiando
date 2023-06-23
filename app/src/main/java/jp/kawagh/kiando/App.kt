@@ -14,6 +14,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.ui.screens.EntryScreen
 import jp.kawagh.kiando.ui.screens.LicenseScreen
@@ -48,6 +50,7 @@ fun App(
     gameViewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory,
 ) {
     val uiState = questionsViewModel.uiState
+    val appliedFilterName = questionsViewModel.appliedFilterName.collectAsState(initial = "").value
     KiandoM3Theme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         val navController = rememberNavController()
@@ -105,26 +108,44 @@ fun App(
                             ?: sampleQuestion
 
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
+                    val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
+                        if (appliedFilterName.isEmpty()) {
+                            true
+                        } else {
+                            tags.map { tag -> tag.title }.contains(appliedFilterName)
+                        }
+                    }
                     val nextQuestion =
                         if (fromTabIndex == favoriteIndex) {
-                            uiState.questionsWithTags.filter { q -> q.question.isFavorite }
+                            uiState.questionsWithTags.filter { qts ->
+                                qts.question.isFavorite && containAppliedFilter(
+                                    qts.tags
+                                )
+                            }
                                 .find { q ->
                                     q.question.id > questionId
                                 }?.question
                                 ?: sampleQuestion
                         } else {
-                            uiState.questionsWithTags.find { q -> q.question.id > questionId }?.question
+                            uiState.questionsWithTags
+                                .filter { qts -> containAppliedFilter(qts.tags) }
+                                .find { q -> q.question.id > questionId }?.question
                                 ?: sampleQuestion
                         }
                     val prevQuestion =
                         if (fromTabIndex == favoriteIndex) {
-                            uiState.questionsWithTags.filter { q -> q.question.isFavorite }
-                                .findLast { q ->
-                                    q.question.id < questionId
+                            uiState.questionsWithTags.filter { qts ->
+                                qts.question.isFavorite
+                                        && containAppliedFilter(qts.tags)
+                            }
+                                .findLast { qts ->
+                                    qts.question.id < questionId
                                 }?.question
                                 ?: sampleQuestion
                         } else {
-                            uiState.questionsWithTags.findLast { q -> q.question.id < questionId }?.question
+                            uiState.questionsWithTags
+                                .filter { qts -> containAppliedFilter(qts.tags) }
+                                .findLast { qts -> qts.question.id < questionId }?.question
                                 ?: sampleQuestion
                         }
                     val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
