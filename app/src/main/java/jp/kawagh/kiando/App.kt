@@ -109,45 +109,23 @@ fun App(
 
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
                     val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
-                        if (appliedFilterName.isEmpty()) {
-                            true
-                        } else {
-                            tags.map { tag -> tag.title }.contains(appliedFilterName)
-                        }
+                        appliedFilterName.isEmpty() ||
+                                tags.map { tag -> tag.title }.contains(appliedFilterName)
                     }
-                    val nextQuestion =
-                        if (fromTabIndex == favoriteIndex) {
-                            uiState.questionsWithTags.filter { qts ->
-                                qts.question.isFavorite && containAppliedFilter(
-                                    qts.tags
-                                )
-                            }
-                                .find { q ->
-                                    q.question.id > questionId
-                                }?.question
-                                ?: sampleQuestion
-                        } else {
-                            uiState.questionsWithTags
-                                .filter { qts -> containAppliedFilter(qts.tags) }
-                                .find { q -> q.question.id > questionId }?.question
-                                ?: sampleQuestion
-                        }
-                    val prevQuestion =
-                        if (fromTabIndex == favoriteIndex) {
-                            uiState.questionsWithTags.filter { qts ->
-                                qts.question.isFavorite
-                                        && containAppliedFilter(qts.tags)
-                            }
-                                .findLast { qts ->
-                                    qts.question.id < questionId
-                                }?.question
-                                ?: sampleQuestion
-                        } else {
-                            uiState.questionsWithTags
-                                .filter { qts -> containAppliedFilter(qts.tags) }
-                                .findLast { qts -> qts.question.id < questionId }?.question
-                                ?: sampleQuestion
-                        }
+                    val questionsWithTags = uiState.questionsWithTags.filter { qts ->
+                        (fromTabIndex != favoriteIndex || qts.question.isFavorite) &&
+                                containAppliedFilter(qts.tags)
+                    }
+                    val nextQuestion = questionsWithTags
+                        .find { q ->
+                            q.question.id > questionId
+                        }?.question
+                        ?: sampleQuestion
+                    val prevQuestion = questionsWithTags
+                        .findLast { qts ->
+                            qts.question.id < questionId
+                        }?.question
+                        ?: sampleQuestion
                     val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
                     MainScreen(
                         gameViewModel = gameViewModel,
