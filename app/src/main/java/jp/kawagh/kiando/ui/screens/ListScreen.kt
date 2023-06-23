@@ -71,6 +71,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BuildConfig
@@ -82,7 +84,8 @@ import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestion
-import jp.kawagh.kiando.models.sampleQuestions
+import jp.kawagh.kiando.models.sampleQuestion2
+import jp.kawagh.kiando.models.sampleQuestion3
 import jp.kawagh.kiando.ui.components.QuestionWithTagsCard
 import jp.kawagh.kiando.ui.components.TagChip
 import jp.kawagh.kiando.ui.theme.CardColor
@@ -94,11 +97,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun PreviewListScreen() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val sampleQuestionsWithTags = listOf(
+        QuestionWithTags(sampleQuestion, listOf(Tag(title = "sample"))),
+        QuestionWithTags(
+            sampleQuestion2,
+            listOf(
+                Tag(title = "sample"),
+                Tag(title = "居飛車"),
+            )
+        ),
+        QuestionWithTags(sampleQuestion3, listOf(Tag(title = "sample"))),
+    )
     SideEffectChangeSystemUi()
     KiandoM3Theme {
         ListScreen(
             questionsUiState = QuestionsUiState(
-                sampleQuestions.map { QuestionWithTags(it, listOf(Tag(id = 0, "sample"))) }
+                sampleQuestionsWithTags
             ),
             appliedFilterName = "",
             dropDownMenuItems = emptyMap(),
@@ -295,7 +309,10 @@ fun ListScreen(
                             selected = questionsUiState.bottomBarIndex == index,
                             onClick = { handleBottomBarClick(index) },
                             label = { Text(bottomBarItem.title) },
-                            icon = { Icon(bottomBarItem.icon, null) }
+                            icon = { Icon(bottomBarItem.icon, null) },
+                            modifier = Modifier.semantics {
+                                contentDescription = bottomBarItem.title
+                            }
                         )
                     }
                 }

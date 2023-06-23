@@ -3,6 +3,8 @@ package jp.kawagh.kiando
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -10,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
@@ -22,6 +24,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.ui.screens.ListScreen
 import jp.kawagh.kiando.ui.screens.MainScreen
 import jp.kawagh.kiando.ui.screens.PreviewListScreen
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
@@ -47,7 +50,7 @@ class CustomTestRunner : AndroidJUnitRunner() {
 @HiltAndroidTest
 class TakeScreenShotTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @get:Rule
     val hiltRule = HiltAndroidRule(this)
@@ -63,7 +66,7 @@ class TakeScreenShotTest {
 
     @Test
     fun takePictureForFeatureGraphic1() {
-        composeTestRule.setContent {
+        composeTestRule.activity.setContent {
             PreviewListScreen()
         }
         takeScreenShot("feature_graphic1.png")
@@ -72,7 +75,7 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic2() {
         val viewModel = viewModelAssistedFactory.create(sampleQuestion)
-        composeTestRule.setContent {
+        composeTestRule.activity.setContent {
             KiandoM3Theme {
                 MainScreen(
                     gameViewModel = viewModel,
@@ -90,7 +93,7 @@ class TakeScreenShotTest {
     @Test
     fun takePictureForFeatureGraphic3() {
         val viewModel = viewModelAssistedFactory.create(sampleQuestion)
-        composeTestRule.setContent {
+        composeTestRule.activity.setContent {
 
             SideEffectChangeSystemUi()
             Surface(
@@ -121,6 +124,35 @@ class TakeScreenShotTest {
         Espresso.closeSoftKeyboard()
         takeScreenShot("feature_graphic3.png")
     }
+
+
+    @Test
+    fun takePictureForFeatureGraphic4() {
+        val questionsViewModel = composeTestRule.activity.viewModels<QuestionsViewModel>().value
+        composeTestRule.activity.setContent {
+            SideEffectChangeSystemUi()
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                KiandoM3Theme {
+                    ListScreen(
+                        questionsViewModel = questionsViewModel,
+                        navigateToQuestion = { _, _ -> run {} },
+                        navigateToDelete = {},
+                        navigateToLicense = {},
+                        handleRenameQuestion = {},
+                        handleRenameTag = {},
+                        handleDeleteAQuestion = {}
+                    )
+                }
+            }
+        }
+        composeTestRule.onNode(hasContentDescription("tags"))
+            .performClick()
+        takeScreenShot("feature_graphic4.png")
+    }
+
 
     // saved in <packageName>/files/
     private fun takeScreenShot(saveName: String, size: Int? = null) {
