@@ -92,6 +92,7 @@ fun MainScreen(
     navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
+    restartQuestion: () -> Unit,
 ) {
     val uiState = gameViewModel.uiState
     val context = LocalContext.current
@@ -582,6 +583,7 @@ fun MainScreen(
                             )
                         }
                     }
+
                     if (shouldShowAnswerButton) {
                         Row(
                             horizontalArrangement = Arrangement.Center,
@@ -592,6 +594,25 @@ fun MainScreen(
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                             ) {
                                 Text(text = "回答を表示")
+                            }
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    shouldShowAnswerButton = true
+                                    // initialize state for highlight
+                                    panelClickedOnce = false
+                                    lastClickedPanelPos = NonPosition
+                                    positionsToHighlight.clear()
+                                    restartQuestion()
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
+                            ) {
+                                Text(text = "問題をリセット")
                             }
                         }
                     }

@@ -2,6 +2,7 @@
 
 ## v1.0.19 [not released]
 
+- restart question
 - show message when no questions are displayed
 - navigate considering applied question filter
 
