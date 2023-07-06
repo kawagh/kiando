@@ -20,14 +20,20 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import dagger.hilt.android.testing.UninstallModules
+import jp.kawagh.kiando.data.PreferencesRepository
+import jp.kawagh.kiando.di.PreferenceRepositoryModule
 import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.ui.screens.ListScreen
 import jp.kawagh.kiando.ui.screens.MainScreen
 import jp.kawagh.kiando.ui.screens.PreviewListScreen
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,6 +53,7 @@ class CustomTestRunner : AndroidJUnitRunner() {
     }
 }
 
+@UninstallModules(PreferenceRepositoryModule::class)
 @HiltAndroidTest
 class TakeScreenShotTest {
     @get:Rule
@@ -58,6 +65,13 @@ class TakeScreenShotTest {
 
     @Inject
     lateinit var viewModelAssistedFactory: GameViewModel.GameViewModelAssistedFactory
+
+    @BindValue
+    val preferencesRepository: PreferencesRepository = object : PreferencesRepository {
+        override val filter: Flow<String> = flowOf("")
+        override suspend fun setFilter(value: String) {
+        }
+    }
 
     @Before
     fun init() {
