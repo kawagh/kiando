@@ -57,6 +57,11 @@ fun App(
         val navigateToQuestion: (Question, fromTabIndex: Int) -> Unit = { question, fromTabIndex ->
             navController.navigate("main/${question.id}/$fromTabIndex")
         }
+        val restartQuestion: (Question, fromTabIndex: Int) -> Unit = { question, fromTabIndex ->
+            navController.navigate("main/${question.id}/$fromTabIndex") {
+                launchSingleTop = true
+            }
+        }
         val navigateToList: () -> Unit = {
             navController.navigate("list")
         }
@@ -143,6 +148,9 @@ fun App(
                                 fromTabIndex
                             )
                         },
+                        restartQuestion = {
+                            restartQuestion(question, fromTabIndex)
+                        }
                     )
                 }
 
