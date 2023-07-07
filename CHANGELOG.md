@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.0.19 [not released]
+
+- add changelog
+- prevent flickering during loading questions
+- restart question
+- show message when no questions are displayed
+- navigate considering applied question filter
+
 ## v1.0.18 [2023-06-23]
 
 ### [2023-06-20]

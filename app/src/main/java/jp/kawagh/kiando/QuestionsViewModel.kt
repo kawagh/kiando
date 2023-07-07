@@ -38,7 +38,7 @@ class QuestionsViewModel @Inject constructor(
     init {
         viewModelScope.launch() {
             repository.questionsWithTags.collect {
-                uiState = uiState.copy(questionsWithTags = it)
+                uiState = uiState.copy(questionsWithTags = it, isLoading = false)
             }
         }
         viewModelScope.launch {
@@ -202,4 +202,5 @@ data class QuestionsUiState(
     val bottomBarIndex: Int = 0,
     val isTagEditMode: Boolean = false,
     val hideDefaultQuestions: Boolean = false,
+    val isLoading: Boolean = true,
 )

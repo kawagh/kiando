@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Tag
@@ -112,7 +113,8 @@ fun PreviewListScreen() {
     KiandoM3Theme {
         ListScreen(
             questionsUiState = QuestionsUiState(
-                sampleQuestionsWithTags
+                questionsWithTags = sampleQuestionsWithTags,
+                isLoading = false,
             ),
             appliedFilterName = "",
             dropDownMenuItems = emptyMap(),
@@ -129,6 +131,7 @@ fun PreviewListScreen() {
             navigateToQuestion = { _, _ -> run {} },
             navigateToDelete = {},
             navigateToLicense = {},
+            navigateToChangeLog = {},
             handleRenameQuestion = {},
             handleRenameTag = {},
             handleDeleteAQuestion = {},
@@ -153,6 +156,7 @@ fun ListScreen(
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    navigateToChangeLog: () -> Unit,
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -186,6 +190,7 @@ fun ListScreen(
         navigateToQuestion = navigateToQuestion,
         navigateToDelete = navigateToDelete,
         navigateToLicense = navigateToLicense,
+        navigateToChangeLog = navigateToChangeLog,
         handleRenameQuestion = handleRenameQuestion,
         handleRenameTag = handleRenameTag,
         handleDeleteAQuestion = handleDeleteAQuestion,
@@ -212,6 +217,7 @@ fun ListScreen(
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    navigateToChangeLog: () -> Unit,
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -219,7 +225,8 @@ fun ListScreen(
     val navigateToQuestionWithTabIndex: (Question) -> Unit = {
         navigateToQuestion(it, questionsUiState.tabRowIndex)
     }
-    val questionsToDisplay = when (TabItem.values()[questionsUiState.tabRowIndex]) {
+    val tabItem = TabItem.values()[questionsUiState.tabRowIndex]
+    val questionsToDisplay = when (tabItem) {
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
@@ -245,6 +252,7 @@ fun ListScreen(
                 toggleHideDefaultQuestions = toggleHideDefaultQuestions,
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
+                navigateToChangeLog = navigateToChangeLog,
                 handleLoadDataFromResource = handleLoadDataFromResource,
             )
         }
@@ -340,34 +348,65 @@ fun ListScreen(
                             }
                         }
                         Spacer(modifier = Modifier.padding(top = 12.dp))
-                        if (questionsUiState.questionsWithTags.isEmpty()) {
-                            Box(Modifier.fillMaxSize()) {
-                                Column(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    Text(
-                                        stringResource(R.string.text_no_questions),
-                                        style = MaterialTheme.typography.headlineSmall
-                                    )
-                                    Button(
-                                        onClick = handleLoadDataFromResource,
-                                        colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
+                        if (!questionsUiState.isLoading) {
+                            if (questionsUiState.questionsWithTags.isEmpty()) {
+                                Box(Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
                                         Text(
-                                            stringResource(R.string.button_text_add_samples)
+                                            stringResource(R.string.text_no_questions),
+                                            style = MaterialTheme.typography.headlineSmall
                                         )
+                                        Button(
+                                            onClick = handleLoadDataFromResource,
+                                            colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
+                                        ) {
+                                            Text(
+                                                stringResource(R.string.button_text_add_samples)
+                                            )
+                                        }
                                     }
                                 }
+                            } else if (questionsToDisplay.isEmpty()) {
+                                Box(Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(horizontal = 16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        when (tabItem) {
+                                            TabItem.All -> Text(
+                                                text = if (appliedFilterName.isEmpty()) {
+                                                    "" // unreachable
+                                                } else {
+                                                    "`$appliedFilterName`を含む問題は登録されていません"
+                                                },
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+
+                                            TabItem.Favorite -> Text(
+                                                text = if (appliedFilterName.isEmpty()) {
+                                                    "お気に入りの問題は登録されていません"
+                                                } else {
+                                                    "`$appliedFilterName`を含むお気に入りの問題は登録されていません"
+                                                },
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                QuestionsList(
+                                    questionsWithTags = questionsToDisplay,
+                                    navigateToQuestion = navigateToQuestionWithTabIndex,
+                                    handleDeleteQuestion = handleDeleteAQuestion,
+                                    handleRenameQuestion = handleRenameQuestion,
+                                    handleFavoriteQuestion = handleFavoriteQuestion
+                                )
                             }
-                        } else {
-                            QuestionsList(
-                                questionsWithTags = questionsToDisplay,
-                                navigateToQuestion = navigateToQuestionWithTabIndex,
-                                handleDeleteQuestion = handleDeleteAQuestion,
-                                handleRenameQuestion = handleRenameQuestion,
-                                handleFavoriteQuestion = handleFavoriteQuestion
-                            )
                         }
                     }
                 }
@@ -402,6 +441,7 @@ fun ListScreen(
 private fun DrawerContent(
     hideDefaultQuestions: Boolean,
     toggleHideDefaultQuestions: () -> Unit,
+    navigateToChangeLog: () -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
@@ -447,6 +487,12 @@ private fun DrawerContent(
             label = { Text(stringResource(R.string.drawer_item_license)) },
             selected = false,
             onClick = navigateToLicense
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.History, null) },
+            label = { Text("更新履歴") },
+            selected = false,
+            onClick = navigateToChangeLog
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Warning, null) },

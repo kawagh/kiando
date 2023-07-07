@@ -16,7 +16,11 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindRepository(repository: ImplRepository): Repository
+}
 
+@Module
+@InstallIn(SingletonComponent::class)
+interface PreferenceRepositoryModule {
     @Binds
     @Singleton
     fun bindPreferenceRepository(impl: ImplPreferencesRepository): PreferencesRepository
