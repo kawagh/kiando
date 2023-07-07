@@ -27,7 +27,7 @@ android {
     compileSdk = 33
     defaultConfig {
         applicationId = "jp.kawagh.kiando"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
