@@ -35,6 +35,7 @@ object ChangeLogs {
     // want to manage only data or `CHANGELOG.md`
     val data: List<BaseChangeLog> =
         listOf(
+            ReleaseLog(version = "1.0.19", date = LocalDate.of(2023, 7, 7)),
             ChangeLog(title = "更新履歴の表示", date = LocalDate.of(2023, 7, 7)),
             ChangeLog(title = "問題読み込み時のちらつきの防止", date = LocalDate.of(2023, 7, 7)),
             ChangeLog(title = "問題のリセット機能の追加", date = LocalDate.of(2023, 7, 6)),
@@ -72,7 +73,7 @@ fun ChangeLogScreen(navigateToList: () -> Unit) {
         ChangeLogs.data.filterIsInstance<ReleaseLog>().maxByOrNull { it.date }?.date
             ?: LocalDate.MIN
     val hasUnreleasedChangeLogs =
-        ChangeLogs.data.filterIsInstance<ChangeLog>().any { it.date >= latestReleaseDate }
+        ChangeLogs.data.filterIsInstance<ChangeLog>().any { it.date > latestReleaseDate }
 
     Scaffold(topBar = {
         TopAppBar(title = { Text(text = "更新履歴") }, navigationIcon = {
