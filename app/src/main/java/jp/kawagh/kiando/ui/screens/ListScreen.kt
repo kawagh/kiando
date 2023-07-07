@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Tag
@@ -129,6 +130,7 @@ fun PreviewListScreen() {
             navigateToQuestion = { _, _ -> run {} },
             navigateToDelete = {},
             navigateToLicense = {},
+            navigateToChangeLog = {},
             handleRenameQuestion = {},
             handleRenameTag = {},
             handleDeleteAQuestion = {},
@@ -153,6 +155,7 @@ fun ListScreen(
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    navigateToChangeLog: () -> Unit,
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -186,6 +189,7 @@ fun ListScreen(
         navigateToQuestion = navigateToQuestion,
         navigateToDelete = navigateToDelete,
         navigateToLicense = navigateToLicense,
+        navigateToChangeLog = navigateToChangeLog,
         handleRenameQuestion = handleRenameQuestion,
         handleRenameTag = handleRenameTag,
         handleDeleteAQuestion = handleDeleteAQuestion,
@@ -212,6 +216,7 @@ fun ListScreen(
     navigateToQuestion: (Question, Int) -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    navigateToChangeLog: () -> Unit,
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -246,6 +251,7 @@ fun ListScreen(
                 toggleHideDefaultQuestions = toggleHideDefaultQuestions,
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
+                navigateToChangeLog = navigateToChangeLog,
                 handleLoadDataFromResource = handleLoadDataFromResource,
             )
         }
@@ -434,6 +440,7 @@ fun ListScreen(
 private fun DrawerContent(
     hideDefaultQuestions: Boolean,
     toggleHideDefaultQuestions: () -> Unit,
+    navigateToChangeLog: () -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
@@ -479,6 +486,12 @@ private fun DrawerContent(
             label = { Text(stringResource(R.string.drawer_item_license)) },
             selected = false,
             onClick = navigateToLicense
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.History, null) },
+            label = { Text("更新履歴") },
+            selected = false,
+            onClick = navigateToChangeLog
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Warning, null) },

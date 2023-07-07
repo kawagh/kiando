@@ -31,7 +31,6 @@ sealed interface BaseChangeLog {
 data class ChangeLog(val title: String, override val date: LocalDate) : BaseChangeLog
 data class ReleaseLog(val version: String, override val date: LocalDate) : BaseChangeLog
 
-
 object ChangeLogs {
     // want to manage only data or `CHANGELOG.md`
     val data: List<BaseChangeLog> =
@@ -46,7 +45,7 @@ object ChangeLogs {
             ReleaseLog(version = "1.0.17", date = LocalDate.of(2023, 3, 19)),
             ChangeLog(title = "二歩の検知", date = LocalDate.of(2023, 3, 19)),
             ChangeLog(title = "駒台に関する不具合の修正", date = LocalDate.of(2023, 3, 19)),
-            ChangeLog(title = "成不成のダイアログの表示", date = LocalDate.of(2023, 3, 17)),
+            ChangeLog(title = "成不成のダイアログの改善", date = LocalDate.of(2023, 3, 17)),
         )
 }
 
@@ -65,8 +64,10 @@ fun ChangeLogScreen(navigateToList: () -> Unit) {
     val dateGroupedChangeLogs = ChangeLogs.data.groupBy { it.date }
     val versionName = BuildConfig.VERSION_NAME
     val nextVersionName =
-        (versionName.split(".").take(2) +
-                (versionName.split(".").last().toInt() + 1).toString()).joinToString(".")
+        (
+            versionName.split(".").take(2) +
+                (versionName.split(".").last().toInt() + 1).toString()
+            ).joinToString(".")
     val latestReleaseDate =
         ChangeLogs.data.filterIsInstance<ReleaseLog>().maxByOrNull { it.date }?.date
             ?: LocalDate.MIN
@@ -98,7 +99,8 @@ fun ChangeLogScreen(navigateToList: () -> Unit) {
             }
             items(
                 dateGroupedChangeLogs.entries.toList()
-                    .sortedByDescending { it.key }) { dateToLogs ->
+                    .sortedByDescending { it.key }
+            ) { dateToLogs ->
                 Column {
                     val releaseLog = dateToLogs.value.filterIsInstance<ReleaseLog>().firstOrNull()
                     val isReleased = ChangeLogs.data.filterIsInstance<ReleaseLog>()

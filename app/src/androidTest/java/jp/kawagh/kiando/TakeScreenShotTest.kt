@@ -157,6 +157,7 @@ class TakeScreenShotTest {
                         navigateToQuestion = { _, _ -> run {} },
                         navigateToDelete = {},
                         navigateToLicense = {},
+                        navigateToChangeLog = {},
                         handleRenameQuestion = {},
                         handleRenameTag = {},
                         handleDeleteAQuestion = {}
