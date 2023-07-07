@@ -113,7 +113,8 @@ fun PreviewListScreen() {
     KiandoM3Theme {
         ListScreen(
             questionsUiState = QuestionsUiState(
-                sampleQuestionsWithTags
+                questionsWithTags = sampleQuestionsWithTags,
+                isLoading = false,
             ),
             appliedFilterName = "",
             dropDownMenuItems = emptyMap(),
