@@ -341,63 +341,65 @@ fun ListScreen(
                             }
                         }
                         Spacer(modifier = Modifier.padding(top = 12.dp))
-                        if (questionsUiState.questionsWithTags.isEmpty()) {
-                            Box(Modifier.fillMaxSize()) {
-                                Column(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    Text(
-                                        stringResource(R.string.text_no_questions),
-                                        style = MaterialTheme.typography.headlineSmall
-                                    )
-                                    Button(
-                                        onClick = handleLoadDataFromResource,
-                                        colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
+                        if (!questionsUiState.isLoading) {
+                            if (questionsUiState.questionsWithTags.isEmpty()) {
+                                Box(Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
                                         Text(
-                                            stringResource(R.string.button_text_add_samples)
+                                            stringResource(R.string.text_no_questions),
+                                            style = MaterialTheme.typography.headlineSmall
                                         )
+                                        Button(
+                                            onClick = handleLoadDataFromResource,
+                                            colors = ButtonDefaults.buttonColors(contentColor = Color.Black)
+                                        ) {
+                                            Text(
+                                                stringResource(R.string.button_text_add_samples)
+                                            )
+                                        }
                                     }
                                 }
-                            }
-                        } else if (questionsToDisplay.isEmpty()) {
-                            Box(Modifier.fillMaxSize()) {
-                                Column(
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(horizontal = 16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    when (tabItem) {
-                                        TabItem.All -> Text(
-                                            text = if (appliedFilterName.isEmpty()) {
-                                                "" // unreachable
-                                            } else {
-                                                "`$appliedFilterName`を含む問題は登録されていません"
-                                            },
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
+                            } else if (questionsToDisplay.isEmpty()) {
+                                Box(Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(horizontal = 16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                    ) {
+                                        when (tabItem) {
+                                            TabItem.All -> Text(
+                                                text = if (appliedFilterName.isEmpty()) {
+                                                    "" // unreachable
+                                                } else {
+                                                    "`$appliedFilterName`を含む問題は登録されていません"
+                                                },
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
 
-                                        TabItem.Favorite -> Text(
-                                            text = if (appliedFilterName.isEmpty()) {
-                                                "お気に入りの問題は登録されていません"
-                                            } else {
-                                                "`$appliedFilterName`を含むお気に入りの問題は登録されていません"
-                                            },
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
+                                            TabItem.Favorite -> Text(
+                                                text = if (appliedFilterName.isEmpty()) {
+                                                    "お気に入りの問題は登録されていません"
+                                                } else {
+                                                    "`$appliedFilterName`を含むお気に入りの問題は登録されていません"
+                                                },
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                        }
                                     }
                                 }
+                            } else {
+                                QuestionsList(
+                                    questionsWithTags = questionsToDisplay,
+                                    navigateToQuestion = navigateToQuestionWithTabIndex,
+                                    handleDeleteQuestion = handleDeleteAQuestion,
+                                    handleRenameQuestion = handleRenameQuestion,
+                                    handleFavoriteQuestion = handleFavoriteQuestion
+                                )
                             }
-                        } else {
-                            QuestionsList(
-                                questionsWithTags = questionsToDisplay,
-                                navigateToQuestion = navigateToQuestionWithTabIndex,
-                                handleDeleteQuestion = handleDeleteAQuestion,
-                                handleRenameQuestion = handleRenameQuestion,
-                                handleFavoriteQuestion = handleFavoriteQuestion
-                            )
                         }
                     }
                 }
