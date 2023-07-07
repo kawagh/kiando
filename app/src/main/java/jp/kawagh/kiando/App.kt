@@ -35,6 +35,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.ui.screens.ChangeLogScreen
 import jp.kawagh.kiando.ui.screens.EntryScreen
 import jp.kawagh.kiando.ui.screens.LicenseScreen
 import jp.kawagh.kiando.ui.screens.ListScreen
@@ -82,6 +83,7 @@ fun App(
                         navigateToQuestion = navigateToQuestion,
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
+                        navigateToChangeLog = { navController.navigate("changelog") },
                         handleDeleteAQuestion = { question ->
                             navController.navigate("delete_each/${question.id}")
                         },
@@ -152,6 +154,10 @@ fun App(
                             restartQuestion(question, fromTabIndex)
                         }
                     )
+                }
+
+                composable("changelog") {
+                    ChangeLogScreen(navigateToList = navigateToList)
                 }
 
                 composable("license") {
