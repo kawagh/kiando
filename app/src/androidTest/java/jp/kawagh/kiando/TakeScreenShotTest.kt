@@ -28,6 +28,7 @@ import dagger.hilt.android.testing.UninstallModules
 import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.di.PreferenceRepositoryModule
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.ui.screens.ChangeLogScreen
 import jp.kawagh.kiando.ui.screens.ListScreen
 import jp.kawagh.kiando.ui.screens.MainScreen
 import jp.kawagh.kiando.ui.screens.PreviewListScreen
@@ -168,6 +169,17 @@ class TakeScreenShotTest {
         composeTestRule.onNode(hasContentDescription("tags"))
             .performClick()
         takeScreenShot("feature_graphic4.png")
+    }
+
+    @Test
+    fun takePictureForChangeLogScreen() {
+        composeTestRule.activity.setContent {
+            SideEffectChangeSystemUi()
+            KiandoM3Theme {
+                ChangeLogScreen(navigateToList = {})
+            }
+        }
+        takeScreenShot("feature_graphic5.png")
     }
 
 
