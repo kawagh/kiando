@@ -12,6 +12,9 @@ You can download it in [GooglePlay](https://play.google.com/store/apps/details?i
 <img src="pictures/feature_graphic3.png" width="300" />
 <img src="pictures/feature_graphic4.png" width="300" />
 </p>
+<p>
+<img src="pictures/feature_graphic5.png" width="300" />
+</p>
 
 
 ## feature
