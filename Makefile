@@ -14,7 +14,4 @@ test: ## run test
 
 .PHONY: update-feature-graphic
 update-feature-graphic: ## update feature graphic; run after test
-	@adb -s emulator-5554 -d shell "run-as jp.kawagh.kiando.debug cat /data/user/0/jp.kawagh.kiando.debug/files/feature_graphic1.png" > pictures/feature_graphic1.png
-	@adb -s emulator-5554 -d shell "run-as jp.kawagh.kiando.debug cat /data/user/0/jp.kawagh.kiando.debug/files/feature_graphic2.png" > pictures/feature_graphic2.png
-	@adb -s emulator-5554 -d shell "run-as jp.kawagh.kiando.debug cat /data/user/0/jp.kawagh.kiando.debug/files/feature_graphic3.png" > pictures/feature_graphic3.png
-	@adb -s emulator-5554 -d shell "run-as jp.kawagh.kiando.debug cat /data/user/0/jp.kawagh.kiando.debug/files/feature_graphic4.png" > pictures/feature_graphic4.png
+	@shell/update_feature_graphic_command.sh
