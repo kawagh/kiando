@@ -9,9 +9,13 @@ style:
     active: false
   MagicNumber:
     active: false
-  MaxLineLength:
-    ignoreAnnotated: [ 'Query' ]
-
+complexity:
+  LongParameterList:
+    ignoreAnnotated: [ 'Composable' ]
+  LongMethod:
+    ignoreAnnotated: [ 'Composable' ]
+  CyclomaticComplexMethod:
+    ignoreAnnotated: [ 'Composable' ]
 naming:
   FunctionNaming:
     ignoreAnnotated: [ 'Composable' ]
