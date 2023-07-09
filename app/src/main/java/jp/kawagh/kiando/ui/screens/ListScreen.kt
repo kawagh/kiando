@@ -117,7 +117,7 @@ fun PreviewListScreen() {
                 isLoading = false,
             ),
             appliedFilterName = "",
-            dropDownMenuItems = emptyMap(),
+            dropDownMenuItems = mapOf("条件なし" to {}),
             drawerState = drawerState,
             toggleHideDefaultQuestions = {},
             handleLoadDataFromResource = {},
