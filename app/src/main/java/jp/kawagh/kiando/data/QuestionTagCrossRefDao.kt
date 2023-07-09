@@ -1,3 +1,5 @@
+@file:Suppress("MaxLineLength")
+
 package jp.kawagh.kiando.data
 
 import androidx.room.Dao

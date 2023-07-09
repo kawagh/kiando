@@ -31,7 +31,7 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
-const val alongBoardSpace = 25
+const val ALONGBOARDSPACE = 25
 
 @Composable
 fun Board(
@@ -43,21 +43,21 @@ fun Board(
 ) {
     val dotSize = 8
     val panelSize = 40
-    val dpOffset = DpOffset(x = (alongBoardSpace / 2).dp, y = (-alongBoardSpace / 2).dp)
+    val dpOffset = DpOffset(x = (ALONGBOARDSPACE / 2).dp, y = (-ALONGBOARDSPACE / 2).dp)
     val fontSize = 12.sp
     val numbers = "一二三四五六七八九"
     Box(
         Modifier
-            .size((panelSize * BOARD_SIZE + alongBoardSpace).dp)
+            .size((panelSize * BOARD_SIZE + ALONGBOARDSPACE).dp)
             .background(BoardColorUnfocused)
             .offset(
-                y = alongBoardSpace.dp,
+                y = ALONGBOARDSPACE.dp,
             )
     ) {
         Box(
             modifier = Modifier.offset(
-                x = (alongBoardSpace / 2).dp,
-                y = -(alongBoardSpace / 2).dp
+                x = (ALONGBOARDSPACE / 2).dp,
+                y = -(ALONGBOARDSPACE / 2).dp
             )
         ) {
             Column {
@@ -113,7 +113,7 @@ fun Board(
             Text(
                 "${9 - it}",
                 Modifier
-                    .offset(x = ((it * panelSize) + 15).dp, y = (-alongBoardSpace / 2).dp)
+                    .offset(x = ((it * panelSize) + 15).dp, y = (-ALONGBOARDSPACE / 2).dp)
                     .offset(dpOffset.x, dpOffset.y)
                     .offset(y = (-2).dp),
                 fontSize = fontSize

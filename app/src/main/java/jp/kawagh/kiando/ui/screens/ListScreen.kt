@@ -119,7 +119,6 @@ fun PreviewListScreen() {
             appliedFilterName = "",
             dropDownMenuItems = mapOf("条件なし" to {}),
             drawerState = drawerState,
-            toggleHideDefaultQuestions = {},
             handleLoadDataFromResource = {},
             handleToggleTagEdit = {},
             handleFavoriteQuestion = {},
@@ -173,7 +172,6 @@ fun ListScreen(
         appliedFilterName = appliedFilterName,
         dropDownMenuItems = dropDownMenuItems,
         drawerState = drawerState,
-        toggleHideDefaultQuestions = { questionsViewModel.toggleHideDefaultQuestions() },
         handleLoadDataFromResource = { questionsViewModel.loadDataFromAsset() },
         handleToggleTagEdit = { questionsViewModel.toggleTagEditMode() },
         handleFavoriteQuestion = { questionsViewModel.toggleQuestionFavorite(it) },
@@ -205,7 +203,6 @@ fun ListScreen(
     appliedFilterName: String,
     dropDownMenuItems: Map<String, () -> Unit>,
     drawerState: DrawerState,
-    toggleHideDefaultQuestions: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
     handleToggleTagEdit: () -> Unit,
     handleFavoriteQuestion: (Question) -> Unit,
@@ -230,12 +227,6 @@ fun ListScreen(
         TabItem.All -> questionsUiState.questionsWithTags
         TabItem.Favorite -> questionsUiState.questionsWithTags.filter { it.question.isFavorite }
     }.filter {
-        if (questionsUiState.hideDefaultQuestions) {
-            it.question.id >= 0
-        } else {
-            true
-        }
-    }.filter {
         val titles = it.tags.map { tag -> tag.title }
         appliedFilterName.isEmpty() || titles.contains(appliedFilterName)
     }
@@ -248,8 +239,6 @@ fun ListScreen(
         drawerState = drawerState,
         drawerContent = {
             DrawerContent(
-                hideDefaultQuestions = questionsUiState.hideDefaultQuestions,
-                toggleHideDefaultQuestions = toggleHideDefaultQuestions,
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
                 navigateToChangeLog = navigateToChangeLog,
@@ -439,8 +428,6 @@ fun ListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DrawerContent(
-    hideDefaultQuestions: Boolean,
-    toggleHideDefaultQuestions: () -> Unit,
     navigateToChangeLog: () -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
@@ -459,22 +446,6 @@ private fun DrawerContent(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(8.dp)
         )
-
-//        Divider(Modifier.padding(8.dp))
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//            modifier = Modifier.padding(8.dp)
-//        ) {
-//            Text(
-//                stringResource(R.string.drawer_item_hide_default_questions),
-//                style = MaterialTheme.typography.titleLarge
-//            )
-//            Spacer(modifier = Modifier.size(12.dp))
-//            Switch(
-//                checked = hideDefaultQuestions,
-//                onCheckedChange = { toggleHideDefaultQuestions() })
-//        }
-
         Divider(Modifier.padding(8.dp))
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Add, null) },
@@ -780,21 +751,24 @@ fun DropdownMenuOnTopBar(
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = { setExpanded(false) }) {
         dropDownMenuItems.forEach { (name, callback) ->
-            DropdownMenuItem(text = {
-                Text(
-                    text = name,
-                    modifier = Modifier.background(
-                        if (name == selectedName) {
-                            Color.LightGray
-                        } else {
-                            Color.Transparent
-                        }
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = name,
+                        modifier = Modifier.background(
+                            if (name == selectedName) {
+                                Color.LightGray
+                            } else {
+                                Color.Transparent
+                            }
+                        )
                     )
-                )
-            }, onClick = {
+                },
+                onClick = {
                     callback.invoke()
                     setExpanded(false)
-                })
+                },
+            )
         }
     }
 }
