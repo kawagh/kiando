@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("TooManyFunctions")
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
     @ApplicationContext private val context: Context,
