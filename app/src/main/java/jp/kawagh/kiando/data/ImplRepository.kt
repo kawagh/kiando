@@ -7,6 +7,7 @@ import jp.kawagh.kiando.models.Tag
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 class ImplRepository @Inject constructor(
     private val questionDao: QuestionDao,
     private val tagDao: TagDao,

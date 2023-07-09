@@ -151,6 +151,6 @@ kapt {
 
 detekt {
     buildUponDefaultConfig = true
-    config = files("$rootDir/config/detekt/detekt.yml")
+    config = files("$rootDir/config/detekt/override_detekt.yml")
     autoCorrect = true // `./gradlew detekt correct files
 }

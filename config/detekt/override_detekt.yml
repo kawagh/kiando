@@ -1,0 +1,21 @@
+style:
+  ForbiddenComment:
+    active: false
+  NewLineAtEndOfFile:
+    active: false
+  UnusedPrivateMember:
+    ignoreAnnotated: [ 'Preview' ]
+  WildcardImport:
+    active: false
+  MagicNumber:
+    active: false
+complexity:
+  LongParameterList:
+    ignoreAnnotated: [ 'Composable' ]
+  LongMethod:
+    ignoreAnnotated: [ 'Composable' ]
+  CyclomaticComplexMethod:
+    ignoreAnnotated: [ 'Composable' ]
+naming:
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]

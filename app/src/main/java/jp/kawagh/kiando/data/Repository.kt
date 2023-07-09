@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 interface Repository {
     val questions: Flow<List<Question>>
     val questionsWithTags: Flow<List<QuestionWithTags>>
@@ -28,6 +29,7 @@ interface Repository {
     fun updateTag(tag: Tag)
 }
 
+@Suppress("TooManyFunctions")
 class FakeRepository @Inject constructor() : Repository {
     override val questions: Flow<List<Question>> = flowOf(sampleQuestions)
     override val questionsWithTags: Flow<List<QuestionWithTags>>

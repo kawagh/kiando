@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("TooManyFunctions")
 class QuestionsViewModel @Inject constructor(
     private val repository: Repository,
     @ApplicationContext private val context: Context,
@@ -124,10 +125,6 @@ class QuestionsViewModel @Inject constructor(
         uiState = uiState.copy(isTagEditMode = !uiState.isTagEditMode)
     }
 
-    fun toggleHideDefaultQuestions() {
-        uiState = uiState.copy(hideDefaultQuestions = !uiState.hideDefaultQuestions)
-    }
-
     fun add(tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.add(tag)
@@ -201,6 +198,5 @@ data class QuestionsUiState(
     val tabRowIndex: Int = 0,
     val bottomBarIndex: Int = 0,
     val isTagEditMode: Boolean = false,
-    val hideDefaultQuestions: Boolean = false,
     val isLoading: Boolean = true,
 )

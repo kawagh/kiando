@@ -38,6 +38,13 @@ const val BOARD_SIZE = 9
 
 data class GameUiState(val isRequesting: Boolean)
 
+@Suppress(
+    "TooManyFunctions",
+    "LongMethod",
+    "CyclomaticComplexMethod",
+    "NestedBlockDepth",
+    "LoopWithTooManyJumpStatements",
+)
 class GameViewModel @AssistedInject constructor(
     private val repository: Repository,
     private val apiService: KiandoApiService,
