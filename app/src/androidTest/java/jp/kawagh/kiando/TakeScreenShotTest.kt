@@ -99,6 +99,7 @@ class TakeScreenShotTest {
                     navigateToNextQuestion = {},
                     navigateToPrevQuestion = {},
                     restartQuestion = {},
+                    handleUpdateQuestionDescription = {},
                 )
             }
         }
@@ -124,6 +125,7 @@ class TakeScreenShotTest {
                         navigateToNextQuestion = {},
                         navigateToPrevQuestion = {},
                         restartQuestion = {},
+                        handleUpdateQuestionDescription = {},
                     )
                 }
             }

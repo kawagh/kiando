@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.0.19 [not released]
+## v1.0.19 [2023-07-07]
 
 - add changelog
 - prevent flickering during loading questions

@@ -86,7 +86,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
     val compose_version: String by project
     implementation("androidx.compose.ui:ui:$compose_version")
-    val material3_version = "1.0.1"
+    val material3_version = "1.1.1"
     implementation("androidx.compose.material3:material3:$material3_version")
     implementation("androidx.compose.ui:ui-tooling-preview:$compose_version")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")

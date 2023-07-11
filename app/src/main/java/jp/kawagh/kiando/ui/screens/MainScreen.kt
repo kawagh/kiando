@@ -17,12 +17,15 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextRotateVertical
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +36,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
@@ -43,7 +46,10 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +59,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -93,6 +101,7 @@ fun MainScreen(
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
     restartQuestion: () -> Unit,
+    handleUpdateQuestionDescription: (String) -> Unit,
 ) {
     val uiState = gameViewModel.uiState
     val context = LocalContext.current
@@ -111,6 +120,12 @@ fun MainScreen(
     }
     var moveToRegister by remember {
         mutableStateOf(NonMove)
+    }
+    var isAnswerDescriptionEditMode by remember {
+        mutableStateOf(false)
+    }
+    var answerDescriptionTextInput by remember {
+        mutableStateOf(question.answerDescription)
     }
 
     // state
@@ -139,9 +154,13 @@ fun MainScreen(
         mutableStateOf(false)
     }
     val snackbarCoroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     val positionsToHighlight = remember {
         mutableStateListOf<Position>()
     }
+    val bottomSheetState =
+        rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -264,15 +283,89 @@ fun MainScreen(
     val handleShowAnswerClick: () -> Unit = {
         showAnswerMode = true
         shouldShowAnswerButton = false
-
+        scope.launch {
+            scaffoldState.bottomSheetState.expand()
+        }
         positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
+    }
+    val handleRestartClick: () -> Unit = {
+        shouldShowAnswerButton = true
+        // initialize state for highlight
+        panelClickedOnce = false
+        lastClickedPanelPos = NonPosition
+        positionsToHighlight.clear()
+        restartQuestion()
+        scope.launch {
+            scaffoldState.bottomSheetState.hide()
+        }
     }
 
     val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
     val enemyPiecesCount: Map<PieceKind, Int> =
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
-    Scaffold(
+    BottomSheetScaffold(
+        sheetContent = {
+            val focusRequester = remember {
+                FocusRequester()
+            }
+            Column(
+                Modifier.padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = 8.dp
+                )
+            ) {
+                VisibleIf(condition = !isAnswerDescriptionEditMode) {
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(onClick = {
+                            isAnswerDescriptionEditMode = true
+                        }) {
+                            Icon(Icons.Default.EditNote, "edit answer description")
+                        }
+                    }
+                }
+                if (isAnswerDescriptionEditMode) {
+                    TextField(
+                        value = answerDescriptionTextInput,
+                        onValueChange = { answerDescriptionTextInput = it },
+                        label = { Text("解説") },
+                        placeholder = { Text("解説を入力してください") },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    handleUpdateQuestionDescription(answerDescriptionTextInput)
+                                    isAnswerDescriptionEditMode = false
+                                    snackbarCoroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "解説を変更しました"
+                                        )
+                                    }
+                                },
+                            ) {
+                                Icon(Icons.Default.Save, "save answer description")
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                } else {
+                    if (question.answerDescription.isEmpty()) {
+                        Text(text = "問題の解説がまだありません")
+                    } else {
+                        Text(question.answerDescription)
+                    }
+                }
+            }
+        },
+        scaffoldState = scaffoldState,
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { snackbarData: SnackbarData ->
                 Snackbar(
@@ -603,12 +696,7 @@ fun MainScreen(
                         ) {
                             OutlinedButton(
                                 onClick = {
-                                    shouldShowAnswerButton = true
-                                    // initialize state for highlight
-                                    panelClickedOnce = false
-                                    lastClickedPanelPos = NonPosition
-                                    positionsToHighlight.clear()
-                                    restartQuestion()
+                                    handleRestartClick()
                                 },
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                             ) {

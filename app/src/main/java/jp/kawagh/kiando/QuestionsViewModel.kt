@@ -73,6 +73,12 @@ class QuestionsViewModel @Inject constructor(
         }
     }
 
+    fun updateQuestion(question: Question) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateQuestion(question)
+        }
+    }
+
     fun renameQuestionById(questionId: Int, newTitle: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val question = repository.findQuestionById(questionId)
