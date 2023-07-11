@@ -18,7 +18,9 @@ data class Question(
     @ColumnInfo(name = "komadai_sfen")
     val komadaiSfen: String,
     @ColumnInfo("is_favorite", defaultValue = "0")
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    @ColumnInfo("answer_description", defaultValue = "")
+    val answerDescription: String = ""
 ) {
     val boardState
         get() = SFENConverter().convertFrom(sfen)

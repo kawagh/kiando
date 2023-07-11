@@ -18,8 +18,9 @@ import jp.kawagh.kiando.models.Tag
     autoMigrations = [
         AutoMigration(4, 5),
         AutoMigration(7, 8, spec = AppDatabase.AutoMigration7to8::class),
+        AutoMigration(9, 10),
     ],
-    version = 9
+    version = 10
 )
 @TypeConverters(MoveConverters::class)
 abstract class AppDatabase : RoomDatabase() {
