@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextRotateVertical
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +34,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarDuration
@@ -43,6 +44,8 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -139,9 +142,13 @@ fun MainScreen(
         mutableStateOf(false)
     }
     val snackbarCoroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     val positionsToHighlight = remember {
         mutableStateListOf<Position>()
     }
+    val bottomSheetState =
+        rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
+    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -264,15 +271,38 @@ fun MainScreen(
     val handleShowAnswerClick: () -> Unit = {
         showAnswerMode = true
         shouldShowAnswerButton = false
-
+        scope.launch {
+            scaffoldState.bottomSheetState.expand()
+        }
         positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
+    }
+    val handleRestartClick: () -> Unit = {
+        shouldShowAnswerButton = true
+        // initialize state for highlight
+        panelClickedOnce = false
+        lastClickedPanelPos = NonPosition
+        positionsToHighlight.clear()
+        restartQuestion()
+        scope.launch {
+            scaffoldState.bottomSheetState.hide()
+        }
     }
 
     val piecesCount: Map<PieceKind, Int> = gameViewModel.komadaiState.groupingBy { it }.eachCount()
     val enemyPiecesCount: Map<PieceKind, Int> =
         gameViewModel.enemyKomadaiState.groupingBy { it }.eachCount()
 
-    Scaffold(
+    BottomSheetScaffold(
+        sheetContent = {
+            Column {
+                Text(text = "question.comment")
+                Text(text = "question.comment")
+                Text(text = "question.comment")
+                Text(text = "question.comment")
+                Text(text = "question.comment")
+            }
+        },
+        scaffoldState = scaffoldState,
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { snackbarData: SnackbarData ->
                 Snackbar(
@@ -603,12 +633,7 @@ fun MainScreen(
                         ) {
                             OutlinedButton(
                                 onClick = {
-                                    shouldShowAnswerButton = true
-                                    // initialize state for highlight
-                                    panelClickedOnce = false
-                                    lastClickedPanelPos = NonPosition
-                                    positionsToHighlight.clear()
-                                    restartQuestion()
+                                    handleRestartClick()
                                 },
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                             ) {
