@@ -134,6 +134,10 @@ fun App(
                         }?.question
                         ?: sampleQuestion
                     val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
+                    val handleUpdateQuestionDescription: (String) -> Unit = { answerDescription ->
+                        questionsViewModel.updateQuestion(question.copy(answerDescription = answerDescription))
+                    }
+
                     MainScreen(
                         gameViewModel = gameViewModel,
                         question = question,
@@ -152,7 +156,8 @@ fun App(
                         },
                         restartQuestion = {
                             restartQuestion(question, fromTabIndex)
-                        }
+                        },
+                        handleUpdateQuestionDescription = handleUpdateQuestionDescription,
                     )
                 }
 

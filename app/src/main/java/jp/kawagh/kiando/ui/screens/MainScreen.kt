@@ -49,6 +49,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -98,6 +101,7 @@ fun MainScreen(
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
     restartQuestion: () -> Unit,
+    handleUpdateQuestionDescription: (String) -> Unit,
 ) {
     val uiState = gameViewModel.uiState
     val context = LocalContext.current
@@ -121,7 +125,7 @@ fun MainScreen(
         mutableStateOf(false)
     }
     var answerDescriptionTextInput by remember {
-        mutableStateOf("")
+        mutableStateOf(question.answerDescription)
     }
 
     // state
@@ -302,6 +306,9 @@ fun MainScreen(
 
     BottomSheetScaffold(
         sheetContent = {
+            val focusRequester = remember {
+                FocusRequester()
+            }
             Column(
                 Modifier.padding(
                     start = 8.dp,
@@ -329,15 +336,29 @@ fun MainScreen(
                         placeholder = { Text("解説を入力してください") },
                         trailingIcon = {
                             IconButton(
-                                onClick = { isAnswerDescriptionEditMode = false },
+                                onClick = {
+                                    handleUpdateQuestionDescription(answerDescriptionTextInput)
+                                    isAnswerDescriptionEditMode = false
+                                    snackbarCoroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "解説を変更しました"
+                                        )
+                                    }
+                                },
                             ) {
                                 Icon(Icons.Default.Save, "save answer description")
                             }
-                        }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
                     )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
                 } else {
                     if (question.answerDescription.isEmpty()) {
-                        Text(text = "question.answerDescription is empty")
+                        Text(text = "問題の解説がまだありません")
                     } else {
                         Text(question.answerDescription)
                     }
