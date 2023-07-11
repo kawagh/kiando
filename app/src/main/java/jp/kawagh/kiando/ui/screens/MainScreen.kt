@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -114,6 +116,12 @@ fun MainScreen(
     }
     var moveToRegister by remember {
         mutableStateOf(NonMove)
+    }
+    var isAnswerDescriptionEditMode by remember {
+        mutableStateOf(false)
+    }
+    var answerDescriptionTextInput by remember {
+        mutableStateOf("")
     }
 
     // state
@@ -294,12 +302,46 @@ fun MainScreen(
 
     BottomSheetScaffold(
         sheetContent = {
-            Column {
-                Text(text = "question.comment")
-                Text(text = "question.comment")
-                Text(text = "question.comment")
-                Text(text = "question.comment")
-                Text(text = "question.comment")
+            Column(
+                Modifier.padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = 8.dp
+                )
+            ) {
+                VisibleIf(condition = !isAnswerDescriptionEditMode) {
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(onClick = {
+                            isAnswerDescriptionEditMode = true
+                        }) {
+                            Icon(Icons.Default.EditNote, "edit answer description")
+                        }
+                    }
+                }
+                if (isAnswerDescriptionEditMode) {
+                    TextField(
+                        value = answerDescriptionTextInput,
+                        onValueChange = { answerDescriptionTextInput = it },
+                        label = { Text("解説") },
+                        placeholder = { Text("解説を入力してください") },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { isAnswerDescriptionEditMode = false },
+                            ) {
+                                Icon(Icons.Default.Save, "save answer description")
+                            }
+                        }
+                    )
+                } else {
+                    if (question.answerDescription.isEmpty()) {
+                        Text(text = "question.answerDescription is empty")
+                    } else {
+                        Text(question.answerDescription)
+                    }
+                }
             }
         },
         scaffoldState = scaffoldState,
