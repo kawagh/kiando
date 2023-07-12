@@ -566,77 +566,80 @@ fun MainScreen(
                 }
             }
             when (isRegisterQuestionMode) {
-                true -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = if (moveToRegister == NonMove) {
-                            "登録する手を指してください"
-                        } else {
-                            val pieceKind =
-                                gameViewModel.boardState[
-                                    moveToRegister.to.row * BOARD_SIZE +
-                                        moveToRegister.to.column
-                                ].pieceKind
-                            "登録手: ${moveToRegister.toReadable(pieceKind)}"
-                        },
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize
-                    )
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    OutlinedTextField(
-                        value = inputQuestionDescription,
-                        onValueChange = { inputQuestionDescription = it },
-                        label = {
-                            Text(text = "問題名")
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                val newQuestion = Question(
-                                    id = 0,
-                                    description = inputQuestionDescription,
-                                    answerMove = moveToRegister,
-                                    sfen = inputSFEN,
-                                    komadaiSfen = inputKomadaiSFEN,
-                                )
-                                when (validateQuestion(newQuestion)) {
-                                    QuestionValidationResults.EmptyDescription -> {
-                                        keyboardController?.hide() // to avoid keyboard on snackbar
-                                        snackbarCoroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                "🆖 empty description"
-                                            )
-                                        }
-                                    }
-
-                                    QuestionValidationResults.NeedMove -> {
-                                        keyboardController?.hide()
-                                        snackbarCoroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                "🆖 need move"
-                                            )
-                                        }
-                                    }
-
-                                    QuestionValidationResults.Valid -> {
-                                        keyboardController?.hide()
-                                        gameViewModel.saveQuestion(newQuestion)
-                                        snackbarCoroutineScope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                "🆗 saved"
-                                            )
-                                        }
-                                        isRegisterQuestionMode = false
-                                        moveToRegister = NonMove
-                                        inputQuestionDescription = ""
-                                    }
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "register question"
-                                )
-                            }
+                true ->
+                    VisibleIf(!shouldShowSFENInput) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = if (moveToRegister == NonMove) {
+                                    "登録する手を指してください"
+                                } else {
+                                    val pieceKind =
+                                        gameViewModel.boardState[
+                                            moveToRegister.to.row * BOARD_SIZE +
+                                                moveToRegister.to.column
+                                        ].pieceKind
+                                    "登録手: ${moveToRegister.toReadable(pieceKind)}"
+                                },
+                                fontSize = MaterialTheme.typography.titleLarge.fontSize
+                            )
                         }
-                    )
-                }
+                        val keyboardController = LocalSoftwareKeyboardController.current
+                        OutlinedTextField(
+                            value = inputQuestionDescription,
+                            onValueChange = { inputQuestionDescription = it },
+                            label = {
+                                Text(text = "問題名")
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    val newQuestion = Question(
+                                        id = 0,
+                                        description = inputQuestionDescription,
+                                        answerMove = moveToRegister,
+                                        sfen = inputSFEN,
+                                        komadaiSfen = inputKomadaiSFEN,
+                                    )
+                                    when (validateQuestion(newQuestion)) {
+                                        QuestionValidationResults.EmptyDescription -> {
+                                            keyboardController?.hide() // to avoid keyboard on snackbar
+                                            snackbarCoroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "🆖 empty description"
+                                                )
+                                            }
+                                        }
+
+                                        QuestionValidationResults.NeedMove -> {
+                                            keyboardController?.hide()
+                                            snackbarCoroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "🆖 need move"
+                                                )
+                                            }
+                                        }
+
+                                        QuestionValidationResults.Valid -> {
+                                            keyboardController?.hide()
+                                            gameViewModel.saveQuestion(newQuestion)
+                                            snackbarCoroutineScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "🆗 saved"
+                                                )
+                                            }
+                                            isRegisterQuestionMode = false
+                                            moveToRegister = NonMove
+                                            inputQuestionDescription = ""
+                                        }
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "register question"
+                                    )
+                                }
+                            }
+                        )
+                    }
 
                 false -> Column() {
                     Row(
