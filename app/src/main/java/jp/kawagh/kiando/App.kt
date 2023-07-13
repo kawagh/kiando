@@ -256,7 +256,7 @@ fun App(
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
-                    val renameId = it.arguments?.getInt("questionId") ?: -1
+                    val renameQuestionId = it.arguments?.getInt("questionId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(
                         onDismissRequest = {
@@ -274,6 +274,10 @@ fun App(
                             )
                             LaunchedEffect(Unit) {
                                 delay(100) // workaround to show keyboard
+                                renameTextInput =
+                                    questionsViewModel.uiState.questionsWithTags
+                                        .find { qts -> qts.question.id == renameQuestionId }?.question?.description
+                                        ?: ""
                                 // ref: https://issuetracker.google.com/issues/204502668
                                 focusRequester.requestFocus()
                             }
@@ -282,7 +286,7 @@ fun App(
                             Button(
                                 onClick = {
                                     questionsViewModel.renameQuestionById(
-                                        questionId = renameId,
+                                        questionId = renameQuestionId,
                                         newTitle = renameTextInput
                                     )
                                     navController.navigate("list") {
@@ -308,7 +312,7 @@ fun App(
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
-                    val renameId = it.arguments?.getInt("tagId") ?: -1
+                    val renameTagId = it.arguments?.getInt("tagId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(
                         onDismissRequest = {
@@ -326,6 +330,10 @@ fun App(
                             )
                             LaunchedEffect(Unit) {
                                 delay(100) // workaround to show keyboard
+                                renameTextInput =
+                                    questionsViewModel.uiState.tags
+                                        .find { tags -> tags.id == renameTagId }?.title
+                                        ?: ""
                                 // ref: https://issuetracker.google.com/issues/204502668
                                 focusRequester.requestFocus()
                             }
@@ -334,7 +342,7 @@ fun App(
                             Button(
                                 onClick = {
                                     questionsViewModel.renameTagId(
-                                        tagId = renameId,
+                                        tagId = renameTagId,
                                         newTitle = renameTextInput
                                     )
                                     navController.navigate("list") {
