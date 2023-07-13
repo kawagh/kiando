@@ -28,6 +28,7 @@ import dagger.hilt.android.testing.UninstallModules
 import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.di.PreferenceRepositoryModule
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.ui.components.AppIcon2
 import jp.kawagh.kiando.ui.screens.ChangeLogScreen
 import jp.kawagh.kiando.ui.screens.ListScreen
 import jp.kawagh.kiando.ui.screens.MainScreen
@@ -182,6 +183,14 @@ class TakeScreenShotTest {
             }
         }
         takeScreenShot("feature_graphic5.png")
+    }
+
+    @Test
+    fun makeAppIcon() {
+        composeTestRule.activity.setContent {
+            AppIcon2()
+        }
+        takeScreenShot("app_icon.png", 512)
     }
 
 
