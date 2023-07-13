@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.ui.theme.BoardColor
@@ -22,6 +24,7 @@ fun AppIcon2() {
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
+                .semantics { contentDescription = "app_icon" }
                 .align(Alignment.Center)
                 .size(123.dp)
                 .border(width = 1.dp, Color.Black)

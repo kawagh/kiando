@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
@@ -190,7 +191,7 @@ class TakeScreenShotTest {
         composeTestRule.activity.setContent {
             AppIcon2()
         }
-        takeScreenShot("app_icon.png", 512)
+        takeScreenShotOfComposable("app_icon.png", "app_icon")
     }
 
 
@@ -206,6 +207,24 @@ class TakeScreenShotTest {
                     .let { Bitmap.createScaledBitmap(it, size, size, true) }
             }
 
+        FileOutputStream("$saveDir/$saveName").use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+    }
+
+    private fun takeScreenShotOfComposable(
+        saveName: String,
+        contentDescription: String,
+    ) {
+        val iconSize = 512
+        val saveDir =
+            InstrumentationRegistry.getInstrumentation().targetContext.filesDir.canonicalPath
+        val bitmap =
+            composeTestRule
+                .onNodeWithContentDescription(contentDescription)
+                .captureToImage()
+                .asAndroidBitmap()
+                .let { Bitmap.createScaledBitmap(it, iconSize, iconSize, true) }
         FileOutputStream("$saveDir/$saveName").use {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
         }
