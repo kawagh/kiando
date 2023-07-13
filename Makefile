@@ -12,6 +12,6 @@ test: ## run test
 	@./gradlew test
 	@./gradlew connectedAndroidTest
 
-.PHONY: update-feature-graphic
-update-feature-graphic: ## update feature graphic; run after test
-	@shell/update_feature_graphic_command.sh
+.PHONY: update-pictures
+update-pictures: ## update pictures/ (ex. app_icon, feature_graphic; run after `make test`
+	@shell/update_pictures.sh

@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
@@ -28,6 +29,7 @@ import dagger.hilt.android.testing.UninstallModules
 import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.di.PreferenceRepositoryModule
 import jp.kawagh.kiando.models.sampleQuestion
+import jp.kawagh.kiando.ui.components.AppIcon2
 import jp.kawagh.kiando.ui.screens.ChangeLogScreen
 import jp.kawagh.kiando.ui.screens.ListScreen
 import jp.kawagh.kiando.ui.screens.MainScreen
@@ -184,6 +186,14 @@ class TakeScreenShotTest {
         takeScreenShot("feature_graphic5.png")
     }
 
+    @Test
+    fun makeAppIcon() {
+        composeTestRule.activity.setContent {
+            AppIcon2()
+        }
+        takeScreenShotOfComposable("app_icon.png", "app_icon")
+    }
+
 
     // saved in <packageName>/files/
     private fun takeScreenShot(saveName: String, size: Int? = null) {
@@ -197,6 +207,24 @@ class TakeScreenShotTest {
                     .let { Bitmap.createScaledBitmap(it, size, size, true) }
             }
 
+        FileOutputStream("$saveDir/$saveName").use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+    }
+
+    private fun takeScreenShotOfComposable(
+        saveName: String,
+        contentDescription: String,
+    ) {
+        val iconSize = 512
+        val saveDir =
+            InstrumentationRegistry.getInstrumentation().targetContext.filesDir.canonicalPath
+        val bitmap =
+            composeTestRule
+                .onNodeWithContentDescription(contentDescription)
+                .captureToImage()
+                .asAndroidBitmap()
+                .let { Bitmap.createScaledBitmap(it, iconSize, iconSize, true) }
         FileOutputStream("$saveDir/$saveName").use {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
         }
