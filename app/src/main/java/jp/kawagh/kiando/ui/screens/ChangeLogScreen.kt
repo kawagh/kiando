@@ -35,6 +35,7 @@ object ChangeLogs {
     // want to manage only data or `CHANGELOG.md`
     val data: List<BaseChangeLog> =
         listOf(
+            ChangeLog(title = "削除、名称変更のダイアログで問題名の表示", date = LocalDate.of(2023, 7, 13)),
             ChangeLog(title = "ダイアログ表示後の問題一覧からの遷移の改善", date = LocalDate.of(2023, 7, 13)),
             ChangeLog(title = "アプリアイコンの変更", date = LocalDate.of(2023, 7, 13)),
             ChangeLog(title = "SFEN入力フォーム以下の要素が重なる問題の修正", date = LocalDate.of(2023, 7, 12)),

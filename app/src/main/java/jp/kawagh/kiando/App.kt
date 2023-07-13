@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -44,7 +43,6 @@ import jp.kawagh.kiando.ui.screens.TabItem
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(
     questionsViewModel: QuestionsViewModel = viewModel(),
@@ -117,11 +115,11 @@ fun App(
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
                     val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
                         appliedFilterName.isEmpty() ||
-                                tags.map { tag -> tag.title }.contains(appliedFilterName)
+                            tags.map { tag -> tag.title }.contains(appliedFilterName)
                     }
                     val questionsWithTags = uiState.questionsWithTags.filter { qts ->
                         (fromTabIndex != favoriteIndex || qts.question.isFavorite) &&
-                                containAppliedFilter(qts.tags)
+                            containAppliedFilter(qts.tags)
                     }
                     val nextQuestion = questionsWithTags
                         .find { q ->
@@ -213,7 +211,11 @@ fun App(
                         }
                     )
                 ) {
-                    val deleteId = it.arguments?.getInt("questionId") ?: -1
+                    val deleteQuestionId = it.arguments?.getInt("questionId") ?: -1
+                    val questionDescription =
+                        questionsViewModel.uiState.questionsWithTags
+                            .find { qts -> qts.question.id == deleteQuestionId }?.question?.description
+                            ?: ""
                     AlertDialog(
                         onDismissRequest = {
                             navController.navigate("list") {
@@ -221,12 +223,18 @@ fun App(
                             }
                         },
                         title = { Text(text = stringResource(R.string.dialog_title_delete_question)) },
-                        text = { Text(text = stringResource(R.string.dialog_text_delete_question)) },
+                        text = {
+                            Text(
+                                text = "`$questionDescription`を削除しますか?\n${ stringResource(
+                                    R.string.dialog_text_delete_question
+                                ) }"
+                            )
+                        },
                         confirmButton = {
                             Button(
                                 onClick = {
                                     navController.navigate("list")
-                                    questionsViewModel.deleteQuestionById(deleteId)
+                                    questionsViewModel.deleteQuestionById(deleteQuestionId)
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Red
@@ -258,7 +266,7 @@ fun App(
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
-                    val renameId = it.arguments?.getInt("questionId") ?: -1
+                    val renameQuestionId = it.arguments?.getInt("questionId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(
                         onDismissRequest = {
@@ -276,6 +284,10 @@ fun App(
                             )
                             LaunchedEffect(Unit) {
                                 delay(100) // workaround to show keyboard
+                                renameTextInput =
+                                    questionsViewModel.uiState.questionsWithTags
+                                        .find { qts -> qts.question.id == renameQuestionId }?.question?.description
+                                        ?: ""
                                 // ref: https://issuetracker.google.com/issues/204502668
                                 focusRequester.requestFocus()
                             }
@@ -284,7 +296,7 @@ fun App(
                             Button(
                                 onClick = {
                                     questionsViewModel.renameQuestionById(
-                                        questionId = renameId,
+                                        questionId = renameQuestionId,
                                         newTitle = renameTextInput
                                     )
                                     navController.navigate("list") {
@@ -310,7 +322,7 @@ fun App(
                     var renameTextInput by remember {
                         mutableStateOf("")
                     }
-                    val renameId = it.arguments?.getInt("tagId") ?: -1
+                    val renameTagId = it.arguments?.getInt("tagId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(
                         onDismissRequest = {
@@ -328,6 +340,10 @@ fun App(
                             )
                             LaunchedEffect(Unit) {
                                 delay(100) // workaround to show keyboard
+                                renameTextInput =
+                                    questionsViewModel.uiState.tags
+                                        .find { tags -> tags.id == renameTagId }?.title
+                                        ?: ""
                                 // ref: https://issuetracker.google.com/issues/204502668
                                 focusRequester.requestFocus()
                             }
@@ -336,7 +352,7 @@ fun App(
                             Button(
                                 onClick = {
                                     questionsViewModel.renameTagId(
-                                        tagId = renameId,
+                                        tagId = renameTagId,
                                         newTitle = renameTextInput
                                     )
                                     navController.navigate("list") {

@@ -93,7 +93,6 @@ import jp.kawagh.kiando.ui.theme.CardColor
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun PreviewListScreen() {
@@ -148,7 +147,6 @@ enum class BottomBarItems(val title: String, val icon: ImageVector) {
     Tags(title = "tags", icon = Icons.Default.Tag),
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     questionsViewModel: QuestionsViewModel,
@@ -425,7 +423,6 @@ fun ListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DrawerContent(
     navigateToChangeLog: () -> Unit,
