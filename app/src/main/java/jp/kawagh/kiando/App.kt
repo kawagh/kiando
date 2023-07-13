@@ -117,11 +117,11 @@ fun App(
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
                     val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
                         appliedFilterName.isEmpty() ||
-                            tags.map { tag -> tag.title }.contains(appliedFilterName)
+                                tags.map { tag -> tag.title }.contains(appliedFilterName)
                     }
                     val questionsWithTags = uiState.questionsWithTags.filter { qts ->
                         (fromTabIndex != favoriteIndex || qts.question.isFavorite) &&
-                            containAppliedFilter(qts.tags)
+                                containAppliedFilter(qts.tags)
                     }
                     val nextQuestion = questionsWithTags
                         .find { q ->
@@ -171,14 +171,20 @@ fun App(
 
                 dialog("delete") {
                     AlertDialog(
-                        onDismissRequest = { navController.navigate("list") },
+                        onDismissRequest = {
+                            navController.navigate("list") {
+                                popUpTo("list") { inclusive = true }
+                            }
+                        },
                         title = { Text(text = stringResource(R.string.dialog_title_delete_all_questions)) },
                         text = { Text(text = stringResource(R.string.dialog_text_delete_all_questions)) },
                         confirmButton = {
                             Button(
                                 onClick = {
                                     questionsViewModel.deleteAllQuestions()
-                                    navController.navigate("list")
+                                    navController.navigate("list") {
+                                        popUpTo("list") { inclusive = true }
+                                    }
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Red
@@ -188,7 +194,11 @@ fun App(
                             }
                         },
                         dismissButton = {
-                            TextButton(onClick = { navController.navigate("list") }) {
+                            TextButton(onClick = {
+                                navController.navigate("list") {
+                                    popUpTo("list") { inclusive = true }
+                                }
+                            }) {
                                 Text(text = stringResource(R.string.dialog_text_cancel))
                             }
                         }
@@ -205,7 +215,11 @@ fun App(
                 ) {
                     val deleteId = it.arguments?.getInt("questionId") ?: -1
                     AlertDialog(
-                        onDismissRequest = { navController.navigate("list") },
+                        onDismissRequest = {
+                            navController.navigate("list") {
+                                popUpTo("list") { inclusive = true }
+                            }
+                        },
                         title = { Text(text = stringResource(R.string.dialog_title_delete_question)) },
                         text = { Text(text = stringResource(R.string.dialog_text_delete_question)) },
                         confirmButton = {
@@ -222,7 +236,11 @@ fun App(
                             }
                         },
                         dismissButton = {
-                            TextButton(onClick = { navController.navigate("list") }) {
+                            TextButton(onClick = {
+                                navController.navigate("list") {
+                                    popUpTo("list") { inclusive = true }
+                                }
+                            }) {
                                 Text(text = stringResource(R.string.dialog_text_cancel))
                             }
                         }
@@ -243,7 +261,11 @@ fun App(
                     val renameId = it.arguments?.getInt("questionId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(
-                        onDismissRequest = { navController.navigate("list") },
+                        onDismissRequest = {
+                            navController.navigate("list") {
+                                popUpTo("list") { inclusive = true }
+                            }
+                        },
                         title = { Text(text = stringResource(R.string.dialog_title_rename_question)) },
                         text = {
                             OutlinedTextField(
@@ -265,7 +287,9 @@ fun App(
                                         questionId = renameId,
                                         newTitle = renameTextInput
                                     )
-                                    navController.navigate("list")
+                                    navController.navigate("list") {
+                                        popUpTo("list") { inclusive = true }
+                                    }
                                 },
                                 enabled = renameTextInput.isNotEmpty()
                             ) {
@@ -289,7 +313,11 @@ fun App(
                     val renameId = it.arguments?.getInt("tagId") ?: -1
                     val focusRequester = remember { FocusRequester() }
                     AlertDialog(
-                        onDismissRequest = { navController.navigate("list") },
+                        onDismissRequest = {
+                            navController.navigate("list") {
+                                popUpTo("list") { inclusive = true }
+                            }
+                        },
                         title = { Text(text = stringResource(R.string.dialog_title_rename_tag)) },
                         text = {
                             OutlinedTextField(
@@ -311,7 +339,9 @@ fun App(
                                         tagId = renameId,
                                         newTitle = renameTextInput
                                     )
-                                    navController.navigate("list")
+                                    navController.navigate("list") {
+                                        popUpTo("list") { inclusive = true }
+                                    }
                                 },
                                 enabled = renameTextInput.isNotEmpty()
                             ) {
