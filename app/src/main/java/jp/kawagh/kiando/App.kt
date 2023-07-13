@@ -115,11 +115,11 @@ fun App(
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
                     val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
                         appliedFilterName.isEmpty() ||
-                                tags.map { tag -> tag.title }.contains(appliedFilterName)
+                            tags.map { tag -> tag.title }.contains(appliedFilterName)
                     }
                     val questionsWithTags = uiState.questionsWithTags.filter { qts ->
                         (fromTabIndex != favoriteIndex || qts.question.isFavorite) &&
-                                containAppliedFilter(qts.tags)
+                            containAppliedFilter(qts.tags)
                     }
                     val nextQuestion = questionsWithTags
                         .find { q ->
@@ -211,7 +211,11 @@ fun App(
                         }
                     )
                 ) {
-                    val deleteId = it.arguments?.getInt("questionId") ?: -1
+                    val deleteQuestionId = it.arguments?.getInt("questionId") ?: -1
+                    val questionDescription =
+                        questionsViewModel.uiState.questionsWithTags
+                            .find { qts -> qts.question.id == deleteQuestionId }?.question?.description
+                            ?: ""
                     AlertDialog(
                         onDismissRequest = {
                             navController.navigate("list") {
@@ -219,12 +223,18 @@ fun App(
                             }
                         },
                         title = { Text(text = stringResource(R.string.dialog_title_delete_question)) },
-                        text = { Text(text = stringResource(R.string.dialog_text_delete_question)) },
+                        text = {
+                            Text(
+                                text = "`$questionDescription`を削除しますか?\n${ stringResource(
+                                    R.string.dialog_text_delete_question
+                                ) }"
+                            )
+                        },
                         confirmButton = {
                             Button(
                                 onClick = {
                                     navController.navigate("list")
-                                    questionsViewModel.deleteQuestionById(deleteId)
+                                    questionsViewModel.deleteQuestionById(deleteQuestionId)
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Red
