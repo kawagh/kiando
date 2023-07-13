@@ -21,6 +21,8 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun AppIcon2() {
+    val commonOffset = 20.dp
+    val boxSize = 60.dp
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -31,20 +33,23 @@ fun AppIcon2() {
         ) {
             Box(
                 Modifier
-                    .size(80.dp)
+                    .size(boxSize)
+                    .offset(commonOffset, commonOffset)
                     .background(BoardColor)
                     .border(2.dp, Color.Black)
             )
             Box(
                 Modifier
-                    .size(80.dp)
+                    .size(boxSize)
+                    .offset(commonOffset, commonOffset)
                     .offset(x = 12.dp, y = 12.dp)
                     .background(BoardColor)
                     .border(2.dp, Color.Black)
             )
             Box(
                 Modifier
-                    .size(80.dp)
+                    .size(boxSize)
+                    .offset(commonOffset, commonOffset)
                     .offset(x = 24.dp, y = 24.dp)
                     .background(BoardColor)
                     .border(2.dp, Color.Black)
