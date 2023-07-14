@@ -12,6 +12,15 @@ test: ## run test
 	@./gradlew test
 	@./gradlew connectedAndroidTest
 
+.PHONY: update
+update: ## update all (run all tasks named update-~)
+	@make update-pictures
+	@make update-changelog
+
 .PHONY: update-pictures
 update-pictures: ## update pictures/ (ex. app_icon, feature_graphic; run after `make test`
 	@shell/update_pictures.sh
+
+.PHONY: update-changelog
+update-changelog: ## update CHANGELOG_.md
+	@shell/generate_changelog.py
