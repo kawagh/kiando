@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.ScreenRotationAlt
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -151,6 +152,9 @@ fun MainScreen(
         mutableStateOf(true)
     }
     var showAnswerMode by remember {
+        mutableStateOf(false)
+    }
+    var reverseBoardSigns by remember {
         mutableStateOf(false)
     }
     val snackbarCoroutineScope = rememberCoroutineScope()
@@ -391,7 +395,15 @@ fun MainScreen(
                     }
                 },
                 actions = {
-                    if (isRegisterQuestionMode) {
+                    VisibleIf(condition = isRegisterQuestionMode) {
+                        IconToggleButton(
+                            checked = reverseBoardSigns,
+                            onCheckedChange = { reverseBoardSigns = !reverseBoardSigns }
+                        ) {
+                            Icon(Icons.Default.ScreenRotationAlt, "rotate board signs")
+                        }
+                    }
+                    VisibleIf(isRegisterQuestionMode) {
                         IconToggleButton(
                             checked = shouldShowSFENInput,
                             onCheckedChange = { shouldShowSFENInput = !shouldShowSFENInput }
@@ -493,7 +505,8 @@ fun MainScreen(
                 handlePanelClick,
                 shouldHighlight = panelClickedOnce || showAnswerMode,
                 lastClickedPanelPos,
-                positionsToHighlight = positionsToHighlight
+                positionsToHighlight = positionsToHighlight,
+                reverseSign = reverseBoardSigns,
             )
             Spacer(modifier = Modifier.size(10.dp))
             Komadai(
@@ -578,7 +591,12 @@ fun MainScreen(
                                             moveToRegister.to.row * BOARD_SIZE +
                                                 moveToRegister.to.column
                                         ].pieceKind
-                                    "登録手: ${moveToRegister.toReadable(pieceKind)}"
+                                    "登録手: ${
+                                    moveToRegister.toReadable(
+                                        pieceKind,
+                                        reverseBoardSigns
+                                    )
+                                    }"
                                 },
                                 fontSize = MaterialTheme.typography.titleLarge.fontSize
                             )
