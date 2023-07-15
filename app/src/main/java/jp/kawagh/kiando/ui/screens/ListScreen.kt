@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -130,6 +131,7 @@ fun PreviewListScreen() {
             navigateToDelete = {},
             navigateToLicense = {},
             navigateToChangeLog = {},
+            navigateToSetting = {},
             handleRenameQuestion = {},
             handleRenameTag = {},
             handleDeleteAQuestion = {},
@@ -154,6 +156,7 @@ fun ListScreen(
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     navigateToChangeLog: () -> Unit,
+    navigateToSetting: () -> Unit,
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -187,6 +190,7 @@ fun ListScreen(
         navigateToDelete = navigateToDelete,
         navigateToLicense = navigateToLicense,
         navigateToChangeLog = navigateToChangeLog,
+        navigateToSetting = navigateToSetting,
         handleRenameQuestion = handleRenameQuestion,
         handleRenameTag = handleRenameTag,
         handleDeleteAQuestion = handleDeleteAQuestion,
@@ -213,6 +217,7 @@ fun ListScreen(
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
     navigateToChangeLog: () -> Unit,
+    navigateToSetting: () -> Unit,
     handleRenameQuestion: (Question) -> Unit,
     handleRenameTag: (Tag) -> Unit,
     handleDeleteAQuestion: (Question) -> Unit,
@@ -240,6 +245,7 @@ fun ListScreen(
                 navigateToDelete = navigateToDelete,
                 navigateToLicense = navigateToLicense,
                 navigateToChangeLog = navigateToChangeLog,
+                navigateToSetting = navigateToSetting,
                 handleLoadDataFromResource = handleLoadDataFromResource,
             )
         }
@@ -428,6 +434,7 @@ private fun DrawerContent(
     navigateToChangeLog: () -> Unit,
     navigateToDelete: () -> Unit,
     navigateToLicense: () -> Unit,
+    navigateToSetting: () -> Unit,
     handleLoadDataFromResource: () -> Unit,
 ) {
     ModalDrawerSheet {
@@ -451,16 +458,22 @@ private fun DrawerContent(
             onClick = handleLoadDataFromResource
         )
         NavigationDrawerItem(
-            icon = { Icon(Icons.Default.Android, null) },
-            label = { Text(stringResource(R.string.drawer_item_license)) },
+            icon = { Icon(Icons.Default.Settings, null) },
+            label = { Text("設定") },
             selected = false,
-            onClick = navigateToLicense
+            onClick = navigateToSetting,
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.History, null) },
             label = { Text("更新履歴") },
             selected = false,
             onClick = navigateToChangeLog
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Android, null) },
+            label = { Text(stringResource(R.string.drawer_item_license)) },
+            selected = false,
+            onClick = navigateToLicense
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Warning, null) },
