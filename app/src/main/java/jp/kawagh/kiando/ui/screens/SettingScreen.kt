@@ -19,12 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import jp.kawagh.kiando.SettingViewModel
 import jp.kawagh.kiando.SideEffectChangeSystemUi
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
+    viewModel: SettingViewModel = hiltViewModel(),
     navigateToList: () -> Unit,
 ) {
     Scaffold(topBar = {
@@ -52,8 +55,10 @@ fun SettingScreen(
                             .fillMaxWidth()
                     ) {
                         Switch(
-                            checked = false,
-                            onCheckedChange = {}
+                            checked = viewModel.uiState.reverseBoardSigns,
+                            onCheckedChange = {
+                                viewModel.toggleReverseBoardSigns()
+                            }
                         )
                     }
                 }

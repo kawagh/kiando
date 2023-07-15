@@ -118,6 +118,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.44")
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.44")
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.7.0")
 
