@@ -15,6 +15,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.data.Repository
 import jp.kawagh.kiando.models.Move
 import jp.kawagh.kiando.models.PanelState
@@ -47,6 +48,7 @@ data class GameUiState(val isRequesting: Boolean)
 )
 class GameViewModel @AssistedInject constructor(
     private val repository: Repository,
+    preferencesRepository: PreferencesRepository,
     private val apiService: KiandoApiService,
     @ApplicationContext private val context: Context,
     @Assisted private val question: Question
@@ -60,10 +62,15 @@ class GameViewModel @AssistedInject constructor(
         ): GameViewModel
     }
 
-    var uiState by mutableStateOf(GameUiState(false))
+    var uiState by mutableStateOf(GameUiState(isRequesting = false))
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
+
+    // GameUiStateに含めない
+    // 含めた時にinit{}で値を更新すると繰り返しinit{}が呼ばれて局面の更新が不可能になった
+    val preferenceReverseBoardSigns = preferencesRepository.reverseBoardSigns
+
     fun uploadImage(uri: Uri) {
         val file = getFileFromContentUri(uri) ?: return
         val requestFile: RequestBody = file.asRequestBody("image/png".toMediaType())

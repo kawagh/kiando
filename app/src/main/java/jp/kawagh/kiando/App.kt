@@ -39,6 +39,7 @@ import jp.kawagh.kiando.ui.screens.EntryScreen
 import jp.kawagh.kiando.ui.screens.LicenseScreen
 import jp.kawagh.kiando.ui.screens.ListScreen
 import jp.kawagh.kiando.ui.screens.MainScreen
+import jp.kawagh.kiando.ui.screens.SettingScreen
 import jp.kawagh.kiando.ui.screens.TabItem
 import jp.kawagh.kiando.ui.theme.KiandoM3Theme
 import kotlinx.coroutines.delay
@@ -82,6 +83,7 @@ fun App(
                         navigateToDelete = { navController.navigate("delete") },
                         navigateToLicense = { navController.navigate("license") },
                         navigateToChangeLog = { navController.navigate("changelog") },
+                        navigateToSetting = { navController.navigate("setting") },
                         handleDeleteAQuestion = { question ->
                             navController.navigate("delete_each/${question.id}")
                         },
@@ -158,6 +160,9 @@ fun App(
                         handleUpdateQuestionDescription = handleUpdateQuestionDescription,
                     )
                 }
+                composable("setting") {
+                    SettingScreen(navigateToList = navigateToList)
+                }
 
                 composable("changelog") {
                     ChangeLogScreen(navigateToList = navigateToList)
@@ -225,9 +230,11 @@ fun App(
                         title = { Text(text = stringResource(R.string.dialog_title_delete_question)) },
                         text = {
                             Text(
-                                text = "`$questionDescription`を削除しますか?\n${ stringResource(
+                                text = "`$questionDescription`を削除しますか?\n${
+                                stringResource(
                                     R.string.dialog_text_delete_question
-                                ) }"
+                                )
+                                }"
                             )
                         },
                         confirmButton = {
