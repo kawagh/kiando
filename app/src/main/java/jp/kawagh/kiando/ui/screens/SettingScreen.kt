@@ -30,6 +30,7 @@ fun SettingScreen(
     viewModel: SettingViewModel = hiltViewModel(),
     navigateToList: () -> Unit,
 ) {
+    val uiState = viewModel.uiState
     Scaffold(topBar = {
         TopAppBar(title = { Text(text = "設定") }, navigationIcon = {
             IconButton(
@@ -55,7 +56,7 @@ fun SettingScreen(
                             .fillMaxWidth()
                     ) {
                         Switch(
-                            checked = viewModel.uiState.reverseBoardSigns,
+                            checked = uiState.reverseBoardSigns,
                             onCheckedChange = {
                                 viewModel.toggleReverseBoardSigns()
                             }

@@ -72,6 +72,10 @@ class TakeScreenShotTest {
     @BindValue
     val preferencesRepository: PreferencesRepository = object : PreferencesRepository {
         override val filter: Flow<String> = flowOf("")
+        override val reverseBoardSigns: Flow<Boolean> = flowOf(false)
+        override suspend fun setReverseBoardSigns(value: Boolean) {
+        }
+
         override suspend fun setFilter(value: String) {
         }
     }
