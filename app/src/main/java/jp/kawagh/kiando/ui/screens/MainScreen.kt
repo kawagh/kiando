@@ -157,6 +157,11 @@ fun MainScreen(
     var reverseBoardSigns by remember {
         mutableStateOf(false)
     }
+    val resultReverseBoardSigns = if (uiState.reverseBoardSigns) {
+        !reverseBoardSigns
+    } else {
+        reverseBoardSigns
+    }
     val snackbarCoroutineScope = rememberCoroutineScope()
     val scope = rememberCoroutineScope()
     val positionsToHighlight = remember {
@@ -506,7 +511,7 @@ fun MainScreen(
                 shouldHighlight = panelClickedOnce || showAnswerMode,
                 lastClickedPanelPos,
                 positionsToHighlight = positionsToHighlight,
-                reverseSign = reverseBoardSigns,
+                reverseSign = resultReverseBoardSigns,
             )
             Spacer(modifier = Modifier.size(10.dp))
             Komadai(
@@ -594,7 +599,7 @@ fun MainScreen(
                                     "登録手: ${
                                     moveToRegister.toReadable(
                                         pieceKind,
-                                        reverseBoardSigns
+                                        resultReverseBoardSigns
                                     )
                                     }"
                                 },

@@ -15,6 +15,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
+import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.data.Repository
 import jp.kawagh.kiando.models.Move
 import jp.kawagh.kiando.models.PanelState
@@ -25,6 +26,7 @@ import jp.kawagh.kiando.models.fromEnemyKomadai
 import jp.kawagh.kiando.models.fromMyKomadai
 import jp.kawagh.kiando.network.KiandoApiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -36,7 +38,7 @@ import java.net.ConnectException
 
 const val BOARD_SIZE = 9
 
-data class GameUiState(val isRequesting: Boolean)
+data class GameUiState(val isRequesting: Boolean, val reverseBoardSigns: Boolean)
 
 @Suppress(
     "TooManyFunctions",
@@ -47,6 +49,7 @@ data class GameUiState(val isRequesting: Boolean)
 )
 class GameViewModel @AssistedInject constructor(
     private val repository: Repository,
+    private val preferencesRepository: PreferencesRepository,
     private val apiService: KiandoApiService,
     @ApplicationContext private val context: Context,
     @Assisted private val question: Question
@@ -60,10 +63,23 @@ class GameViewModel @AssistedInject constructor(
         ): GameViewModel
     }
 
-    var uiState by mutableStateOf(GameUiState(false))
+    var uiState by mutableStateOf(GameUiState(isRequesting = false, reverseBoardSigns = false))
     var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
     var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
     var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
+
+    init {
+        // load preference
+        Timber.d("INIT called")
+        // FIXME init repeatedly called after updating uiState and cannot move
+        viewModelScope.launch {
+            preferencesRepository.reverseBoardSigns.collectLatest {
+                // update uiState
+                uiState = uiState.copy(reverseBoardSigns = it)
+            }
+        }
+    }
+
     fun uploadImage(uri: Uri) {
         val file = getFileFromContentUri(uri) ?: return
         val requestFile: RequestBody = file.asRequestBody("image/png".toMediaType())
@@ -107,7 +123,7 @@ class GameViewModel @AssistedInject constructor(
                 when (boardState[fromIndex].isEnemy) {
                     true ->
                         !boardState[fromIndex].isPromoted &&
-                            (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
+                                (move.from.row >= BOARD_SIZE - 3 || move.to.row >= BOARD_SIZE - 3)
 
                     false ->
                         !boardState[fromIndex].isPromoted && (move.from.row < 3 || move.to.row < 3)
@@ -124,13 +140,13 @@ class GameViewModel @AssistedInject constructor(
         return when (boardState[fromIndex].pieceKind) {
             PieceKind.KNIGHT ->
                 (!boardState[fromIndex].isEnemy && move.to.row < 2) ||
-                    (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
+                        (boardState[fromIndex].isEnemy && move.to.row >= BOARD_SIZE - 2)
 
             PieceKind.LANCE -> (!boardState[fromIndex].isEnemy && move.to.row == 0) ||
-                (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+                    (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
 
             PieceKind.PAWN -> (!boardState[fromIndex].isEnemy && move.to.row == 0) ||
-                (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
+                    (boardState[fromIndex].isEnemy && move.to.row == BOARD_SIZE - 1)
 
             else -> false
         }
@@ -212,9 +228,9 @@ class GameViewModel @AssistedInject constructor(
     private fun List<Position>.filterMovable(panelState: PanelState): List<Position> {
         return this.filter {
             isInside(it) && (
-                boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY ||
-                    (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
-                )
+                    boardState[posToIndex(it)].pieceKind == PieceKind.EMPTY ||
+                            (boardState[posToIndex(it)].isEnemy.xor(panelState.isEnemy)) // 敵対している駒か
+                    )
         }
     }
 
