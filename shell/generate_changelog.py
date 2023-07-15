@@ -39,7 +39,7 @@ def test_get_next_version():
 
 def main():
     """
-    generate CHANGELOG_.md from ChangeLogs object written in kotlin
+    generate CHANGELOG.md from ChangeLogs object written in kotlin
     """
     test_get_next_version()
 
@@ -71,7 +71,7 @@ def main():
             parsed_logs.append(releaselog)
     print(*parsed_logs, sep="\n")
 
-    file_to_write = pathlib.Path(__file__).parent.parent / "CHANGELOG_.md"
+    file_to_write = pathlib.Path(__file__).parent.parent / "CHANGELOG.md"
 
     with file_to_write.open("w") as f:
         latest_version: ReleaseLog | None = next(
