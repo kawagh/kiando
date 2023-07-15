@@ -51,6 +51,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -157,7 +158,9 @@ fun MainScreen(
     var reverseBoardSigns by remember {
         mutableStateOf(false)
     }
-    val resultReverseBoardSigns = if (uiState.reverseBoardSigns) {
+    val preferenceReverseBoardSigns =
+        gameViewModel.preferenceReverseBoardSigns.collectAsState(initial = false).value
+    val resultReverseBoardSigns = if (preferenceReverseBoardSigns) {
         !reverseBoardSigns
     } else {
         reverseBoardSigns
