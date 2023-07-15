@@ -17,6 +17,6 @@ class ReleaseReadyTest {
     @Test
     fun releaseVersionCheck() {
         val versionInChangeLog = ((ChangeLogs.data.first()) as ReleaseLog).version
-        Assert.assertEquals(versionInChangeLog+'a', BuildConfig.VERSION_NAME)
+        Assert.assertEquals(versionInChangeLog, BuildConfig.VERSION_NAME)
     }
 }
