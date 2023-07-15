@@ -29,7 +29,7 @@ const val ENEMY_KOMADAI_INDEX = -2
 fun Move.fromMyKomadai(): Boolean = this.from.row == MY_KOMADAI_INDEX
 fun Move.fromEnemyKomadai(): Boolean = this.from.row == ENEMY_KOMADAI_INDEX
 
-fun Move.toReadable(pieceKind: PieceKind): String {
+fun Move.toReadable(pieceKind: PieceKind, reverseBoardSign: Boolean): String {
     val pieceText = when (pieceKind) {
         PieceKind.EMPTY -> ""
         PieceKind.KING -> "王"
@@ -42,11 +42,12 @@ fun Move.toReadable(pieceKind: PieceKind): String {
         PieceKind.PAWN -> "歩"
     }
     val kanji = "一二三四五六七八九"
-    return "${9 - this.to.column}" + "${kanji[this.to.row]}" + pieceText + if (this.isPromote) {
-        "成"
+    val suffix = pieceText + if (this.isPromote) "成" else ""
+    return if (reverseBoardSign) {
+        "${this.to.column + 1}" + "${kanji.reversed()[this.to.row]}"
     } else {
-        ""
-    }
+        "${9 - this.to.column}" + "${kanji[this.to.row]}"
+    } + suffix
 }
 
 val NonPosition = Position(-1, -1)

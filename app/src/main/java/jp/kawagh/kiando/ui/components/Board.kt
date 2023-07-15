@@ -40,6 +40,7 @@ fun Board(
     shouldHighlight: Boolean,
     lastClickedPanelPos: Position,
     positionsToHighlight: List<Position>,
+    reverseSign: Boolean,
 ) {
     val dotSize = 8
     val panelSize = 40
@@ -108,28 +109,52 @@ fun Board(
                 .clip(CircleShape)
                 .background(Color.Black)
         )
-        // texts along board
-        repeat(9) {
-            Text(
-                "${9 - it}",
-                Modifier
-                    .offset(x = ((it * panelSize) + 15).dp, y = (-ALONGBOARDSPACE / 2).dp)
-                    .offset(dpOffset.x, dpOffset.y)
-                    .offset(y = (-2).dp),
-                fontSize = fontSize
-            )
-        }
-        numbers.forEachIndexed { index: Int, c: Char ->
-            Text(
-                c.toString(),
-                modifier = Modifier
-                    .offset(
-                        x = (BOARD_SIZE * panelSize).dp,
-                        y = ((10 + index * panelSize).dp)
-                    )
-                    .offset(dpOffset.x, dpOffset.y),
-                fontSize = fontSize
-            )
+        if (reverseSign) {
+            // texts along board(Reversed)
+            repeat(9) {
+                Text(
+                    "${it + 1}",
+                    Modifier
+                        .offset(x = ((it * panelSize) + 15).dp, y = (panelSize * 9).dp)
+                        .offset(dpOffset.x, dpOffset.y)
+                        .offset(y = (-2).dp),
+                    fontSize = fontSize
+                )
+            }
+            numbers.reversed().forEachIndexed { index: Int, c: Char ->
+                Text(
+                    c.toString(),
+                    modifier = Modifier
+                        .offset(y = ((10 + index * panelSize).dp))
+                        .offset(x = ((-12).dp))
+                        .offset(dpOffset.x, dpOffset.y),
+                    fontSize = fontSize
+                )
+            }
+        } else {
+            // texts along board
+            repeat(9) {
+                Text(
+                    "${9 - it}",
+                    Modifier
+                        .offset(x = ((it * panelSize) + 15).dp, y = (-ALONGBOARDSPACE / 2).dp)
+                        .offset(dpOffset.x, dpOffset.y)
+                        .offset(y = (-2).dp),
+                    fontSize = fontSize
+                )
+            }
+            numbers.forEachIndexed { index: Int, c: Char ->
+                Text(
+                    c.toString(),
+                    modifier = Modifier
+                        .offset(
+                            x = (BOARD_SIZE * panelSize).dp,
+                            y = ((10 + index * panelSize).dp)
+                        )
+                        .offset(dpOffset.x, dpOffset.y),
+                    fontSize = fontSize
+                )
+            }
         }
     }
 }
@@ -143,7 +168,8 @@ fun BoardPreview() {
             handlePanelClick = {},
             shouldHighlight = false,
             lastClickedPanelPos = Position(0, 0),
-            positionsToHighlight = emptyList()
+            positionsToHighlight = emptyList(),
+            reverseSign = true,
         )
     }
 }

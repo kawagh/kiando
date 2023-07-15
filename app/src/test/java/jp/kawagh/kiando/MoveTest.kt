@@ -12,13 +12,20 @@ class MoveTest {
     fun `test toReadable ７六歩`() {
         val move = Move(Position(6, 2), Position(5, 2))
         val pk = PieceKind.PAWN
-        Assert.assertEquals("7六歩", move.toReadable(pk))
+        Assert.assertEquals("7六歩", move.toReadable(pk, false))
+    }
+
+    @Test
+    fun `test toReadable(reverse) 3四歩`() {
+        val move = Move(Position(6, 2), Position(5, 2))
+        val pk = PieceKind.PAWN
+        Assert.assertEquals("3四歩", move.toReadable(pk, true))
     }
 
     @Test
     fun `test toReadable 2二角成`() {
         val move = Move(Position(7, 1), Position(1, 7), isPromote = true)
         val pk = PieceKind.BISHOP
-        Assert.assertEquals("2二角成", move.toReadable(pk))
+        Assert.assertEquals("2二角成", move.toReadable(pk, false))
     }
 }
