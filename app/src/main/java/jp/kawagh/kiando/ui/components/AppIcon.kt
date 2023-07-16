@@ -20,7 +20,12 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 
 @Preview
 @Composable
-fun AppIcon2() {
+fun AppIcon2Preview() {
+    AppIcon2(text = "DEBUG")
+}
+
+@Composable
+fun AppIcon2(text: String = "") {
     val commonOffset = 20.dp
     val boxSize = 60.dp
     Box(modifier = Modifier.fillMaxSize()) {
@@ -54,6 +59,9 @@ fun AppIcon2() {
                     .background(BoardColor)
                     .border(2.dp, Color.Black)
             )
+            if (text.isNotEmpty()) {
+                Text(text = text, modifier = Modifier.offset(x = 52.dp, y = 64.dp))
+            }
         }
     }
 }
