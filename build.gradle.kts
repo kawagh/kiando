@@ -2,7 +2,7 @@ import java.util.zip.ZipFile
 
 buildscript {
     extra.apply {
-        set("compose_version", "1.4.3")
+        set("composeVersion", "1.4.3")
     }
     dependencies {
         classpath("com.google.gms:google-services:4.3.15")
