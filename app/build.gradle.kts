@@ -108,7 +108,7 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-testing:$room_version")
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.compose.material:material-icons-extended:$compose_version")
     // change system-ui style
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.25.0")
