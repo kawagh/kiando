@@ -308,6 +308,7 @@ fun MainScreen(
         scope.launch {
             scaffoldState.bottomSheetState.expand()
         }
+        komadaiPositionToHighlight = question.answerMove.from
         positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
     }
     val handleRestartClick: () -> Unit = {
@@ -315,6 +316,7 @@ fun MainScreen(
         // initialize state for highlight
         panelClickedOnce = false
         lastClickedPanelPos = NonPosition
+        komadaiPositionToHighlight = NonPosition
         positionsToHighlight.clear()
         restartQuestion()
         scope.launch {

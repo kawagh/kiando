@@ -42,6 +42,10 @@ fun Komadai(
         PieceKind.LANCE to "香",
         PieceKind.PAWN to "歩",
     )
+    val isHighlightSide =
+        (positionToHighlight.row == MY_KOMADAI_INDEX && !isEnemy) ||
+            (positionToHighlight.row == ENEMY_KOMADAI_INDEX && isEnemy)
+
     Box(
         modifier = Modifier
             .background(BoardColorUnfocused)
@@ -54,17 +58,12 @@ fun Komadai(
                 .rotate(if (isEnemy) 180f else 0f)
         ) {
             items(piecesCount.keys.toList()) { pieceKind ->
-                val color = if (
-                    pieceKind.ordinal == positionToHighlight.column &&
-                    (
-                        (positionToHighlight.row == MY_KOMADAI_INDEX && !isEnemy) ||
-                            (positionToHighlight.row == ENEMY_KOMADAI_INDEX && isEnemy)
-                        )
-                ) {
-                    BoardColor
-                } else {
-                    BoardColorUnfocused
-                }
+                val color =
+                    if (pieceKind.ordinal == positionToHighlight.column && isHighlightSide) {
+                        BoardColor
+                    } else {
+                        BoardColorUnfocused
+                    }
                 Box(modifier = Modifier.background(color)) {
                     Piece(
                         text = pieceKindMap[pieceKind]!!,
