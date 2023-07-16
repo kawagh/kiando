@@ -83,7 +83,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.10.1")
     val compose_version: String by project
     implementation("androidx.compose.ui:ui:$compose_version")
     val material3_version = "1.1.1"
