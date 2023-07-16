@@ -35,6 +35,7 @@ object ChangeLogs {
     // want to manage only data or `CHANGELOG.md`
     val data: List<BaseChangeLog> =
         listOf(
+            ChangeLog(title = "駒台の駒をハイライト対象に追加", date = LocalDate.of(2023, 7, 16)),
             ReleaseLog(version = "1.0.20", date = LocalDate.of(2023, 7, 15)),
             ChangeLog(title = "盤面の符号の反転のデフォルトを設定する機能の追加", date = LocalDate.of(2023, 7, 15)),
             ChangeLog(title = "設定画面の追加", date = LocalDate.of(2023, 7, 15)),

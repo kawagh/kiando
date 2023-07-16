@@ -158,6 +158,9 @@ fun MainScreen(
     var reverseBoardSigns by remember {
         mutableStateOf(false)
     }
+    var komadaiPositionToHighlight by remember {
+        mutableStateOf(NonPosition)
+    }
     val preferenceReverseBoardSigns =
         gameViewModel.preferenceReverseBoardSigns.collectAsState(initial = false).value
     val resultReverseBoardSigns = if (preferenceReverseBoardSigns) {
@@ -189,6 +192,7 @@ fun MainScreen(
         gameViewModel.move(move)
         positionStack.clear()
         positionsToHighlight.clear()
+        komadaiPositionToHighlight = NonPosition
     }
 
     fun processMove(move: Move) {
@@ -215,6 +219,7 @@ fun MainScreen(
         gameViewModel.move(move)
         positionStack.clear()
         positionsToHighlight.clear()
+        komadaiPositionToHighlight = NonPosition
     }
 
     val handlePanelClick: (PanelState) -> Unit = {
@@ -257,9 +262,11 @@ fun MainScreen(
         if (panelClickedOnce) {
             panelClickedOnce = false
             positionStack.clear()
+            komadaiPositionToHighlight = NonPosition
         } else {
             panelClickedOnce = true
             positionStack.add(Position(MY_KOMADAI_INDEX, it.ordinal)) // move.fromにpiecekindを埋め込んでいる
+            komadaiPositionToHighlight = Position(MY_KOMADAI_INDEX, it.ordinal)
             positionsToHighlight.clear()
             positionsToHighlight.addAll(
                 gameViewModel.listLegalMovesFromKomadai(
@@ -273,6 +280,8 @@ fun MainScreen(
     val handleEnemyKomadaiClick: (PieceKind) -> Unit = {
         if (panelClickedOnce) {
             panelClickedOnce = false
+            positionStack.clear()
+            komadaiPositionToHighlight = NonPosition
         } else {
             panelClickedOnce = true
             positionStack.add(
@@ -281,6 +290,7 @@ fun MainScreen(
                     it.ordinal
                 )
             ) // move.fromにpiecekindを埋め込んでいる
+            komadaiPositionToHighlight = Position(ENEMY_KOMADAI_INDEX, it.ordinal)
             positionsToHighlight.clear()
             positionsToHighlight.addAll(
                 gameViewModel.listLegalMovesFromKomadai(
@@ -298,6 +308,7 @@ fun MainScreen(
         scope.launch {
             scaffoldState.bottomSheetState.expand()
         }
+        komadaiPositionToHighlight = question.answerMove.from
         positionsToHighlight.addAll(listOf(question.answerMove.from, question.answerMove.to))
     }
     val handleRestartClick: () -> Unit = {
@@ -305,6 +316,7 @@ fun MainScreen(
         // initialize state for highlight
         panelClickedOnce = false
         lastClickedPanelPos = NonPosition
+        komadaiPositionToHighlight = NonPosition
         positionsToHighlight.clear()
         restartQuestion()
         scope.launch {
@@ -505,6 +517,7 @@ fun MainScreen(
             Komadai(
                 enemyPiecesCount,
                 handleEnemyKomadaiClick,
+                komadaiPositionToHighlight,
                 isEnemy = true,
             )
             Spacer(modifier = Modifier.size(10.dp))
@@ -519,7 +532,8 @@ fun MainScreen(
             Spacer(modifier = Modifier.size(10.dp))
             Komadai(
                 piecesCount,
-                handleKomadaiClick
+                handleKomadaiClick,
+                komadaiPositionToHighlight,
             )
 
             val clipboardManager = LocalClipboardManager.current

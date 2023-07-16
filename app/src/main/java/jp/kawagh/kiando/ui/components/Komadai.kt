@@ -17,13 +17,18 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.kawagh.kiando.BOARD_SIZE
+import jp.kawagh.kiando.models.ENEMY_KOMADAI_INDEX
+import jp.kawagh.kiando.models.MY_KOMADAI_INDEX
 import jp.kawagh.kiando.models.PieceKind
+import jp.kawagh.kiando.models.Position
+import jp.kawagh.kiando.ui.theme.BoardColor
 import jp.kawagh.kiando.ui.theme.BoardColorUnfocused
 
 @Composable
 fun Komadai(
     piecesCount: Map<PieceKind, Int>,
     handleKomadaiClick: (PieceKind) -> Unit,
+    positionToHighlight: Position,
     isEnemy: Boolean = false,
 ) {
     val pieceKindMap: Map<PieceKind, String> = mapOf(
@@ -37,6 +42,10 @@ fun Komadai(
         PieceKind.LANCE to "香",
         PieceKind.PAWN to "歩",
     )
+    val isHighlightSide =
+        (positionToHighlight.row == MY_KOMADAI_INDEX && !isEnemy) ||
+            (positionToHighlight.row == ENEMY_KOMADAI_INDEX && isEnemy)
+
     Box(
         modifier = Modifier
             .background(BoardColorUnfocused)
@@ -49,7 +58,13 @@ fun Komadai(
                 .rotate(if (isEnemy) 180f else 0f)
         ) {
             items(piecesCount.keys.toList()) { pieceKind ->
-                Box() {
+                val color =
+                    if (pieceKind.ordinal == positionToHighlight.column && isHighlightSide) {
+                        BoardColor
+                    } else {
+                        BoardColorUnfocused
+                    }
+                Box(modifier = Modifier.background(color)) {
                     Piece(
                         text = pieceKindMap[pieceKind]!!,
                         onClick = { handleKomadaiClick.invoke(pieceKind) },
@@ -69,8 +84,17 @@ fun Komadai(
 fun KomadaiPreview() {
     val pieceCount = mapOf(PieceKind.PAWN to 2, PieceKind.SILVER to 1)
     Column {
-        Komadai(piecesCount = pieceCount, handleKomadaiClick = {}, isEnemy = true)
+        Komadai(
+            piecesCount = pieceCount,
+            handleKomadaiClick = {},
+            positionToHighlight = Position(ENEMY_KOMADAI_INDEX, PieceKind.SILVER.ordinal),
+            isEnemy = true,
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        Komadai(piecesCount = pieceCount, handleKomadaiClick = {})
+        Komadai(
+            piecesCount = pieceCount,
+            handleKomadaiClick = {},
+            positionToHighlight = Position(ENEMY_KOMADAI_INDEX, PieceKind.SILVER.ordinal),
+        )
     }
 }
