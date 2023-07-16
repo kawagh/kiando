@@ -1,4 +1,7 @@
-@file:Suppress("UnstableApiUsage")
+@file:Suppress(
+    "UnstableApiUsage",
+    "KaptUsageInsteadOfKsp", // remove after Hilt supports KSP
+)
 
 plugins {
     id("com.android.application")
