@@ -21,11 +21,11 @@ import jp.kawagh.kiando.ui.theme.BoardColor
 @Preview
 @Composable
 fun AppIcon2Preview() {
-    AppIcon2(text = "DEBUG")
+    AppIcon2(text = "DEBUG", borderColor = Color.Black)
 }
 
 @Composable
-fun AppIcon2(text: String = "") {
+fun AppIcon2(text: String = "", borderColor: Color = Color.White) {
     val commonOffset = 20.dp
     val boxSize = 60.dp
     Box(modifier = Modifier.fillMaxSize()) {
@@ -34,7 +34,7 @@ fun AppIcon2(text: String = "") {
                 .semantics { contentDescription = "app_icon" }
                 .align(Alignment.Center)
                 .size(123.dp)
-                .border(width = 1.dp, Color.Black)
+                .border(width = 1.dp, borderColor)
         ) {
             Box(
                 Modifier
