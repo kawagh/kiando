@@ -199,6 +199,14 @@ class TakeScreenShotTest {
         takeScreenShotOfComposable("app_icon.png", "app_icon")
     }
 
+    @Test
+    fun makeDebugAppIcon() {
+        composeTestRule.activity.setContent {
+            AppIcon2(text = "DEBUG")
+        }
+        takeScreenShotOfComposable("app_debug_icon.png", "app_icon")
+    }
+
 
     // saved in <packageName>/files/
     private fun takeScreenShot(saveName: String, size: Int? = null) {

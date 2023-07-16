@@ -10,3 +10,4 @@ done
 
 # pull app icon
 adb -s "${device}" -d shell "run-as ${application_id} cat /data/user/0/${application_id}/files/app_icon.png" > "pictures/app_icon.png"
+adb -s "${device}" -d shell "run-as ${application_id} cat /data/user/0/${application_id}/files/app_debug_icon.png" > "pictures/app_debug_icon.png"
