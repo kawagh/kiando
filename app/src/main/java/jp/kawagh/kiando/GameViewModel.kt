@@ -22,6 +22,7 @@ import jp.kawagh.kiando.models.PanelState
 import jp.kawagh.kiando.models.PieceKind
 import jp.kawagh.kiando.models.Position
 import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.fromEnemyKomadai
 import jp.kawagh.kiando.models.fromMyKomadai
 import jp.kawagh.kiando.network.KiandoApiService
@@ -51,21 +52,21 @@ class GameViewModel @AssistedInject constructor(
     preferencesRepository: PreferencesRepository,
     private val apiService: KiandoApiService,
     @ApplicationContext private val context: Context,
-    @Assisted private val question: Question
+    @Assisted private val questionWithTags: QuestionWithTags
 ) :
     ViewModel() {
 
     @AssistedFactory
     interface GameViewModelAssistedFactory {
         fun create(
-            question: Question
+            questionWithTags: QuestionWithTags
         ): GameViewModel
     }
 
     var uiState by mutableStateOf(GameUiState(isRequesting = false))
-    var boardState: SnapshotStateList<PanelState> = question.boardState.toMutableStateList()
-    var komadaiState: SnapshotStateList<PieceKind> = question.myKomadai.toMutableStateList()
-    var enemyKomadaiState: SnapshotStateList<PieceKind> = question.enemyKomadai.toMutableStateList()
+    var boardState: SnapshotStateList<PanelState> = questionWithTags.question.boardState.toMutableStateList()
+    var komadaiState: SnapshotStateList<PieceKind> = questionWithTags.question.myKomadai.toMutableStateList()
+    var enemyKomadaiState: SnapshotStateList<PieceKind> = questionWithTags.question.enemyKomadai.toMutableStateList()
 
     // GameUiStateに含めない
     // 含めた時にinit{}で値を更新すると繰り返しinit{}が呼ばれて局面の更新が不可能になった

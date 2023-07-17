@@ -28,6 +28,7 @@ import dagger.hilt.android.testing.HiltTestApplication
 import dagger.hilt.android.testing.UninstallModules
 import jp.kawagh.kiando.data.PreferencesRepository
 import jp.kawagh.kiando.di.PreferenceRepositoryModule
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.ui.components.AppIcon2
 import jp.kawagh.kiando.ui.screens.ChangeLogScreen
@@ -95,12 +96,14 @@ class TakeScreenShotTest {
 
     @Test
     fun takePictureForFeatureGraphic2() {
-        val viewModel = viewModelAssistedFactory.create(sampleQuestion)
+        val viewModel = viewModelAssistedFactory.create(QuestionWithTags(sampleQuestion,
+            emptyList()
+        ))
         composeTestRule.activity.setContent {
             KiandoM3Theme {
                 MainScreen(
                     gameViewModel = viewModel,
-                    question = sampleQuestion,
+                    questionWithTags = QuestionWithTags(sampleQuestion, emptyList()),
                     navigateToList = {},
                     navigateToNextQuestion = {},
                     navigateToPrevQuestion = {},
@@ -115,7 +118,10 @@ class TakeScreenShotTest {
 
     @Test
     fun takePictureForFeatureGraphic3() {
-        val viewModel = viewModelAssistedFactory.create(sampleQuestion)
+        val questionWIthTags = QuestionWithTags(sampleQuestion,
+            emptyList()
+        )
+        val viewModel = viewModelAssistedFactory.create(questionWIthTags)
         composeTestRule.activity.setContent {
 
             SideEffectChangeSystemUi()
@@ -126,7 +132,7 @@ class TakeScreenShotTest {
                 KiandoM3Theme {
                     MainScreen(
                         gameViewModel = viewModel,
-                        question = sampleQuestion,
+                        questionWithTags = questionWIthTags,
                         navigateToList = {},
                         navigateToNextQuestion = {},
                         navigateToPrevQuestion = {},
