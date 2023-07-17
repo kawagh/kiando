@@ -118,10 +118,10 @@ class TakeScreenShotTest {
 
     @Test
     fun takePictureForFeatureGraphic3() {
-        val questionWIthTags = QuestionWithTags(sampleQuestion,
+        val questionWithTags = QuestionWithTags(sampleQuestion,
             emptyList()
         )
-        val viewModel = viewModelAssistedFactory.create(questionWIthTags)
+        val viewModel = viewModelAssistedFactory.create(questionWithTags)
         composeTestRule.activity.setContent {
 
             SideEffectChangeSystemUi()
@@ -132,7 +132,7 @@ class TakeScreenShotTest {
                 KiandoM3Theme {
                     MainScreen(
                         gameViewModel = viewModel,
-                        questionWithTags = questionWIthTags,
+                        questionWithTags = questionWithTags,
                         navigateToList = {},
                         navigateToNextQuestion = {},
                         navigateToPrevQuestion = {},
