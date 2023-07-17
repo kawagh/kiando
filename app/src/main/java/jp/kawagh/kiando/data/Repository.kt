@@ -27,6 +27,7 @@ interface Repository {
     suspend fun toggle(crossRef: QuestionTagCrossRef)
     fun updateQuestion(question: Question)
     fun updateTag(tag: Tag)
+    fun getLatestQuestionId(): Int
 }
 
 @Suppress("TooManyFunctions")
@@ -86,6 +87,10 @@ class FakeRepository @Inject constructor() : Repository {
     }
 
     override fun updateTag(tag: Tag) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLatestQuestionId(): Int {
         TODO("Not yet implemented")
     }
 }

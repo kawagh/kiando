@@ -73,4 +73,6 @@ class ImplRepository @Inject constructor(
     override fun updateTag(tag: Tag) {
         tagDao.update(tag)
     }
+
+    override fun getLatestQuestionId(): Int = questionDao.getLatestQuestionId()
 }

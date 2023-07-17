@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
 import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.ui.screens.ChangeLogScreen
@@ -110,9 +111,10 @@ fun App(
                     // used to decide next question
                     val fromTabIndex = it.arguments?.getInt("fromTabIndex") ?: 0
 
-                    val question =
-                        uiState.questionsWithTags.find { question -> question.question.id == questionId }?.question
-                            ?: sampleQuestion
+                    val questionWithTags = uiState.questionsWithTags
+                        .find { question -> question.question.id == questionId }
+                        ?: QuestionWithTags(sampleQuestion, emptyList())
+                    val question = questionWithTags.question
 
                     val favoriteIndex = TabItem.values().indexOf(TabItem.Favorite)
                     val containAppliedFilter: (List<Tag>) -> Boolean = { tags ->
@@ -133,14 +135,14 @@ fun App(
                             qts.question.id < questionId
                         }?.question
                         ?: sampleQuestion
-                    val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(question)
+                    val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(questionWithTags)
                     val handleUpdateQuestionDescription: (String) -> Unit = { answerDescription ->
                         questionsViewModel.updateQuestion(question.copy(answerDescription = answerDescription))
                     }
 
                     MainScreen(
                         gameViewModel = gameViewModel,
-                        question = question,
+                        questionWithTags = questionWithTags,
                         navigateToList = navigateToList,
                         navigateToNextQuestion = {
                             navigateToQuestion(

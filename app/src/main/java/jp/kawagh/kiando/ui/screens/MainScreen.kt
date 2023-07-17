@@ -86,6 +86,7 @@ import jp.kawagh.kiando.models.PanelState
 import jp.kawagh.kiando.models.PieceKind
 import jp.kawagh.kiando.models.Position
 import jp.kawagh.kiando.models.Question
+import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.toReadable
 import jp.kawagh.kiando.ui.components.Board
 import jp.kawagh.kiando.ui.components.Komadai
@@ -98,13 +99,14 @@ import timber.log.Timber
 @Composable
 fun MainScreen(
     gameViewModel: GameViewModel,
-    question: Question,
+    questionWithTags: QuestionWithTags,
     navigateToList: () -> Unit,
     navigateToNextQuestion: () -> Unit,
     navigateToPrevQuestion: () -> Unit,
     restartQuestion: () -> Unit,
     handleUpdateQuestionDescription: (String) -> Unit,
 ) {
+    val question = questionWithTags.question
     val uiState = gameViewModel.uiState
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
