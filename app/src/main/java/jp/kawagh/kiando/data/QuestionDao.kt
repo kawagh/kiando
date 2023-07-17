@@ -33,4 +33,7 @@ interface QuestionDao {
 
     @Update
     fun updateQuestion(question: Question)
+
+    @Query("SELECT id FROM questions ORDER BY id DESC LIMIT 1")
+    fun getLatestQuestionId(): Int
 }
