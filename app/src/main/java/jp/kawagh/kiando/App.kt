@@ -335,8 +335,8 @@ fun App(
                         }
                     )
                 ) {
-                    var renameTextInput by remember {
-                        mutableStateOf("")
+                    var renameTagTextFieldValue by remember {
+                        mutableStateOf(TextFieldValue(""))
                     }
                     val renameTagId = it.arguments?.getInt("tagId") ?: -1
                     val focusRequester = remember { FocusRequester() }
@@ -349,17 +349,17 @@ fun App(
                         title = { Text(text = stringResource(R.string.dialog_title_rename_tag)) },
                         text = {
                             OutlinedTextField(
-                                value = renameTextInput,
+                                value = renameTagTextFieldValue,
                                 label = { Text(stringResource(id = R.string.label_text_new_name)) },
-                                onValueChange = { renameTextInput = it },
+                                onValueChange = { renameTagTextFieldValue = it },
                                 modifier = Modifier.focusRequester(focusRequester)
                             )
                             LaunchedEffect(Unit) {
                                 delay(100) // workaround to show keyboard
-                                renameTextInput =
-                                    questionsViewModel.uiState.tags
-                                        .find { tags -> tags.id == renameTagId }?.title
-                                        ?: ""
+                                val title = questionsViewModel.uiState.tags
+                                    .find { tags -> tags.id == renameTagId }?.title
+                                    ?: ""
+                                renameTagTextFieldValue = TextFieldValue(title, selection = TextRange(title.length))
                                 // ref: https://issuetracker.google.com/issues/204502668
                                 focusRequester.requestFocus()
                             }
@@ -369,13 +369,13 @@ fun App(
                                 onClick = {
                                     questionsViewModel.renameTagId(
                                         tagId = renameTagId,
-                                        newTitle = renameTextInput
+                                        newTitle = renameTagTextFieldValue.text
                                     )
                                     navController.navigate("list") {
                                         popUpTo("list") { inclusive = true }
                                     }
                                 },
-                                enabled = renameTextInput.isNotEmpty()
+                                enabled = renameTagTextFieldValue.text.isNotEmpty()
                             ) {
                                 Text(text = stringResource(R.string.button_text_confirm_change))
                             }
