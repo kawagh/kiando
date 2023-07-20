@@ -23,6 +23,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -135,7 +137,8 @@ fun App(
                             qts.question.id < questionId
                         }?.question
                         ?: sampleQuestion
-                    val gameViewModel: GameViewModel = gameViewModelAssistedFactory.create(questionWithTags)
+                    val gameViewModel: GameViewModel =
+                        gameViewModelAssistedFactory.create(questionWithTags)
                     val handleUpdateQuestionDescription: (String) -> Unit = { answerDescription ->
                         questionsViewModel.updateQuestion(question.copy(answerDescription = answerDescription))
                     }
@@ -272,8 +275,8 @@ fun App(
                         }
                     )
                 ) {
-                    var renameTextInput by remember {
-                        mutableStateOf("")
+                    var renameQuestionTextFieldValue by remember {
+                        mutableStateOf(TextFieldValue(""))
                     }
                     val renameQuestionId = it.arguments?.getInt("questionId") ?: -1
                     val focusRequester = remember { FocusRequester() }
@@ -286,17 +289,21 @@ fun App(
                         title = { Text(text = stringResource(R.string.dialog_title_rename_question)) },
                         text = {
                             OutlinedTextField(
-                                value = renameTextInput,
+                                value = renameQuestionTextFieldValue,
                                 label = { Text(stringResource(R.string.label_text_new_name)) },
-                                onValueChange = { renameTextInput = it },
+                                onValueChange = { renameQuestionTextFieldValue = it },
                                 modifier = Modifier.focusRequester(focusRequester)
                             )
                             LaunchedEffect(Unit) {
                                 delay(100) // workaround to show keyboard
-                                renameTextInput =
-                                    questionsViewModel.uiState.questionsWithTags
-                                        .find { qts -> qts.question.id == renameQuestionId }?.question?.description
-                                        ?: ""
+                                val description = questionsViewModel.uiState.questionsWithTags
+                                    .find { qts -> qts.question.id == renameQuestionId }?.question?.description
+                                    ?: ""
+                                renameQuestionTextFieldValue =
+                                    TextFieldValue(
+                                        text = description,
+                                        selection = TextRange(description.length)
+                                    )
                                 // ref: https://issuetracker.google.com/issues/204502668
                                 focusRequester.requestFocus()
                             }
@@ -306,13 +313,13 @@ fun App(
                                 onClick = {
                                     questionsViewModel.renameQuestionById(
                                         questionId = renameQuestionId,
-                                        newTitle = renameTextInput
+                                        newTitle = renameQuestionTextFieldValue.text
                                     )
                                     navController.navigate("list") {
                                         popUpTo("list") { inclusive = true }
                                     }
                                 },
-                                enabled = renameTextInput.isNotEmpty()
+                                enabled = renameQuestionTextFieldValue.text.isNotEmpty()
                             ) {
                                 Text(text = stringResource(R.string.button_text_confirm_change))
                             }
