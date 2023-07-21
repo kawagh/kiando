@@ -563,6 +563,13 @@ private fun TagsContentOnListMode(
             .padding(horizontal = 16.dp)
     ) {
         item {
+            Text(
+                stringResource(R.string.add_tag),
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
+
+        item {
             OutlinedTextField(
                 value = tagNameInput,
                 onValueChange = { tagNameInput = it },
@@ -587,6 +594,14 @@ private fun TagsContentOnListMode(
             Spacer(modifier = Modifier.size(24.dp))
             Divider()
             Spacer(modifier = Modifier.size(24.dp))
+        }
+
+        item {
+            Text(
+                stringResource(R.string.attach_and_detach_tags),
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(modifier = Modifier.size(8.dp))
         }
 
         item {

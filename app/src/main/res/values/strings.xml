@@ -36,4 +36,6 @@
     <string name="button_text_cancel_promotion">不成</string>
     <string name="snackbar_text_good_move">正解👍</string>
     <string name="snackbar_label_text_good_move">次へ</string>
+    <string name="add_tag">タグの追加</string>
+    <string name="attach_and_detach_tags">タグの付け替え</string>
 </resources>
