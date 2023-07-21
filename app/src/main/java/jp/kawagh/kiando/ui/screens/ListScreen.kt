@@ -495,13 +495,13 @@ private fun DrawerContent(
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.Settings, null) },
-            label = { Text("設定") },
+            label = { Text(stringResource(R.string.drawer_item_setting)) },
             selected = false,
             onClick = navigateToSetting,
         )
         NavigationDrawerItem(
             icon = { Icon(Icons.Default.History, null) },
-            label = { Text("更新履歴") },
+            label = { Text(stringResource(R.string.drawer_item_changelog)) },
             selected = false,
             onClick = navigateToChangeLog
         )
@@ -615,7 +615,7 @@ private fun TagsContentOnListMode(
                     value = selectedQuestion?.description
                         ?: stringResource(R.string.dropdown_initial_item_select_question),
                     onValueChange = {},
-                    label = { Text("問題") },
+                    label = { Text(stringResource(R.string.dropdown_label_select_question)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(
                             expanded = questionsDropdownExpanded

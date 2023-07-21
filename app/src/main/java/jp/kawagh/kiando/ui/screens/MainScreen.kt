@@ -358,8 +358,8 @@ fun MainScreen(
                     TextField(
                         value = answerDescriptionTextInput,
                         onValueChange = { answerDescriptionTextInput = it },
-                        label = { Text("解説") },
-                        placeholder = { Text("解説を入力してください") },
+                        label = { Text(stringResource(R.string.answer_description_label)) },
+                        placeholder = { Text(stringResource(R.string.answer_description_placeholder)) },
                         trailingIcon = {
                             IconButton(
                                 onClick = {
@@ -367,7 +367,7 @@ fun MainScreen(
                                     isAnswerDescriptionEditMode = false
                                     snackbarCoroutineScope.launch {
                                         snackbarHostState.showSnackbar(
-                                            "解説を変更しました"
+                                            context.resources.getString(R.string.answer_description_change_message)
                                         )
                                     }
                                 },
@@ -384,7 +384,7 @@ fun MainScreen(
                     }
                 } else {
                     if (question.answerDescription.isEmpty()) {
-                        Text(text = "問題の解説がまだありません")
+                        Text(text = stringResource(R.string.answer_description_is_empty))
                     } else {
                         Text(question.answerDescription)
                     }
@@ -405,7 +405,7 @@ fun MainScreen(
                 title = {
                     Text(
                         text = if (isRegisterQuestionMode) {
-                            "問題登録"
+                            stringResource(R.string.register_question_title)
                         } else {
                             question.description
                         }
@@ -544,8 +544,8 @@ fun MainScreen(
                 Row {
                     TextField(
                         value = inputSFEN,
-                        label = { Text("SFEN") },
-                        placeholder = { Text("Input SFEN") },
+                        label = { Text(stringResource(R.string.sfen)) },
+                        placeholder = { Text(stringResource(R.string.sfen_input_placeholder)) },
                         onValueChange = { inputSFEN = it },
                         trailingIcon = {
                             Row {
@@ -608,7 +608,7 @@ fun MainScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = if (moveToRegister == NonMove) {
-                                    "登録する手を指してください"
+                                    stringResource(R.string.do_move_to_register)
                                 } else {
                                     val pieceKind =
                                         gameViewModel.boardState[
@@ -630,7 +630,7 @@ fun MainScreen(
                             value = inputQuestionDescription,
                             onValueChange = { inputQuestionDescription = it },
                             label = {
-                                Text(text = "問題名")
+                                Text(text = stringResource(R.string.question_name))
                             },
                             trailingIcon = {
                                 IconButton(onClick = {
@@ -646,7 +646,7 @@ fun MainScreen(
                                             keyboardController?.hide() // to avoid keyboard on snackbar
                                             snackbarCoroutineScope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "🆖 empty description"
+                                                    context.resources.getString(R.string.ng_empty_description)
                                                 )
                                             }
                                         }
@@ -655,7 +655,7 @@ fun MainScreen(
                                             keyboardController?.hide()
                                             snackbarCoroutineScope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "🆖 need move"
+                                                    context.resources.getString(R.string.ng_need_move)
                                                 )
                                             }
                                         }
@@ -665,7 +665,7 @@ fun MainScreen(
                                             gameViewModel.saveQuestion(newQuestion)
                                             snackbarCoroutineScope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "🆗 saved"
+                                                    context.resources.getString(R.string.ok_saved)
                                                 )
                                             }
                                             isRegisterQuestionMode = false
@@ -702,7 +702,7 @@ fun MainScreen(
                                 )
                             )
                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                            Text("前の問題へ")
+                            Text(stringResource(R.string.prev_question))
                         }
                         OutlinedButton(
                             onClick = {
@@ -710,7 +710,7 @@ fun MainScreen(
                             },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                         ) {
-                            Text("次の問題へ")
+                            Text(stringResource(R.string.next_question))
                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                             Icon(
                                 Icons.Default.SkipNext,
@@ -731,7 +731,7 @@ fun MainScreen(
                                 onClick = handleShowAnswerClick,
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                             ) {
-                                Text(text = "回答を表示")
+                                Text(text = stringResource(R.string.show_answer))
                             }
                         }
                     } else {
@@ -745,7 +745,7 @@ fun MainScreen(
                                 },
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black)
                             ) {
-                                Text(text = "問題をリセット")
+                                Text(text = stringResource(R.string.restart_question))
                             }
                         }
                     }
