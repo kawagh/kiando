@@ -4,6 +4,7 @@ import jp.kawagh.kiando.models.Question
 import jp.kawagh.kiando.models.QuestionTagCrossRef
 import jp.kawagh.kiando.models.QuestionWithTags
 import jp.kawagh.kiando.models.Tag
+import jp.kawagh.kiando.models.sampleQuestion
 import jp.kawagh.kiando.models.sampleQuestions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -33,10 +34,16 @@ interface Repository {
 @Suppress("TooManyFunctions")
 class FakeRepository @Inject constructor() : Repository {
     override val questions: Flow<List<Question>> = flowOf(sampleQuestions)
-    override val questionsWithTags: Flow<List<QuestionWithTags>>
-        get() = TODO("Not yet implemented")
-    override val tags: Flow<List<Tag>>
-        get() = TODO("Not yet implemented")
+    override val questionsWithTags: Flow<List<QuestionWithTags>> = flowOf(
+        listOf(
+            QuestionWithTags(
+                sampleQuestion,
+                listOf(Tag(id = 0, "sample"))
+            )
+        )
+    )
+    override val tags: Flow<List<Tag>> =
+        flowOf(listOf(Tag(id = 0, "sample"), Tag(id = 1, "居飛車")))
 
     override fun findQuestionById(questionId: Int): Question {
         throw NotImplementedError()
