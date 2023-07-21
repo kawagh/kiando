@@ -23,8 +23,11 @@
     <string name="drawer_item_add_samples">サンプル問題の復元</string>
     <string name="drawer_item_license">ライセンス</string>
     <string name="drawer_item_delete_questions">全問題の削除</string>
+    <string name="drawer_item_setting">設定</string>
+    <string name="drawer_item_changelog">更新履歴</string>
     <string name="button_text_add_samples">サンプル問題の復元</string>
     <string name="dropdown_initial_item_select_question">問題を選択してください</string>
+    <string name="dropdown_label_select_question">問題</string>
     <string name="button_text_delete_selected_tags">選択したタグを削除</string>
     <string name="dialog_title_delete_selected_tags">タグの削除</string>
     <string name="dialog_text_delete_selected_tags">タグの削除操作を行うと、もとに戻すことは出来ません。</string>
@@ -38,4 +41,20 @@
     <string name="snackbar_label_text_good_move">次へ</string>
     <string name="add_tag">タグの追加</string>
     <string name="attach_and_detach_tags">タグの付け替え</string>
+    <string name="answer_description_label">解説</string>
+    <string name="answer_description_placeholder">解説を入力してください</string>
+    <string name="answer_description_change_message">解説を変更しました</string>
+    <string name="answer_description_is_empty">問題の解説がまだありません</string>
+    <string name="register_question_title">問題登録</string>
+    <string name="question_name">問題名</string>
+    <string name="sfen">SFEN</string>
+    <string name="sfen_input_placeholder">Input SFEN</string>
+    <string name="do_move_to_register">登録する手を指してください</string>
+    <string name="ng_empty_description">🆖 empty description</string>
+    <string name="ng_need_move">🆖 need move</string>
+    <string name="ok_saved">🆗 saved</string>
+    <string name="prev_question">前の問題へ</string>
+    <string name="next_question">次の問題へ</string>
+    <string name="show_answer">回答を表示</string>
+    <string name="restart_question">問題をリセット</string>
 </resources>
