@@ -23,7 +23,7 @@ import androidx.compose.material.icons.filled.ScreenRotationAlt
 import androidx.compose.material.icons.filled.Screenshot
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.TextRotateUp
 import androidx.compose.material.icons.filled.TextRotateVertical
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
@@ -589,7 +589,7 @@ fun MainScreen(
                                     enabled = inputSFEN.isNotEmpty(),
                                 ) {
                                     Icon(
-                                        Icons.Filled.Sync,
+                                        Icons.Filled.TextRotateUp,
                                         "load SFEN",
                                         tint = if (inputSFEN.isNotEmpty()) BoardColor else Color.Gray,
                                     )
