@@ -35,6 +35,7 @@ object ChangeLogs {
     // want to manage only data or `CHANGELOG.md`
     val data: List<BaseChangeLog> =
         listOf(
+            ChangeLog(title = "タグを含む問題非表示時にタグ一覧画面への遷移を提案", date = LocalDate.of(2023, 7, 21)),
             ChangeLog(title = "問題とタグの名称変更時にカーソルを末尾に移動", date = LocalDate.of(2023, 7, 20)),
             ChangeLog(title = "新規問題追加時に元の問題のタグを付加する", date = LocalDate.of(2023, 7, 17)),
             ChangeLog(title = "駒台の駒をハイライト対象に追加", date = LocalDate.of(2023, 7, 16)),
