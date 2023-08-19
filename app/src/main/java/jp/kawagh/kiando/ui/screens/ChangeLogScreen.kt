@@ -35,6 +35,8 @@ object ChangeLogs {
     // want to manage only data or `CHANGELOG.md`
     val data: List<BaseChangeLog> =
         listOf(
+            ReleaseLog(version = "1.0.22", date = LocalDate.of(2023, 8, 19)),
+            ChangeLog(title = "Android13以降を対象とする", date = LocalDate.of(2023, 8, 19)),
             ReleaseLog(version = "1.0.21", date = LocalDate.of(2023, 7, 23)),
             ChangeLog(title = "タグ一覧画面にヘッダーを追加", date = LocalDate.of(2023, 7, 21)),
             ChangeLog(title = "タグを含む問題非表示時にタグ一覧画面への遷移を提案", date = LocalDate.of(2023, 7, 21)),
