@@ -24,13 +24,13 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.21"
+val appVersion = "1.0.22"
 
 android {
     compileSdk = 33
     defaultConfig {
         applicationId = "jp.kawagh.kiando"
-        minSdk = 26
+        minSdk = 33
         targetSdk = 33
         versionName = appVersion
         versionCode = convertVersionNameToCode(appVersion)
