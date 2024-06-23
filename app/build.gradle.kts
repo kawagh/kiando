@@ -24,7 +24,7 @@ fun convertVersionNameToCode(versionName: String): Int {
     return 10000 * majorVersion + 100 * minorVersion + revision
 }
 
-val appVersion = "1.0.22"
+val appVersion = "1.0.23"
 
 android {
     compileSdk = 33
